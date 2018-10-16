@@ -20,10 +20,10 @@ https://sentinels.copernicus.eu/web/sentinel/missions/sentinel-3/satellite-descr
 Below we have generated images from a single channel, a false colour image, images with the included cloud masks, and only one of the bits in the cloud mask.
 
 ![pic1](/Images/S1_n.png)
-Northwestern Australia using channel S1
+Figure 1: Northwestern Australia using channel S1
 
-![pic2](/Images/northeraustralia_falsecolour.png)
- False colour image of Northwestern Australia using channel S1, S2, S3 (S1=blue, S2=green, S3=red)
+![pic2](/Images/notheraustralia_falsecolour.png)
+Figure 2: False colour image of Northwestern Australia using channel S1, S2, S3 (S1=blue, S2=green, S3=red)
  
 ACTION: FIND atlantic file + upload to 
 

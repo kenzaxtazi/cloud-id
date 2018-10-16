@@ -1,4 +1,6 @@
-# Master-Project
+# Masters Project
 
-Cloud Identification in Satellite Images using Artificial Intelligence 
+## Tom Zhu and Kenza Tazi 
+
+Cloud Identification in Satellite Images using Artificial Intelligence. 
 

@@ -1,4 +1,4 @@
 # Master-Project
 
-Cloud Identification with Artificial Intelligence 
+Cloud Identification in Satellite Images using Artificial Intelligence 
 

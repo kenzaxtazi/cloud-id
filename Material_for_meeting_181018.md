@@ -22,7 +22,7 @@ Below we have generated images from a single channel, a false colour image, imag
 ![pic1](/Images/S1_n.png)
 Figure 1: Northwestern Australia using channel S1
 
-![pic2](/Images/notheraustralia_falsecolour.png)
+![pic2](/Images/nothernaustralia_falsecolour.png)
 Figure 2: False colour image of Northwestern Australia using channel S1, S2, S3 (S1=blue, S2=green, S3=red)
  
 ACTION: FIND atlantic file + upload to 

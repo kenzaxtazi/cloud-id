@@ -1,6 +1,5 @@
-##This is a markdown file 
-
-Material for meeting #4
+ 
+##Material for meeting #4
 18/10/18
 
 Tom and I first found that the conda files for satpy are old. We needed to dowload those from the github folder. Tom has fixed the files to run on Windows and Kenza will be using her Mac. 

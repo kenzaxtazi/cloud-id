@@ -19,25 +19,27 @@ https://sentinels.copernicus.eu/web/sentinel/missions/sentinel-3/satellite-descr
 Below we have generated an image from a single channel, a false colour image, images overlayed the included cloud masks (empirical and bayesian), and images overlayed with only one of the bits for either the cloud mask. The coressponding code can be found here under Plotting_images_and_masks.py . 
 
 ![pic1](/Images/S1_n.png)
-Figure 1: Northwestern Australia using channel S1
+Figure 1: Northeastern Australia using channel S1
 
 ![pic2](/Images/nothernaustralia_falsecolour.png)
-Figure 2: False colour image of Northwestern Australia using channel S1, S2, S3 (S1=blue, S2=green, S3=red)
+Figure 2: False colour image of Northeastern Australia using channel S1, S2, S3 (S1=blue, S2=green, S3=red)
 
+![pic3](/Images/S1n_S3A_SL_1_RBT____20180404T190108_LN2_O_NT_003-(10.442133,-142.862277).png)
+Figure 3: Pacific Ocean using channel S1.
 
-Figure 3: ___ Ocean with empirical cloud mask. 
+![pic4](/Images/Figure_1-1.png)
+Figure 4: False colour image of Pacific Ocean using above technique
 
+![pic5](/Images/Figure_2.png)
+Figure 5: Pacific Ocean with summed bits from empirical cloud mask.
 
-Figure 4: ___ Ocean with Bayesian cloud mask.
+![pic6](/Images/Untitled.png)
+Figure 6: Pacific Ocean with various bits from empirical cloud mask. (Apologies for messy presentation).
 
-
-Figure 5: ___ Ocean with ___ bit from empirical cloud mask. 
-
-
-Figure 6: ___ Ocean with  ___ bit from Bayesian cloud mask.
 
 Comments: 
-- many of the pictures are every poor and have lots of nan's. 
+- many of the pictures are every poor and have lots of nan's.
+- Bayesian cloud mask fails completely for the Pacific Ocean example.
 
 Questions:
 - why are there no b channels for S1-3?

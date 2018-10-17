@@ -33,12 +33,12 @@ Figure 4: False colour image of Pacific Ocean using above technique
 ![pic5](/Images/Figure_2.png)
 Figure 5: Pacific Ocean with summed bits from empirical cloud mask.
 
-![pic6](/Images/Untitled.png)
-Figure 6: Pacific Ocean with various bits from empirical cloud mask. (Apologies for messy presentation).
+![pic6](/Images/bitmasks.png)
+Figure 6: Pacific Ocean with various bits from empirical cloud mask. 
 
 
 Comments: 
-- many of the pictures are every poor and have lots of nan's.
+- many of the pictures are very poor and have lots of nan's.
 - Bayesian cloud mask fails completely for the Pacific Ocean example.
 
 Questions:

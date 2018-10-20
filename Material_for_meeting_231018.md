@@ -4,6 +4,7 @@ We are now running code, uploading and dowmloading data on the cluster. We have 
 
 We also trained a convolutional neural network to differentiate between cat and dog pictures, see teaser_network.py
 
-![doge](/Images/doge.png | width=100)
+<img src=/Images/doge.png width="48">
+ 
 
 

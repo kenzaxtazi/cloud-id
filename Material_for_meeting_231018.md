@@ -4,4 +4,4 @@ We are now running code, uploading and dowmloading data on the cluster. We have 
 
 We also trained a convolutional neural network to differentiate between cat and dog pictures. 
 
-!(/Images/doge.png)
+![doge](/Images/doge.png)

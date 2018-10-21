@@ -36,7 +36,8 @@ def summary(scene, filenames=None, saveimage=False):
 
 def mask_analysis(scene):
     scn.load(['cloud_bn', 'bayes_bn'])
-    """ Cloud_bn file
+    """ 
+    Cloud_bn file
     Flag masks: Flag meanings
     1: Visible 1.37_threshold
     2: 1.6_small_histogram
@@ -53,6 +54,17 @@ def mask_analysis(scene):
     4096: thermal_histogram
     16384: spare
     32768: spare
+    
+    Bayes_bn file
+    Flag masks: Flag meanings
+    1: single_low
+    2: single_moderate
+    4: dual_low
+    8: dual_moderate
+    16: spare
+    32: spare
+    64: spare
+    128: spare
     """
     for mask in scn['cloud_bn'].flag_masks[:-2]:
         plt.figure()

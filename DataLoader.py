@@ -11,7 +11,7 @@ from glob import glob
 import matplotlib.pyplot as plt
 import numpy as np
 import platform
-
+from time import time
 
 def scene_loader(path):
     # Returns a satpy scene object from the provided file
@@ -69,15 +69,16 @@ def mask_analysis(scn):
     
     
     
-def summary(scene, filenames=None, saveimage=False, outputpath=None):
+def summary(scene, filenames=None, saveimage=False, outputpath='public'):
     # Loads positional S1_n channel data. Prints lat/lon of corner pixel
     # If saveimage is True, saves png to current directory with metadata
     scene.load(['S1_n', 'latitude', 'longitude'])
     lat = scene['latitude'].values[0][0] # Latitude of corner pixel
     lon = scene['longitude'].values[0][0] # Longitude of corner pixel
     if saveimage != False:
-        if outputpath != None:
-            os.chdir(outputpath)
+        if outputpath == 'public':
+            newpath = os.getcwd()[:10] + "public_html"   # cd to public folder
+            os.chdir(newpath)
         if filenames != None:
             imagename = ('S1n_' + str(filenames[0][:31]) + '_' + 
                          str(filenames[0][82:94]) + '-(' + str(lat) + ',' + 
@@ -88,10 +89,18 @@ def summary(scene, filenames=None, saveimage=False, outputpath=None):
     print(str(lat) + ', ' + str(lon))
 
 
-def makeimage(scene, channel='S1_n'):
+def makepltimage(scene, channel='S1_n'):
     # Use matplotlib to produce image of specified channel
     data = scene[channel].values
     data = np.nan_to_num(data)
     plt.figure()
     plt.imshow(data)
+    
+    
+def makepngimage(scene, channel='S1_n', outputpath='public'):
+    if outputpath == 'public':
+            newpath = os.getcwd()[:10] + "public_html"   # cd to public folder
+            os.chdir(newpath)
+    scene.save_dataset(channel, str(time()) + '.png')
+    
     

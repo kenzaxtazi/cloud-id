@@ -18,6 +18,10 @@ def scene_loader(path):
     Current_OS = platform.platform()
     if Current_OS[:6] == 'Darwin':
         print('Hi Kenza')
+    if path[-1] == '/':
+        path = path + "*"
+    else:
+        path = path + "/*"
     filenames = glob(path)
     scn = Scene(filenames=filenames, reader='nc_slstr')
     return(scn)

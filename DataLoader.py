@@ -13,6 +13,19 @@ import numpy as np
 import platform
 from time import time
 
+
+
+
+def path_to_public():
+    path = os.getcwd()
+    if path[10] == 't': # Tom's directory
+        path = path[:16] + "public_html"
+    if path[10] == 'k': # Kenza's directory
+        path = path[:17] + "public_html"
+    return(path)
+    
+    
+    
 def scene_loader(path):
     # Returns a satpy scene object from the provided file
     Current_OS = platform.platform()
@@ -20,6 +33,8 @@ def scene_loader(path):
         print('Hi Kenza')
     if path[-1] == '/':
         path = path + "*"
+    elif path[-1] == '*':
+        pass
     else:
         path = path + "/*"
     filenames = glob(path)
@@ -77,8 +92,8 @@ def summary(scene, filenames=None, saveimage=False, outputpath='public'):
     lon = scene['longitude'].values[0][0] # Longitude of corner pixel
     if saveimage != False:
         if outputpath == 'public':
-            newpath = os.getcwd()[:10] + "public_html"   # cd to public folder
-            os.chdir(newpath)
+            # cd to public folder
+            os.chdir(path_to_public())
         if filenames != None:
             imagename = ('S1n_' + str(filenames[0][:31]) + '_' + 
                          str(filenames[0][82:94]) + '-(' + str(lat) + ',' + 
@@ -99,8 +114,8 @@ def makepltimage(scene, channel='S1_n'):
     
 def makepngimage(scene, channel='S1_n', outputpath='public'):
     if outputpath == 'public':
-            newpath = os.getcwd()[:10] + "public_html"   # cd to public folder
-            os.chdir(newpath)
+        # cd to public folder
+        os.chdir(path_to_public())
     scene.save_dataset(channel, str(time()) + '.png')
     
     

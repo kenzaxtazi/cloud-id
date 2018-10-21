@@ -69,13 +69,15 @@ def mask_analysis(scn):
     
     
     
-def summary(scene, filenames=None, saveimage=False):
+def summary(scene, filenames=None, saveimage=False, outputpath=None):
     # Loads positional S1_n channel data. Prints lat/lon of corner pixel
     # If saveimage is True, saves png to current directory with metadata
     scene.load(['S1_n', 'latitude', 'longitude'])
     lat = scene['latitude'].values[0][0] # Latitude of corner pixel
     lon = scene['longitude'].values[0][0] # Longitude of corner pixel
     if saveimage != False:
+        if outputpath != None:
+            os.chdir(outputpath)
         if filenames != None:
             imagename = ('S1n_' + str(filenames[0][:31]) + '_' + 
                          str(filenames[0][82:94]) + '-(' + str(lat) + ',' + 
@@ -86,12 +88,10 @@ def summary(scene, filenames=None, saveimage=False):
     print(str(lat) + ', ' + str(lon))
 
 
-def makeimage(scene, channel='S1_n', outputpath=None):
+def makeimage(scene, channel='S1_n'):
     # Use matplotlib to produce image of specified channel
     data = scene[channel].values
     data = np.nan_to_num(data)
-    if outputpath != None:
-        os.chdir(outputpath)
     plt.figure()
     plt.imshow(data)
     

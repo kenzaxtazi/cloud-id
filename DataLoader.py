@@ -17,6 +17,7 @@ from time import time
 
 
 def path_to_public():
+    os.chdir()
     path = os.getcwd()
     if path[10] == 't': # Tom's directory
         path = path[:16] + "public_html"

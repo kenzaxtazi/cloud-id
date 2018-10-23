@@ -11,7 +11,6 @@ from satpy import Scene
 from glob import glob
 import matplotlib.pyplot as plt
 import numpy as np 
-from satpy import DatasetID
 
 # create readers and open files
 scn = Scene(filenames=glob('/Users/kenzatazi/Downloads/S3A_SL_1_RBT____20180822T000619_20180822T000919_20180822T015223_0179_035_016_3240_SVL_O_NR_003.SEN3/*'), 
@@ -19,25 +18,39 @@ scn = Scene(filenames=glob('/Users/kenzatazi/Downloads/S3A_SL_1_RBT____20180822T
 
 
 # load datasets from input files
-scn.load(['S1_n','S2_n','S3_n','S4_bn','S5_bn','S6_bn','S7','S8','S9',
-          'longitude', 'latitude', 'bayes_bn','cloud_bn'])
+def load_scene(scn):
+    """ Loads the information from the netcdf files in the folder"""
+    scn.load(scn.available_dataset_names())
+    print(scn.available_dataset_names())
 
-#print(scn['S1_bn'])
+load_scene(scn)
 
 S1= np.nan_to_num(scn['S1_n'].values)
 S2= np.nan_to_num(scn['S2_n'].values)
 S3= np.nan_to_num(scn['S3_n'].values)
-S4= np.nan_to_num(scn['S4_bn'].values)
-S5= np.nan_to_num(scn['S5_bn'].values)
-S6= np.nan_to_num(scn['S6_bn'].values)
-bayes_mask= np.nan_to_num(scn['bayes_bn'].values)
-emp_mask= np.nan_to_num(scn['cloud_bn'].values)
+S4= np.nan_to_num(scn['S4_an'].values)
+S5= np.nan_to_num(scn['S5_an'].values)
+S6= np.nan_to_num(scn['S6_an'].values)
 
 # cannot access channels 7-9 
 
 #S7= np.nan_to_num(np.array(scn['S7'][:-1])) 
 #S8= np.nan_to_num(np.array(scn['S8'][:-1]))
 #S9= np.nan_to_num(np.array(scn['S9'][:-1]))
+
+
+def create_mask(scn, mask_name):
+    """Extracts bitmasks and combines them into an overall mask array"""
+    mask=[]
+    for bitmask in scn[mask_name].flag_masks[:-2]:
+        data = scn[mask_name].values & bitmask
+        mask.append(data)
+    mask= np.sum(mask, axis=0)
+    return mask
+
+
+bayes_mask= create_mask(scn, 'bayes_an')
+emp_mask= create_mask(scn, 'cloud_an')
 
 
 # single channel images 
@@ -52,31 +65,45 @@ for i in channel_arrays:
 # false color image 
 
 def norm(band):
+    """ Normalises the bands for the false color image"""
     band_min, band_max = band.min(), band.max()
     return ((band - band_min)/(band_max - band_min))
 
 
-rgb = np.dstack((norm(S3),norm(S2),norm(S1)))
-  
-plt.figure()
-plt.imshow(rgb)
+def false_color_image(band1, band2, band3, plot=True):
+    """ 
+    Creates a false colour image
+    
+    Input: 
+    band1 (2D array) <=> red 
+    band2 (2D array) <=> green
+    band3 (2D array) <=> blue
+    
+    Output: 6D array (3*2D)
+    
+    if: plot= True, the image is plotted
+    """
+    rgb = np.dstack((norm(band1),norm(band2),norm(band3)))
+
+    if plot == True:
+        plt.figure()
+        plt.imshow(rgb)
+        plt.title('False colour image')
+    
+    return rgb
 
 
+def mask(mask, mask_name, background):
+    """Plots a semi-transparent mask over a background image"""
+    plt.figure()
+    plt.imshow(background, 'gray')
+    plt.title(mask_name)
+    plt.imshow(mask, vmax=1, cmap='OrRd', alpha=0.3)
 
-# complete bayesian cloud mask
-plt.figure('Complete bayesian cloud mask')
-transparency_values= np.ones([2400,3000])*0.1
-plt.imshow(S1,'gray')
-plt.imshow(bayes_mask, alpha=0.3)
-
-# complete empirical cloud mask
-plt.figure('Complete empirical cloud mask')
-plt.imshow(S1, 'gray')
-
-plt.imshow(emp_mask, alpha=0.3)
-
-
-# bit of baseyian cloud mask 
-
+        
+false_color_image(S3, S2, S1, plot=True)
+mask(bayes_mask,'Baseyian mask', S1)
+mask(emp_mask,'Empirical mask', S1)
 
 plt.show()
+

@@ -8,8 +8,8 @@ This meeting:
 - go through neural network code
 
 Work for next meeting:
-- get pacific images to train 
-- adapt the model for satellite images 
+- get Pacific Ocean images to train 
+- adapt the model for satellite images
 
 <img src=/Images/doge.png width="75">
  

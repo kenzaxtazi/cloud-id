@@ -1,8 +1,15 @@
 # Material for meeting 23/10/18
 
-We are now running code, uploading and dowmloading data on the cluster. We have connected the Spyder to shell so we can run scripts through it. 
+We are now running code, uploading and dowmloading data on the cluster. We have connected the Spyder to the shell so we can run scripts through it. 
 
 We also trained a convolutional neural network to differentiate between cat and dog pictures, see teaser_network.py .
+
+This meeting:
+- go through neural network code
+
+Work for next meeting:
+- get pacific images to train 
+- adapt the model for satellite images 
 
 <img src=/Images/doge.png width="75">
  

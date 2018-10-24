@@ -12,8 +12,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import platform
 from time import time
+from ftplib import FTP
 
 
+
+def FTPlogin():
+    ftp = FTP('ftp.ceda.ac.uk')
+    with open('credentials.txt', 'r') as file:
+        username, password = file.readlines()
+        username = username[:-1]
+        ftp.login(username, password)
+    ftp.cwd('neodc/sentinel3a/data/SLSTR/L1_RBT')
+    return(ftp)
 
 
 def path_to_public():

@@ -25,6 +25,10 @@ def FTPlogin():
     ftp.cwd('neodc/sentinel3a/data/SLSTR/L1_RBT')
     return(ftp)
 
+def FTPdownload(ftp=ftp, path):
+    foldername = path[11:]
+    ftp.retrbinary("RETR " + str(path), open(str(foldername), "wb").write)
+    
 
 def path_to_public():
     os.chdir()

@@ -26,7 +26,11 @@ def FTPlogin():
 
 def FTPdownload(ftpobj, path):
     foldername = path[11:]
-    ftpobj.retrbinary("RETR " + str(path), open(str(foldername), "wb").write)
+    try:
+        ftpobj.retrbinary("RETR " + str(path), open(str(foldername), "wb").write)
+    except PermissionError:
+        print("Permission Error")
+        print(foldername)
     
 
 def path_to_public():

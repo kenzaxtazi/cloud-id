@@ -4,13 +4,12 @@ Created on Sun Oct 21 15:46:43 2018
 
 @author: tomzh
 """
-
+import re
 import os
 from satpy import Scene
 from glob import glob
 import matplotlib.pyplot as plt
 import numpy as np
-import platform
 from time import time
 from ftplib import FTP
 
@@ -24,14 +23,95 @@ def FTPlogin():
     ftp.cwd('neodc/sentinel3a/data/SLSTR/L1_RBT')
     return(ftp)
 
-def FTPdownload(ftpobj, path):
-    foldername = path[11:]
+def FTPdownload(ftpobj, path, destination):
+    startdir = os.getcwd()
+    os.chdir(destination)
+    if path[:3] == "S3A":   # given path is folder name
+        foldername = path
+        path = path = path[16:20] + '/' + path[20:22] + '/' + path[22:24] + '/' + path[:]
+    elif path[:2] == "20":   # given path is path from /L1_RBT
+        foldername = path[11:]
     try:
         ftpobj.retrbinary("RETR " + str(path), open(str(foldername), "wb").write)
     except PermissionError:
         print("Permission Error")
         print(foldername)
+    os.chdir(startdir)
+    print('Download complete')
     
+    
+def _regpattern():
+    cpattern = re.compile("(?P<mission_id>.{3})\_SL\_(?P<processing_level>.{1})\_(?P<datatype_id>.{6})\_(?P<start_time>\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2})\_(?P<end_time>\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2})\_(?P<creation_time>\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2})\_(?P<duration>.{4})\_(?P<cycle>.{3})\_(?P<relative_orbit>.{3})\_(?P<frame>.{4})\_(?P<centre>.{3})\_(?P<mode>.{1})\_(?P<timeliness>.{2})\_(?P<collection>.{3})\.zip")
+    return(cpattern)
+
+
+def foldermatch_dict(folder):
+    cpattern = _regpattern()
+    out = [m.groupdict() for m in cpattern.finditer(folder)]
+    return(out)
+   
+
+def foldermatch(folder):
+    cpattern = _regpattern()
+    out = re.findall(cpattern, folder)
+    return(out)    
+
+
+def find_files(ftp):
+    filenames = open("filenames18.txt", "w")
+    years = ["2016", "2017", "2018"]
+    months = ["%.2d" % i for i in range(1, 13)]
+    days = ["%.2d" % i for i in range(1, 32)]
+    for year in years[2:]:
+        ftp.cwd(year)
+        print(year)
+        for month in months:
+            print("m", month)
+            try:
+                ftp.cwd(month)
+                for day in days:
+                    print(day)
+                    try:
+                        ftp.cwd(day)            
+                        files_in_dir = ftp.nlst()
+                        for folder in files_in_dir:
+                            if foldermatch(folder) != []:
+                                print(folder)
+                                filenames.write(str(folder))
+                                filenames.write("\n")
+                        ftp.cwd("..")
+                    except:
+                        pass
+                    
+                ftp.cwd("..")
+            except:
+                pass
+        ftp.cwd("..")
+    filenames.close()
+
+def find_files_for_pos(rel_orbit, frame, centre=None):
+    filefolders = ["filenames16.txt", "filenames17.txt", "filenames18.txt"]
+    out = []
+    for filefolder in filefolders:
+        with open(filefolder, 'r') as filenamefolder:
+            names = filenamefolder.readlines()
+            for name in names:
+                regexlist = foldermatch(name)
+                file_rel_orbit = int(regexlist[0][8])
+                if file_rel_orbit == rel_orbit:
+                    file_frame = int(regexlist[0][9])
+                    if abs(file_frame - frame) < 1:
+                        if centre == None:
+                            out.append(name.strip())
+                        elif centre == regexlist[0][10]:
+                            out.append(name.strip())
+                        else:
+                            pass
+    out.sort()
+    return(out)
+
+
+
 
 def path_to_public():
     os.chdir()
@@ -46,9 +126,6 @@ def path_to_public():
     
 def scene_loader(path):
     # Returns a satpy scene object from the provided file
-    Current_OS = platform.platform()
-    if Current_OS[:6] == 'Darwin':
-        print('Hi Kenza')
     if path[-1] == '/':
         path = path + "*"
     elif path[-1] == '*':
@@ -79,8 +156,8 @@ def mask_analysis(scn):
     1024: 11_12_view_difference
     2048: 3.7.11_view_difference
     4096: thermal_histogram
+    8192: spare
     16384: spare
-    32768: spare
     
     Bayes_bn file
     Flag masks: Flag meanings

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from time import time
 from ftplib import FTP
-
+from getpass import getuser
 
 
 def FTPlogin():
@@ -114,12 +114,8 @@ def find_files_for_pos(rel_orbit, frame, centre=None):
 
 
 def path_to_public():
-    os.chdir()
-    path = os.getcwd()
-    if path[10] == 't': # Tom's directory
-        path = path[:16] + "public_html"
-    if path[10] == 'k': # Kenza's directory
-        path = path[:17] + "public_html"
+    user = getuser()
+    path = ("/home/hep/" + str(user) + "/public_html")
     return(path)
     
     
@@ -176,7 +172,6 @@ def mask_analysis(scn):
         data = scn['cloud_bn'].values & mask
         plt.imshow(data)
         
-    
     
     
 def summary(scene, filenames=None, saveimage=False, outputpath='public'):

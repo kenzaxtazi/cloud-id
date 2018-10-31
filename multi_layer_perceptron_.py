@@ -22,7 +22,8 @@ from satpy import Scene
 from random import shuffle
 import matplotlib.pyplot as plt
 from tqdm import tqdm   #percentage bar for tasks.
-
+import DataLoader as dl
+import re
 
 directory= '/Users/kenzatazi/Downloads/Directory'
 LR = 1e-3
@@ -56,44 +57,49 @@ def prep_data(directory):
     Returns training and validation data sets as well as truth sets. 
     """ 
     
+    olddir = os.getcwd()
     pixel_info=[]
+    os.chdir(directory)
+    fpattern = dl._regpatternf()
     
     
-    for folder in tqdm(os.listdir(directory)):
-        path = os.path.join(directory,folder,'*')
-        print(path)
-        scn = Scene(filenames=glob(path), reader='nc_slstr')
-        
-        load_scene(scn)
-        
-        S1= np.nan_to_num(scn['S1_an'].values)[0:200,0:200]
-        S2= np.nan_to_num(scn['S2_an'].values)[0:200,0:200]
-        S3= np.nan_to_num(scn['S3_an'].values)[0:200,0:200]
-        S4= np.nan_to_num(scn['S4_an'].values)[0:200,0:200]
-        S5= np.nan_to_num(scn['S5_an'].values)[0:200,0:200]
-        S6= np.nan_to_num(scn['S6_an'].values)[0:200,0:200]
-        
-        
-        bayes_mask= create_mask(scn, 'cloud_an')
-        bayes_mask=np.array(bayes_mask)[:200,:200]
-        
-        bayes_mask=(np.reshape(bayes_mask,(1,-1))[0])
-        
-        #one hot encoding for mask
-        truth_set=[]
-        
-        for i in tqdm(bayes_mask):
-            if i>0:
-                truth_set.append(np.array([0,1]))
-            else:
-                truth_set.append(np.array([1,0]))
+    for folder in tqdm(os.listdir()):
+        if re.findall(fpattern, folder) != []:
+            filenames = glob(str(folder) + "/*")
+            filenames = dl.fixdir(filenames)
+            scn = Scene(filenames=filenames, reader='nc_slstr')
             
-        for x in range(200):
-            print(x)
-            for y in range(200):
-                pixel_info.append([S1[x,y], S2[x,y], S3[x,y], S4[x,y], S5[x,y],
-                                   S6[x,y], truth_set[y+y*(x-1)]]) 
-    
+            load_scene(scn)
+            
+            S1= np.nan_to_num(scn['S1_an'].values)[0:200,0:200]
+            S2= np.nan_to_num(scn['S2_an'].values)[0:200,0:200]
+            S3= np.nan_to_num(scn['S3_an'].values)[0:200,0:200]
+            S4= np.nan_to_num(scn['S4_an'].values)[0:200,0:200]
+            S5= np.nan_to_num(scn['S5_an'].values)[0:200,0:200]
+            S6= np.nan_to_num(scn['S6_an'].values)[0:200,0:200]
+            
+            
+            bayes_mask= create_mask(scn, 'cloud_an')
+            bayes_mask=np.array(bayes_mask)[:200,:200]
+            
+            bayes_mask=(np.reshape(bayes_mask,(1,-1))[0])
+            
+            #one hot encoding for mask
+            truth_set=[]
+            
+            for i in tqdm(bayes_mask):
+                if i>0:
+                    truth_set.append(np.array([0,1]))
+                else:
+                    truth_set.append(np.array([1,0]))
+                
+            for x in range(200):
+                print(x)
+                for y in range(200):
+                    pixel_info.append([S1[x,y], S2[x,y], S3[x,y], S4[x,y], S5[x,y],
+                                       S6[x,y], truth_set[y+y*(x-1)]]) 
+        else:
+            pass
     
     shuffle(pixel_info)     # mix real good
 
@@ -110,7 +116,7 @@ def prep_data(directory):
     training_truth= np.array(truth[:-500])
     validation_truth= np.array(truth[-500:])
     
-    
+    os.chdir(olddir)
     return training_data, validation_data, training_truth, validation_truth
 
 

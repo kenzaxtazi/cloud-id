@@ -33,7 +33,8 @@ MODEL_NAME = 'multi_layer_perceptron'.format(LR, 'feed-foward')
 
 def load_scene(scn):
     """ Loads the information from the netcdf files in the folder"""
-    scn.load(scn.available_dataset_names())
+    scn.load(['S1_an','S2_an','S3_an','S4_an','S5_an','S6_an',
+              'bayes_an','cloud_an'])
 
 
 def create_mask(scn, mask_name):
@@ -65,21 +66,18 @@ def prep_data(directory):
         
         load_scene(scn)
         
-        S1= np.nan_to_num(scn['S1_n'].values)[0:200,0:200]
-        S2= np.nan_to_num(scn['S2_n'].values)[0:200,0:200]
-        S3= np.nan_to_num(scn['S3_n'].values)[0:200,0:200]
+        S1= np.nan_to_num(scn['S1_an'].values)[0:200,0:200]
+        S2= np.nan_to_num(scn['S2_an'].values)[0:200,0:200]
+        S3= np.nan_to_num(scn['S3_an'].values)[0:200,0:200]
         S4= np.nan_to_num(scn['S4_an'].values)[0:200,0:200]
         S5= np.nan_to_num(scn['S5_an'].values)[0:200,0:200]
         S6= np.nan_to_num(scn['S6_an'].values)[0:200,0:200]
         
         
-        
-        bayes_mask= create_mask(scn, 'bayes_an')
+        bayes_mask= create_mask(scn, 'cloud_an')
         bayes_mask=np.array(bayes_mask)[:200,:200]
         
         bayes_mask=(np.reshape(bayes_mask,(1,-1))[0])
-        
-        print(np.shape(bayes_mask))
         
         #one hot encoding for mask
         truth_set=[]
@@ -89,9 +87,6 @@ def prep_data(directory):
                 truth_set.append(np.array([0,1]))
             else:
                 truth_set.append(np.array([1,0]))
-        
-        print(truth_set)
-
             
         for x in range(200):
             print(x)
@@ -152,13 +147,12 @@ dropout3 = dropout(layer3,0.8)
 layer4 = fully_connected(dropout3, 32, activation='relu')
 dropout4 = dropout(layer4,0.8)
 
-softmax = fully_connected(dropout4, 2, activation='softmax')
+#this layer needs to spit out the number of categories we are looking for.
+softmax = fully_connected(dropout4, 2, activation='softmax') 
 
 
-sgd = tflearn.SGD(learning_rate= LR, lr_decay=0.96, decay_step=1000)
-top_k = tflearn.metrics.Top_k(3)
-network = regression(softmax, optimizer=sgd, metric=top_k,
-                         loss='categorical_crossentropy')
+network = regression(softmax, optimizer='adam', learning_rate=LR,
+                     loss='categorical_crossentropy', name='targets')
 
 model = tflearn.DNN(network, tensorboard_verbose=0)
 

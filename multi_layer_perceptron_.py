@@ -94,7 +94,6 @@ def prep_data(directory):
                     truth_set.append(np.array([1,0]))
                 
             for x in range(200):
-                print(x)
                 for y in range(200):
                     pixel_info.append([S1[x,y], S2[x,y], S3[x,y], S4[x,y], S5[x,y],
                                        S6[x,y], truth_set[y+y*(x-1)]]) 
@@ -131,6 +130,7 @@ validation_data= validation_data.reshape(-1,1,6,1)
 
 
 import tflearn 
+from tensorflow import reset_default_graph
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
 
@@ -171,3 +171,5 @@ model.fit(training_data, training_truth, n_epoch=5, validation_set =
           (validation_data, validation_truth), snapshot_step=500, 
           show_metric=True, run_id=MODEL_NAME)
 
+
+reset_default_graph()

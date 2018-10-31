@@ -13,6 +13,7 @@ import numpy as np
 from time import time
 from ftplib import FTP
 from getpass import getuser
+import zipfile
 
 
 def FTPlogin():
@@ -39,7 +40,15 @@ def FTPdownload(ftpobj, path, destination):
     os.chdir(startdir)
     print('Download complete')
     
- 
+
+def unzip_delete(filename):
+    with open(filename, 'rb') as fileobj:
+        z = zipfile.ZipFile(fileobj)
+        z.extractall()
+        z.close()
+    os.remove(filename)
+
+
 def fixdir(list_in):
     for i in range(len(list_in)):
         list_in[i] = list_in[i].replace('\\', '/')

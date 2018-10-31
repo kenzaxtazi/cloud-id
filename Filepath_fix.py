@@ -11,14 +11,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+
 def fixdir(list_in):
-    list_out = []
-    for item in list_in:
-        newitem = item[0:99]
-        newitem += '/'
-        newitem += item[100:len(item)]
-        list_out.append(newitem)
-    return(list_out)
+    for i in range(len(list_in)):
+        list_in[i] = list_in[i].replace('\\', '/')
+    return(list_in)
     
 def summary(scene, filenames=None, saveimage=False):
     scene.load(['S1_n', 'latitude', 'longitude'])
@@ -79,15 +76,18 @@ def makeimage(scene, channel='S1_n'):
     data = np.nan_to_num(data)
     plt.figure()
     plt.imshow(data)
-    
+
+
+
     
 slstr_channels = ['S1_n', 'S1_o', 'S2_n', 'S2_o', 'S3_n', 'S3_o', 'S4_an',
  'S4_ao', 'S4_bn', 'S4_bo', 'S4_cn', 'S4_co', 'S5_an', 'S5_ao', 'S5_bn',
  'S5_bo', 'S5_cn', 'S5_co', 'S6_an', 'S6_ao', 'S6_bn', 'S6_bo', 'S6_cn',
  'S6_co', 'S7', 'S8', 'S9']
 
-os.chdir('D:\SLSTR')
-filenames = glob("S3A_SL_1_RBT____20180404T190108_20180404T190408_20180406T005734_0179_029_341_2880_LN2_O_NT_003.SEN3/*")
+
+#os.chdir("D:/SLSTR")
+filenames = glob(r"D:\SLSTR\S3A_SL_1_RBT____20181023T210946_20181023T211246_20181023T234012_0179_037_143_0720_SVL_O_NR_003.SEN3\*")
 filenames = fixdir(filenames)
 scn = Scene(filenames=filenames, reader='nc_slstr')
 

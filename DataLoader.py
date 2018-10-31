@@ -39,10 +39,19 @@ def FTPdownload(ftpobj, path, destination):
     os.chdir(startdir)
     print('Download complete')
     
+ 
+def fixdir(list_in):
+    for i in range(len(list_in)):
+        list_in[i] = list_in[i].replace('\\', '/')
+    return(list_in)
     
 def _regpattern():
     cpattern = re.compile("(?P<mission_id>.{3})\_SL\_(?P<processing_level>.{1})\_(?P<datatype_id>.{6})\_(?P<start_time>\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2})\_(?P<end_time>\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2})\_(?P<creation_time>\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2})\_(?P<duration>.{4})\_(?P<cycle>.{3})\_(?P<relative_orbit>.{3})\_(?P<frame>.{4})\_(?P<centre>.{3})\_(?P<mode>.{1})\_(?P<timeliness>.{2})\_(?P<collection>.{3})\.zip")
     return(cpattern)
+
+def _regpatternf():
+    fpattern = re.compile("(?P<mission_id>.{3})\_SL\_(?P<processing_level>.{1})\_(?P<datatype_id>.{6})\_(?P<start_time>\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2})\_(?P<end_time>\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2})\_(?P<creation_time>\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2})\_(?P<duration>.{4})\_(?P<cycle>.{3})\_(?P<relative_orbit>.{3})\_(?P<frame>.{4})\_(?P<centre>.{3})\_(?P<mode>.{1})\_(?P<timeliness>.{2})\_(?P<collection>.{3})\.SEN3")
+    return(fpattern)
 
 
 def foldermatch_dict(folder):
@@ -129,6 +138,7 @@ def scene_loader(path):
     else:
         path = path + "/*"
     filenames = glob(path)
+    filenames = fixdir(filenames)
     scn = Scene(filenames=filenames, reader='nc_slstr')
     return(scn)
 
@@ -196,6 +206,7 @@ def summary(scene, filenames=None, saveimage=False, outputpath='public'):
 
 def makepltimage(scene, channel='S1_n'):
     # Use matplotlib to produce image of specified channel
+    scene.load([channel])
     data = scene[channel].values
     data = np.nan_to_num(data)
     plt.figure()

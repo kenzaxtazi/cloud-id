@@ -1,6 +1,6 @@
 # Material for meeting 02/11/18
 
-Tom and I have trained a model on an image or 7 200 000 pixels of data using a 5 layer feed-forward neural network (see multilayer_peceptron.py). The truth data was taken as the empirical masks provided.
+Tom and I have trained a model on an image or 7 200 000 pixels of data (although it stabilises at 81% accuracy at around 100 000 pixels) using a 5 layer feed-forward neural network (see multilayer_peceptron.py). The truth data was taken as the empirical masks provided.
 
 We also tried downloaded data from the CALIPSO instrument and start to colocate it with the some of the satellite images.
 

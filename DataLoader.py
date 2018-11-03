@@ -219,7 +219,7 @@ def makepltimage(scene, channel='S1_n'):
     data = scene[channel].values
     data = np.nan_to_num(data)
     plt.figure()
-    plt.imshow(data)
+    plt.imshow(data, cmap='gray')
     
     
 def makepngimage(scene, channel='S1_n', outputpath='public'):

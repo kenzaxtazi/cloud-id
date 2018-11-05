@@ -154,7 +154,7 @@ def scene_loader(path):
 def mask_analysis(scn):
     # Loads the a masks from simplistic and bayesian files. 
     # WIP: Creates figure of all simplistic masks
-    scn.load(['cloud_an', 'bayes_an'])
+    scn.load(['cloud_an', 'bayes_in'])
     """ 
     Cloud_bn file
     Flag masks: Flag meanings
@@ -185,10 +185,10 @@ def mask_analysis(scn):
     64: spare
     128: spare
     """
-    for mask in scn['cloud_bn'].flag_masks[:-2]:
+    for mask in scn['cloud_an'].flag_masks[:-2]:
         plt.figure()
         plt.title(str(mask))
-        data = scn['cloud_bn'].values & mask
+        data = scn['cloud_an'].values & mask
         plt.imshow(data)
         
     
@@ -196,7 +196,7 @@ def mask_analysis(scn):
 def summary(scene, filenames=None, saveimage=False, outputpath='public'):
     # Loads positional S1_n channel data. Prints lat/lon of corner pixel
     # If saveimage is True, saves png to current directory with metadata
-    scene.load(['S1_n', 'latitude', 'longitude'])
+    scene.load(['S1_an', 'latitude', 'longitude'])
     lat = scene['latitude'].values[0][0] # Latitude of corner pixel
     lon = scene['longitude'].values[0][0] # Longitude of corner pixel
     if saveimage != False:
@@ -209,11 +209,11 @@ def summary(scene, filenames=None, saveimage=False, outputpath='public'):
                          str (lon) +')')
         else:
             imagename = 'test'
-        scene.save_dataset('S1_n', str(imagename) + '.png')
+        scene.save_dataset('S1_an', str(imagename) + '.png')
     print(str(lat) + ', ' + str(lon))
 
 
-def makepltimage(scene, channel='S1_n'):
+def makepltimage(scene, channel='S1_an'):
     # Use matplotlib to produce image of specified channel
     scene.load([channel])
     data = scene[channel].values
@@ -222,7 +222,7 @@ def makepltimage(scene, channel='S1_n'):
     plt.imshow(data, cmap='gray')
     
     
-def makepngimage(scene, channel='S1_n', outputpath='public'):
+def makepngimage(scene, channel='S1_an', outputpath='public'):
     if outputpath == 'public':
         # cd to public folder
         os.chdir(path_to_public())

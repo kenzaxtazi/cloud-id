@@ -108,7 +108,7 @@ def find_files(ftp):
     filenames.close()
 
 def find_files_for_pos(rel_orbit, frame, centre=None):
-    os.chdir('SLSTR_Filenames')
+    os.chdir('SLSTRInfo')
     filefolders = ["filenames16.txt", "filenames17.txt", "filenames18.txt"]
     out = []
     for filefolder in filefolders:

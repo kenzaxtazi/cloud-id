@@ -33,7 +33,7 @@ def FTPdownload(ftpobj, path, destination):
     elif path[:2] == "20":   # given path is path from /L1_RBT
         foldername = path[11:]
     try:
-        ftpobj.retrbinary("RETR " + str(path), open(str(foldername), "wb").write)
+        ftpobj.retrbinary("RETR " + str(path),   open(str(foldername), "wb").write)
     except PermissionError:
         print("Permission Error")
         print(foldername)
@@ -80,10 +80,10 @@ def find_files(ftp):
     years = ["2016", "2017", "2018"]
     months = ["%.2d" % i for i in range(1, 13)]
     days = ["%.2d" % i for i in range(1, 32)]
-    for year in years[2:]:
+    for year in years[2:]:  # Only update 2018 onwards
         ftp.cwd(year)
         print(year)
-        for month in months:
+        for month in months[8:]:  # Only update from Sep onwards
             print("m", month)
             try:
                 ftp.cwd(month)
@@ -108,6 +108,7 @@ def find_files(ftp):
     filenames.close()
 
 def find_files_for_pos(rel_orbit, frame, centre=None):
+    os.chdir('SLSTR_Filenames')
     filefolders = ["filenames16.txt", "filenames17.txt", "filenames18.txt"]
     out = []
     for filefolder in filefolders:
@@ -126,6 +127,7 @@ def find_files_for_pos(rel_orbit, frame, centre=None):
                         else:
                             pass
     out.sort()
+    os.chdir('..')
     return(out)
 
 

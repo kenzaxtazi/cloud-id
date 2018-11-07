@@ -14,13 +14,13 @@ from subprocess import Popen, PIPE
 
 
 variables1km = {1:'lat', 2:'lon', 22:'num_layers', 50:'feature_classification_flags'}
-variables5km = {1: 'lat', 2:'lon', 69:'feature_classification_flags', 76:'feature_optical_depth'}
+variables5km = {1: 'lat', 2:'lon', 40:'num_layers', 69:'feature_classification_flags', 76:'feature_optical_depth'}
 print('f')
 index = '76'
 
-filename = "D:/Calipso/5km/CAL_LID_L2_05kmCLay-Standard-V4-20.2018-03-31T23-18-17ZN.hdf"
+filename = "D:/SatelliteData/Calipso5km/CAL_LID_L2_05kmCLay-Standard-V4-20.2018-03-31T23-18-17ZN.hdf"
 try:
-    with Popen(["hdp", "dumpsds", "-i", str(index), "-ds", filename], stdout=PIPE) as proc:
+    with Popen(["hdp", "dumpsds", "-i", str(index), "-d", "-s", filename], stdout=PIPE) as proc:
         a = proc.stdout.read()
         print('g')
     
@@ -28,6 +28,14 @@ except(FileNotFoundError):
         with Popen(["C:/Program Files/HDF_Group/HDF/4.2.14/bin/hdp.exe", "dumpsds", "-i", str(index), "-ds", filename], stdout=PIPE, shell=True) as proc:
             a = proc.stdout.read()
             print('f')
+
+def load1varnew():
+    b = (a.decode('utf-8')
+          .strip()
+          .splitlines()
+        )
+    # out = np.array(b, dtpye=??)
+    return(b)
 
 def load1var5km():
     b = str(a)
@@ -61,4 +69,4 @@ def load2var1km():
     lon = np.float64(lon)
     return(lat, lon)
     
-f = load1var5km()
+f = load1varnew()

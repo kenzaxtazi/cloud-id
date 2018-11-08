@@ -3,7 +3,7 @@
 This week we:
 * Opened CALIPSO data files
 * Created multidimensional CNN made for the 5x5km CALIPSO products (see first_cnn.py) 
-* Wrote colocation function to retrieve truth data set 
+* Tried to colocate and to retrieve optical depth values from CALIPSO files to creat truth data set 
 
 Calipso Files:
 Data available from https://search.earthdata.nasa.gov.

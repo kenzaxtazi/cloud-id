@@ -14,7 +14,7 @@ from time import time
 from ftplib import FTP
 from getpass import getuser
 import zipfile
-
+import platform
 
 def FTPlogin():
     ftp = FTP('ftp.ceda.ac.uk')
@@ -33,10 +33,14 @@ def FTPdownload(ftpobj, path, destination):
     elif path[:2] == "20":   # given path is path from /L1_RBT
         foldername = path[11:]
     try:
-        ftpobj.retrbinary("RETR " + str(path),   open(str(foldername), "wb").write)
-    except PermissionError:
+        ftpobj.retrbinary("RETR " + str(path), open(str(foldername), "wb").write)
+    except:
         print("Permission Error")
         print(foldername)
+        try:
+            os.remove(foldername)
+        except:
+            pass
     os.chdir(startdir)
     print('Download complete')
     
@@ -76,14 +80,14 @@ def foldermatch(folder):
 
 
 def find_files(ftp):
-    filenames = open("filenames18.txt", "w")
+    filenames = open("filenames17.txt", "w")
     years = ["2016", "2017", "2018"]
     months = ["%.2d" % i for i in range(1, 13)]
     days = ["%.2d" % i for i in range(1, 32)]
-    for year in years[2:]:  # Only update 2018 onwards
+    for year in years[1:2]:  # Only update 2018 onwards
         ftp.cwd(year)
         print(year)
-        for month in months[8:]:  # Only update from Sep onwards
+        for month in months:  # Only update from Sep onwards
             print("m", month)
             try:
                 ftp.cwd(month)
@@ -119,7 +123,7 @@ def find_files_for_pos(rel_orbit, frame, centre=None):
                 file_rel_orbit = int(regexlist[0][8])
                 if file_rel_orbit == rel_orbit:
                     file_frame = int(regexlist[0][9])
-                    if abs(file_frame - frame) < 1:
+                    if abs(file_frame - frame) < 90:
                         if centre == None:
                             out.append(name.strip())
                         elif centre == regexlist[0][10]:
@@ -148,9 +152,22 @@ def scene_loader(path):
         pass
     else:
         path = path + "/*"
+    
+    olddir = os.getcwd()
+    
+    if platform.platform()[:10] == "Windows-10":
+        string1 = "S3A_SL_1"
+        index = path.find(string1)
+        if index == 0:
+            pass
+        else:
+            newdir = path[:index]
+            os.chdir(newdir)
+            path = path[index:]
     filenames = glob(path)
     filenames = fixdir(filenames)
     scn = Scene(filenames=filenames, reader='nc_slstr')
+    os.chdir(olddir)
     return(scn)
 
 def mask_analysis(scn):

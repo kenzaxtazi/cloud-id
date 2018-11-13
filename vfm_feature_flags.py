@@ -9,6 +9,9 @@ Created on Thu Nov  8 11:48:30 2018
 # IDL code
 
 
+import numpy as np
+
+
 def vfm_feature_flags (val):
     """ Python version of the IDL code to read the bitwise flags"""
     

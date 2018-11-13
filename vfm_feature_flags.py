@@ -11,7 +11,9 @@ Created on Thu Nov  8 11:48:30 2018
 
 def vfm_feature_flags (val):
     """ Python version of the IDL code to read the bitwise flags"""
-
+    
+    print(val)
+    
     feature_type = 0
     feature_type_qa = 0
     ice_water_phase = 0
@@ -22,7 +24,7 @@ def vfm_feature_flags (val):
     
     
     for i in range(0,16):
-      if val != 0:
+      if np.bitwise_and(val,2**i)!= 0:
         print('Bit set: ',i+1)
         if i+1 == 1:
             feature_type = feature_type + 1

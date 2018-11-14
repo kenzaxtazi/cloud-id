@@ -4,6 +4,11 @@ Using the shell commands (detailed [here](https://l.messenger.com/l.php?u=http%3
 
 Kenza translated the IDL file to translate the bitwise information into one hot encoding. She also fixed the CNN to for the 1km truth inputs. 
 
+
+
+
+Figure 1: CALIOP measurements superimposed on SLSTR S1 image 
+
 Questions:
 * Are we using V3.40 now?
 * What are we going to write in our progress report?

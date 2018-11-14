@@ -7,7 +7,6 @@ Kenza translated the IDL file to translate the bitwise information into one hot 
 
 
 ![fig1](/Images/collocation.png)
-
 Figure 1: CALIOP measurements superimposed on SLSTR S1 image (0 = no value, 1 = clear, 2 = cloud, 3 = aerosol, 4= stratospheric aerosol, 5 = surface, 6 = subsurface, 7 = undetermined) 
 
 

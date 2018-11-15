@@ -6,7 +6,7 @@ Using the shell commands (detailed [here](https://l.messenger.com/l.php?u=http%3
 Kenza translated the IDL file to translate the bitwise information into one hot encoding. She also fixed the CNN to for the 1km truth inputs. 
 
 
-![fig1](/Images/collocation.png)
+![fig1](/Images/colourful_collocation.png)
 Figure 1: CALIOP measurements superimposed on SLSTR S1 image (0 = no value, 1 = clear, 2 = cloud, 3 = aerosol, 4= stratospheric aerosol, 5 = surface, 6 = subsurface, 7 = undetermined) 
 
 

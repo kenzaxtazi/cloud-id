@@ -14,8 +14,8 @@ import numpy as np
 from tqdm import tqdm
 
 # Calipso File
-filename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
-
+Cfilename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
+Sfilename = "D:/SatelliteData/S3A_SL_1_RBT____20180401T012743_20180401T013043_20180402T055007_0179_029_288_1620_LN2_O_NT_002.SEN3"
 
 def find_SLSTR_data(filename, timewindow=30, num=10):
     # Set download website, user credentials and instrument
@@ -79,11 +79,12 @@ def collocate(SLSTR_filename, Calipso_filename):
     
     # Find coord pairs which are close
     coords = []
-    # Want the latitude / longitude to be within 250m of each others
+    
+    # Want the latitude and longitude to be within 250m of each others
     # 250m = 0.00224577793 degrees lon at equator
     # 250m = 0.00224577793 * cos(lat) degrees lon at lat
-    lontolerance = 0.0224577793 * np.cos(clat[0] * np.pi / 180)
-    lattolerance = 0.0224577793
+#    lontolerance = 0.00224577793 * np.cos(clat[0] * np.pi / 180)
+    lattolerance = 0.00224577793
     #check edges
     
     # Edge flag
@@ -92,74 +93,104 @@ def collocate(SLSTR_filename, Calipso_filename):
     # Top/Bottom Row
     for i in [0, 2399]:
         for j in range(3000):
-            matches = np.isclose(slat[i, j], clat, rtol=lattolerance)
+            matches = abs(slat[i, j] - clat) < lattolerance
             if matches.any():
                 loc = np.where(matches == True)
-                if np.isclose(slon[i, j], clon[loc[0][0]], rtol=lontolerance):
-                    coords.append([i, j, loc[0][0]])
-                    if i == 0:
-                        top = True
-                    elif i == 2399:
-                        bottom = True
-    
+                lontolerance = 0.00224577793 / np.cos(slat[i, j] * np.pi / 180)
+                for k in loc[0]:
+                    if abs(slon[i, j] - clon[k]) < lontolerance:
+                        if i == 0:
+                            top = True
+                        if i == 2399:
+                            bottom = True
+                        coords.append([i, j, k])
+            
     # Left/Right Col
     for i in range(1, 2399):
         for j in [0, 2999]:
-            matches = np.isclose(slat[i, j], clat, rtol=lattolerance)
+            matches = abs(slat[i, j] - clat) < lattolerance
             if matches.any():
                 loc = np.where(matches == True)
-                if np.isclose(slon[i, j], clon[loc[0][0]], rtol=lontolerance):
-                    coords.append([i, j, loc[0][0]])
-                    if j == 0:
-                        left = True
-                    if j == 2999:
-                        right = True
+                lontolerance = 0.00224577793 / np.cos(slat[i, j] * np.pi / 180)
+                for k in loc[0]:
+                    if abs(slon[i, j] - clon[k]) < lontolerance:
+                        if j == 0:
+                            left = True
+                        if j == 2999:
+                            right = True
+                        coords.append([i, j, k])
             
-    if len(coords) == 0:
-        print('No matches found')
-        return(coords)
-    
-    edgeflagsum = top + right + left + bottom
-    if edgeflagsum == 2:
-        # Use interpolation between two edges to find which pixels to check
-        xedge = [i[0] for i in coords]
-        yedge = [i[1] for i in coords]
-        xs = np.linspace(np.min(xedge) + 1, np.max(xedge) - 1, np.max(xedge) - np.min(xedge) - 1).astype(int)
-        ys = np.interp(xs, xedge, yedge)
-        ys = ys.astype(int)
+    if len(coords) != 0:
+        print("Collocated pixel found on edge")
+        # Check adjacent(ish) neighbours
+        i = coords[0][0]
+        j = coords[0][1]
 
         
-        for i in range(len(xs)):
-            ylist = [ys[i]]
-            if ys[i] != 0:
-                ylist.append(i-1)
-            if ys[i] != 2999:
-                ylist.append(i+1)
-            for y in ylist:
-                matches = np.isclose(slat[xs[i], y], clat, rtol=lattolerance)
+        if top == True:
+            for i in tqdm(range(2400)):
+                for k in range(j - 10, j + 10):
+                    matches = abs(slat[i, k] - clat) < lattolerance
+                    if matches.any():
+                        loc = np.where(matches == True)
+                        lontolerance = 0.00224577793 / np.cos(slat[i, k] * np.pi / 180)
+                        for l in loc[0]:
+                            if abs(slon[i, k] - clon[l]) < lontolerance:
+                                coords.append([i, k, l])
+                                j = k
+        elif bottom == True:
+            for i in tqdm(range(2399, -1, -1)):
+                for k in range(j - 10, j + 10):
+                    matches = abs(slat[i, k] - clat) < lattolerance
+                    if matches.any():
+                        loc = np.where(matches == True)
+                        lontolerance = 0.00224577793 / np.cos(slat[i, k] * np.pi / 180)
+                        for l in loc[0]:
+                            if abs(slon[i, k] - clon[l]) < lontolerance:
+                                coords.append([i, k, l])
+                                j = k             
+                
+        elif left == True:
+            for j in tqdm(range(3000)):
+                for k in range(i - 10, i + 11):
+                    matches = abs(slat[k, j] - clat) < lattolerance
+                    if matches.any():
+                        loc = np.where(matches == True)
+                        lontolerance = 0.00224577793 / np.cos(slat[k, j] * np.pi / 180)
+                        for l in loc[0]:
+                            if abs(slon[k, j] - clon[l]) < lontolerance:
+                                coords.append([k, j, l])
+                                i = k
+
+        elif right == True:
+            for j in tqdm(range(2999, -1, -1)):
+#            while j > 0:
+#                print(j)
+#                j -= 1
+                for k in range(i - 10, i + 11):
+                    matches = abs(slat[k, j] - clat) < lattolerance
+                    if matches.any():
+                        loc = np.where(matches == True)
+                        lontolerance = 0.00224577793 / np.cos(slat[k, j] * np.pi / 180)
+                        for l in loc[0]:
+                            if abs(slon[k, j] - clon[l]) < lontolerance:
+                                coords.append([k, j, l])
+                                i = k
+                                
+    else:
+        print("No pixel found on edge")
+        for i in tqdm(range(2400)):
+            for j in range(3000):
+                matches = abs(slat[i, j] - clat) < lattolerance
                 if matches.any():
                     loc = np.where(matches == True)
-                    if np.isclose(slon[xs[i], y], clon[loc[0][0]], rtol=lontolerance):
-                        coords.append([xs[i], y, loc[0][0]])
-        
-        return(coords, xedge, yedge)
-        
-    elif edgeflagsum > 2:
-        # Should never happen 
-        print('Warning: More than 2 Edges detected.')
-        
-    elif edgeflagsum < 2:
-        # Occurs if a region is NaN or the Calipso Granule starts/ends in frame
-        print('Warning: Less than 2 Edges detected.')
-        
-    
-    for i in tqdm(range(2400)):
-        for j in range(3000):
-            if (np.isclose(slat[i, j], clat, rtol=1e-3)).any():
-                loc = np.where(np.isclose(slat[i, j], clat, rtol=1e-3) == True)
-                if np.isclose(slon[i, j], clon[loc[0][0]], rtol=1e-3):
-                    coords.append([i, j, loc[0][0]])
+                    lontolerance = 0.00224577793 / np.cos(slat[i, j] * np.pi / 180)
+                    for k in loc[0]:
+                        if abs(slon[i, j] - clon[k]) < lontolerance:
+                            coords.append([i, j, k])
     
     # Return position of matching coordinates in a row
     # SLSTR_row, SLSTR_column, Calipso_index
     return(coords)
+    
+

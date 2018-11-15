@@ -34,6 +34,7 @@ Figure 4: CALIOP measurements superimposed on SLSTR S1 image (0 = no value, 1 = 
 
 
 Questions:
+* How can we download the hdf4 dependencies on the server? Should we go see RB? 
 * The flags 10 values per 'measurement', we are only taking the first one but we are uncertain if this is the right approach.  
 * Are we using V3.40 for the CALIOP data now?
 * Should we put the aerosol, stratospheric aerosol and cloud together? Or should we have three categories?

@@ -43,6 +43,7 @@ Questions:
 
 
 Next week: 
+* Write code to seemlessly train model from CALIOP data (i.e. will find and download SLSTR images on its own)  
 * Download more data to train the model properly
-* Plot validtion results to understand what the CNN is failing to pick up
+* Plot validtion results to understand what the CNN is failing to pick up.
 

@@ -138,7 +138,7 @@ for i in pixels[:,2]:
     values.append(float(vfm.vfm_feature_flags((data[i,0]))))  
 
 m = cm.ScalarMappable(cmap=cm.jet)
-m.set_array(values)   
+m.set_array(values)
 plt.figure()
 plt.imshow(S1, 'gray')
 sc=plt.scatter(pixels[:,1], pixels[:,0], c=values, cmap='jet')

@@ -135,7 +135,7 @@ values=[]
 
 for i in pixels[:,2]:
     # see vfm function for value meaning 
-    values.append(float(vfm.vfm_feature_flags((data[i,1]))))  
+    values.append(float(vfm.vfm_feature_flags((data[i,0]))))  
 
 m = cm.ScalarMappable(cmap=cm.jet)
 m.set_array(values)   

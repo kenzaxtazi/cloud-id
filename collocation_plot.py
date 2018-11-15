@@ -121,9 +121,6 @@ pixels = np.array([[687, 61, 19188],
 
 
 
-
-
-
 from pyhdf.SD import SD, SDC
 
 filename = "/Users/kenzatazi/Downloads/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
@@ -138,13 +135,13 @@ values=[]
 
 for i in pixels[:,2]:
     # see vfm function for value meaning 
-    values.append(float(vfm.vfm_feature_flags(i)))  
+    values.append(float(vfm.vfm_feature_flags((data[i,1]))))  
 
 m = cm.ScalarMappable(cmap=cm.jet)
 m.set_array(values)   
 plt.figure()
 plt.imshow(S1, 'gray')
-sc=plt.scatter(pixels[:,1], pixels[:,0], m)
+sc=plt.scatter(pixels[:,1], pixels[:,0], c=values, cmap='jet')
 plt.colorbar(m)
 plt.show()
 

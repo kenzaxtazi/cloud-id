@@ -17,7 +17,7 @@ from tqdm import tqdm
 Cfilename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
 Sfilename = "D:/SatelliteData/S3A_SL_1_RBT____20180401T012743_20180401T013043_20180402T055007_0179_029_288_1620_LN2_O_NT_002.SEN3"
 
-def find_SLSTR_data(filename, timewindow=30, num=10):
+def find_SLSTR_data(filename, timewindow=30, num=10, dryrun=False):
     # Set download website, user credentials and instrument
     command = ["-d", "https://scihub.copernicus.eu/s3/", "-u", "s3guest", "-p", "s3guest", "-i", "SLSTR"]
     
@@ -55,8 +55,8 @@ def find_SLSTR_data(filename, timewindow=30, num=10):
         query = query + ["-c", str(lon[a][0]) + ',' + str(lat[a][0]) + ':' + str(lon[b][0]) + ',' + str(lat[b][0])]
         
         # Send query
-        
-#        subprocess.call(command + query)
+        if dryrun == False:
+            subprocess.call(command + query)
 
         # For now it puts any matching SLSTR file into a XML and CSV then
         # Overwrites these files on the next loop

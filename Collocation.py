@@ -17,7 +17,7 @@ from tqdm import tqdm
 Cfilename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
 Sfilename = "D:/SatelliteData/S3A_SL_1_RBT____20180401T012743_20180401T013043_20180402T055007_0179_029_288_1620_LN2_O_NT_002.SEN3"
 
-def find_SLSTR_data(filename, timewindow=30, num=10, dryrun=False, outputdir=None):
+def find_SLSTR_data(filename, timewindow=30, num=20, dryrun=False, outputdir=None):
     data = []
     
     # Set download website, user credentials, instruments and product type
@@ -57,7 +57,7 @@ def find_SLSTR_data(filename, timewindow=30, num=10, dryrun=False, outputdir=Non
         query = query + ["-E", str(windowend.isoformat())[:-3] + 'Z']
     
         # Set Positional query
-        query = query + ["-c", str(lon[a][0]) + ',' + str(lat[a][0]) + ':' + str(lon[a+1][0]) + ',' + str(lat[a+1][0])]
+        query = query + ["-c", str(lon[a][0]) + ',' + str(lat[a][0]) + ':' + str(lon[b][0]) + ',' + str(lat[b][0])]
         
         # Send query
         if dryrun == False:

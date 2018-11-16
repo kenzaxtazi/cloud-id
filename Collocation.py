@@ -33,7 +33,7 @@ def find_SLSTR_data(filename, timewindow=30, num=10):
     lon = CR.load_data(file, 'Longitude')
     time = CR.load_data(file, 'Profile_Time')   # Time in IAT
     time += 725846400.0    # Time in UNIX 
-    
+    time -= 10 # Leap second correction
     # Select which indices to use to slice list
     xs = np.linspace(0, len(lat) - 1, num + 1)
     xs = xs.astype(int)
@@ -45,7 +45,7 @@ def find_SLSTR_data(filename, timewindow=30, num=10):
         a = xs[i]
         b = xs[i+1]
         c = int(0.5 * (a + b))
-        timestamp = datetime.fromtimestamp(time[c][0])  # Inaccurate by a few leap seconds
+        timestamp = datetime.utcfromtimestamp(time[c][0])
         windowstart = timestamp - timedelta(minutes = timewindow)
         windowend = timestamp + timedelta(minutes = timewindow)
         query = query + ["-S", str(windowstart.isoformat())[:-3] + 'Z']
@@ -56,7 +56,7 @@ def find_SLSTR_data(filename, timewindow=30, num=10):
         
         # Send query
         
-        # subprocess.call(command + query)
+#        subprocess.call(command + query)
 
         # For now it puts any matching SLSTR file into a XML and CSV then
         # Overwrites these files on the next loop

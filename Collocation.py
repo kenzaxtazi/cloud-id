@@ -61,8 +61,7 @@ def find_SLSTR_data(filename, timewindow=30, num=20, dryrun=False, outputdir=Non
         
         # Send query
         if dryrun == False:
-            if silent == True:
-                command = command + [">/dev/null 2>&1"]
+        
             subprocess.call(command + query)
             with open("products-list.csv", "r") as file:
                 data += file.readlines()

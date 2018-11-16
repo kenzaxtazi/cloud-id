@@ -20,7 +20,7 @@ Sfilename = "D:/SatelliteData/S3A_SL_1_RBT____20180401T012743_20180401T013043_20
 def find_SLSTR_data(filename, timewindow=30, num=10, dryrun=False, outputdir=None):
     data = []
     
-    # Set download website, user credentials and instrument
+    # Set download website, user credentials, instruments and product type
     command = ["-d", "https://scihub.copernicus.eu/s3/", "-u", "s3guest", "-p", "s3guest", "-i", "SLSTR", "-T", "SL_1_RBT___"]
     
     # Set correct commands for executing the .sh file. System dependent.
@@ -57,7 +57,7 @@ def find_SLSTR_data(filename, timewindow=30, num=10, dryrun=False, outputdir=Non
         query = query + ["-E", str(windowend.isoformat())[:-3] + 'Z']
     
         # Set Positional query
-        query = query + ["-c", str(lon[a][0]) + ',' + str(lat[a][0])]
+        query = query + ["-c", str(lon[a][0]) + ',' + str(lat[a][0]) + ':' + str(lon[a+1][0]) + ',' + str(lat[a+1][0])]
         
         # Send query
         if dryrun == False:

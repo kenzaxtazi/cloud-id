@@ -17,9 +17,11 @@ from tqdm import tqdm
 Cfilename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
 Sfilename = "D:/SatelliteData/S3A_SL_1_RBT____20180401T012743_20180401T013043_20180402T055007_0179_029_288_1620_LN2_O_NT_002.SEN3"
 
-def find_SLSTR_data(filename, timewindow=30, num=10, dryrun=False):
+def find_SLSTR_data(filename, timewindow=30, num=10, dryrun=False, outputdir=None):
+    data = []
+    
     # Set download website, user credentials and instrument
-    command = ["-d", "https://scihub.copernicus.eu/s3/", "-u", "s3guest", "-p", "s3guest", "-i", "SLSTR"]
+    command = ["-d", "https://scihub.copernicus.eu/s3/", "-u", "s3guest", "-p", "s3guest", "-i", "SLSTR", "-T", "SL_1_RBT___"]
     
     # Set correct commands for executing the .sh file. System dependent.
     if platform.platform()[:10] == 'Windows-10': #
@@ -27,6 +29,8 @@ def find_SLSTR_data(filename, timewindow=30, num=10, dryrun=False):
     else:
         command = ["./dhusget.sh"] + command
     
+    if outputdir != None:
+        command = command + ["-o", "'product'", "-O", str(outputdir)]
     # Load parameters from hdf file
     file = CR.load_hdf(filename)
     lat = CR.load_data(file, 'Latitude')
@@ -34,6 +38,7 @@ def find_SLSTR_data(filename, timewindow=30, num=10, dryrun=False):
     time = CR.load_data(file, 'Profile_Time')   # Time in IAT
     time += 725846400.0    # Time in UNIX 
     time -= 10 # Leap second correction
+    
     # Select which indices to use to slice list
     xs = np.linspace(0, len(lat) - 1, num + 1)
     xs = xs.astype(int)
@@ -52,16 +57,20 @@ def find_SLSTR_data(filename, timewindow=30, num=10, dryrun=False):
         query = query + ["-E", str(windowend.isoformat())[:-3] + 'Z']
     
         # Set Positional query
-        query = query + ["-c", str(lon[a][0]) + ',' + str(lat[a][0]) + ':' + str(lon[b][0]) + ',' + str(lat[b][0])]
+        query = query + ["-c", str(lon[a][0]) + ',' + str(lat[a][0])]
         
         # Send query
         if dryrun == False:
             subprocess.call(command + query)
+            with open("products-list.csv", "r") as file:
+                data += file.readlines()
+                
 
         # For now it puts any matching SLSTR file into a XML and CSV then
         # Overwrites these files on the next loop
         
         print(query)
+    return(data)
 
 def collocate(SLSTR_filename, Calipso_filename):
     # Finds pixels in both files which represent the same geographic position

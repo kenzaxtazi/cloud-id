@@ -17,7 +17,7 @@ from tqdm import tqdm
 Cfilename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
 Sfilename = "D:/SatelliteData/S3A_SL_1_RBT____20180401T012743_20180401T013043_20180402T055007_0179_029_288_1620_LN2_O_NT_002.SEN3"
 
-def find_SLSTR_data(filename, timewindow=30, num=20, dryrun=False, outputdir=None):
+def find_SLSTR_data(filename, timewindow=30, num=20, dryrun=False, outputdir=None, silent=True):
     data = []
     
     # Set download website, user credentials, instruments and product type
@@ -61,6 +61,8 @@ def find_SLSTR_data(filename, timewindow=30, num=20, dryrun=False, outputdir=Non
         
         # Send query
         if dryrun == False:
+            if silent == True:
+                command = command + [">/dev/null 2>&1"]
             subprocess.call(command + query)
             with open("products-list.csv", "r") as file:
                 data += file.readlines()

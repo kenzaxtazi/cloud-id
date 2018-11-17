@@ -13,9 +13,7 @@ from datetime import datetime, timedelta
 import numpy as np
 from tqdm import tqdm
 
-# Calipso File
-Cfilename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
-Sfilename = "D:/SatelliteData/S3A_SL_1_RBT____20180401T012743_20180401T013043_20180402T055007_0179_029_288_1620_LN2_O_NT_002.SEN3"
+
 
 def find_SLSTR_data(filename, timewindow=30, num=20, dryrun=False, outputdir=None):
     data = []
@@ -143,52 +141,62 @@ def collocate(SLSTR_filename, Calipso_filename):
         if top == True:
             for i in tqdm(range(2400)):
                 for k in range(j - 10, j + 10):
-                    matches = abs(slat[i, k] - clat) < lattolerance
-                    if matches.any():
-                        loc = np.where(matches == True)
-                        lontolerance = 0.00224577793 / np.cos(slat[i, k] * np.pi / 180)
-                        for l in loc[0]:
-                            if abs(slon[i, k] - clon[l]) < lontolerance:
-                                coords.append([i, k, l])
-                                j = k
+                    try:
+                        matches = abs(slat[i, k] - clat) < lattolerance
+                        if matches.any():
+                            loc = np.where(matches == True)
+                            lontolerance = 0.00224577793 / np.cos(slat[i, k] * np.pi / 180)
+                            for l in loc[0]:
+                                if abs(slon[i, k] - clon[l]) < lontolerance:
+                                    coords.append([i, k, l])
+                                    j = k
+                    except IndexError:
+                        pass
+                    
         elif bottom == True:
-            for i in tqdm(range(2399, -1, -1)):
+            for i in tqdm(range(2399, -1, -1)): 
                 for k in range(j - 10, j + 10):
-                    matches = abs(slat[i, k] - clat) < lattolerance
-                    if matches.any():
-                        loc = np.where(matches == True)
-                        lontolerance = 0.00224577793 / np.cos(slat[i, k] * np.pi / 180)
-                        for l in loc[0]:
-                            if abs(slon[i, k] - clon[l]) < lontolerance:
-                                coords.append([i, k, l])
-                                j = k             
+                    try:
+                        matches = abs(slat[i, k] - clat) < lattolerance
+                        if matches.any():
+                            loc = np.where(matches == True)
+                            lontolerance = 0.00224577793 / np.cos(slat[i, k] * np.pi / 180)
+                            for l in loc[0]:
+                                if abs(slon[i, k] - clon[l]) < lontolerance:
+                                    coords.append([i, k, l])
+                                    j = k
+                    except IndexError:
+                        pass
                 
         elif left == True:
             for j in tqdm(range(3000)):
                 for k in range(i - 10, i + 11):
-                    matches = abs(slat[k, j] - clat) < lattolerance
-                    if matches.any():
-                        loc = np.where(matches == True)
-                        lontolerance = 0.00224577793 / np.cos(slat[k, j] * np.pi / 180)
-                        for l in loc[0]:
-                            if abs(slon[k, j] - clon[l]) < lontolerance:
-                                coords.append([k, j, l])
-                                i = k
-
+                    try:
+                        matches = abs(slat[k, j] - clat) < lattolerance
+                        if matches.any():
+                            loc = np.where(matches == True)
+                            lontolerance = 0.00224577793 / np.cos(slat[k, j] * np.pi / 180)
+                            for l in loc[0]:
+                                if abs(slon[k, j] - clon[l]) < lontolerance:
+                                    coords.append([k, j, l])
+                                    i = k
+                    except IndexError:
+                        pass
+                    
         elif right == True:
             for j in tqdm(range(2999, -1, -1)):
-#            while j > 0:
-#                print(j)
-#                j -= 1
                 for k in range(i - 10, i + 11):
-                    matches = abs(slat[k, j] - clat) < lattolerance
-                    if matches.any():
-                        loc = np.where(matches == True)
-                        lontolerance = 0.00224577793 / np.cos(slat[k, j] * np.pi / 180)
-                        for l in loc[0]:
-                            if abs(slon[k, j] - clon[l]) < lontolerance:
-                                coords.append([k, j, l])
-                                i = k
+                    try:
+                        matches = abs(slat[k, j] - clat) < lattolerance
+                        if matches.any():
+                            loc = np.where(matches == True)
+                            lontolerance = 0.00224577793 / np.cos(slat[k, j] * np.pi / 180)
+                            for l in loc[0]:
+                                if abs(slon[k, j] - clon[l]) < lontolerance:
+                                    coords.append([k, j, l])
+                                    i = k
+                    except IndexError:
+                        pass
                                 
     else:
         print("No pixel found on edge")
@@ -206,4 +214,6 @@ def collocate(SLSTR_filename, Calipso_filename):
     # SLSTR_row, SLSTR_column, Calipso_index
     return(coords)
     
-
+if __name__ == '__main__':
+    Cfilename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
+    Sfilename = "D:/SatelliteData/S3A_SL_1_RBT____20180401T012743_20180401T013043_20180402T055007_0179_029_288_1620_LN2_O_NT_002.SEN3"

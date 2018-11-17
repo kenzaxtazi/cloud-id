@@ -63,35 +63,21 @@ MODEL_NAME = 'multi_layer_perceptron'.format(LR, 'convolutional')
 # Take one image and collocate pixels 
 
 
-pixels= coll.collocate(SLSTR_filename, CALIOP_filename) # [SLSTR_row, SLSTR_col, CALIPSO_index]
+pixels= coll.collocate(SLSTR_pathname, CALIOP_pathname) # [SLSTR_row, SLSTR_col, CALIPSO_index]
 
-def prep_data(pixels, SLSTR_filename,CALIOP_filename):
+def prep_data(pixels, SLSTR_pathname,CALIOP_pathname):
     
-        
-    olddir = os.getcwd()
-    os.chdir(directory)
-    fpattern = dl._regpatternf()
+    """ prepare data for one CALIOP and one SLSTR file at a time """
     
-    
-    for folder in tqdm(os.listdir()):
-        if re.findall(fpattern, folder) != []:
-            filenames = glob(str(folder) + "/*")
-            filenames = dl.fixdir(filenames)
-            scn = Scene(filenames=filenames, reader='nc_slstr')
-    
-    scn = Scene(filenames=SLSTR_filename, reader='nc_slstr')
+    #Load SLSTR file 
+    scn = Scene(filenames=SLSTR_pathname, reader='nc_slstr')
     pim.load_scene(scn)
+        
+    #Load CALIOP file 
+    file = SD(CALIOP_pathname, SDC.READ)
+    data=cr2.load_data(CALIOP_pathname,'Feature_Classification_Flags')
     
     
-    S1= np.nan_to_num(scn['S1_an'].values)
-    S2= np.nan_to_num(scn['S2_an'].values)
-    S3= np.nan_to_num(scn['S3_an'].values)
-    S4= np.nan_to_num(scn['S4_an'].values)
-    S5= np.nan_to_num(scn['S5_an'].values)
-    S6= np.nan_to_num(scn['S6_an'].values)
-    S7= np.nan_to_num(scn['S7_in'].values)
-    S8= np.nan_to_num(scn['S8_in'].values)
-    S9= np.nan_to_num(scn['S9_in'].values)
     pixel_info=[]
 
     for val in pixels:
@@ -99,10 +85,6 @@ def prep_data(pixels, SLSTR_filename,CALIOP_filename):
         y,x,v = val[0],val[1],val[2]  
         
         truth_set=[]
-        
-        file = SD(CALIOP_filename, SDC.READ)
-
-        data= cr2.load_data(file,'Feature_Classification_Flags')
         
         if 1 < float(vfm.vfm_feature_flags(data[v,0])) < 4:
             truth_set.append(np.array([0,1])) # cloud 
@@ -122,25 +104,38 @@ def prep_data(pixels, SLSTR_filename,CALIOP_filename):
         for i in range(-4,5,2):
             for j in range(-4,5,2):
                 
-                S1set.extend([float(S1[x+i,y+j]+S1[x+i+1,y+j]+
-                                    S1[x+i,y+1+j]+S1[x+i+1,y+j+1])/4.])
-                S2set.extend([float(S2[x+i,y+j]+S2[x+i+1,y+j]+
-                                    S2[x+i,y+1+j]+S2[x+i+1,y+j+1])/4.])
-                S3set.extend([float(S3[x+i,y+j]+S3[x+i+1,y+i]+
-                                    S3[x+i,y+1+j]+S3[x+i+1,y+j+1])/4.])
-                S4set.extend([float(S4[x+i,y+j]+S4[x+i+1,y+j]+
-                                    S4[x+i,y+1+j]+S4[x+i+1,y+j+1])/4.])
-                S5set.extend([float(S5[x+i,y+j]+S5[x+i+1,y+j]+
-                                    S5[x+i,y+1+j]+S5[x+i+1,y+i+1])/4.])
-                S6set.extend([float(S6[x+i,y+j]+S6[x+i+1,y+j]+
-                                    S6[x+i,y+1+j]+S6[x+i+1,y+j+1])/4.])
-                S7set.extend([S7[int(float(x+i)/2.),int(float(y+j)/2.)]]) 
-                S8set.extend([S8[int(float(x+i)/2.),int(float(y+j)/2.)]])
-                S9set.extend([S9[int(float(x+i)/2.),int(float(y+j)/2.)]])
+                S1set.extend([float((scn['S1_an'])[x+i,y+j]+
+                                    (scn['S1_an'])[x+i+1,y+j]+
+                                    (scn['S1_an'])[x+i,y+1+j]+
+                                    (scn['S1_an'])[x+i+1,y+j+1])/4.])
+                S2set.extend([float((scn['S2_an'])[x+i,y+j]+
+                                    (scn['S2_an'])[x+i+1,y+j]+
+                                    (scn['S2_an'])[x+i,y+1+j]+
+                                    (scn['S2_an'])[x+i+1,y+j+1])/4.])
+                S3set.extend([float((scn['S3_an'])[x+i,y+j]+
+                                    (scn['S3_an'])[x+i+1,y+i]+
+                                    (scn['S3_an'])[x+i,y+1+j]+
+                                    (scn['S3_an'])[x+i+1,y+j+1])/4.])
+                S4set.extend([float((scn['S4_an'])[x+i,y+j]+
+                                    (scn['S4_an'])[x+i+1,y+j]+
+                                    (scn['S4_an'])[x+i,y+1+j]+
+                                    (scn['S4_an'])[x+i+1,y+j+1])/4.])
+                S5set.extend([float((scn['S5_an'])[x+i,y+j]+
+                                    (scn['S5_an'])[x+i+1,y+j]+
+                                    (scn['S5_an'])[x+i,y+1+j]+
+                                    (scn['S5_an'])[x+i+1,y+i+1])/4.])
+                S6set.extend([float((scn['S6_an'])[x+i,y+j]+
+                                    (scn['S6_an'])[x+i+1,y+j]+
+                                    (scn['S6_an'])[x+i,y+1+j]+
+                                    (scn['S6_an'])[x+i+1,y+j+1])/4.])
+                S7set.extend([(scn['S7_in'])[int(float(x+i)/2.),int(float(y+j)/2.)]]) 
+                S8set.extend([(scn['S8_in'])[int(float(x+i)/2.),int(float(y+j)/2.)]])
+                S9set.extend([(scn['S9_in'])[int(float(x+i)/2.),int(float(y+j)/2.)]])
                 
         pixel_info.append([S1set, S2set, S3set, S4set, S5set, S6set,
                             S7set, S8set, S9set, truth_set]) 
     
+    np.nan_to_num(pixel_info)
     shuffle(pixel_info)     # mix real good
 
     data= []
@@ -156,14 +151,11 @@ def prep_data(pixels, SLSTR_filename,CALIOP_filename):
     training_truth= np.array(truth[:-500])
     validation_truth= np.array(truth[-500:])
     
-    os.chdir(olddir)
-    
     return training_data, validation_data, training_truth, validation_truth
     
 
 
-    
-
+s
 training_data, validation_data, training_truth, validation_truth = prep_data(directory)
 
 training_data= training_data.reshape(-1,5,5,9)

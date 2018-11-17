@@ -155,8 +155,8 @@ def prep_data(pixels, SLSTR_pathname,CALIOP_pathname):
     
 
 
-s
-training_data, validation_data, training_truth, validation_truth = prep_data(directory)
+
+training_data, validation_data, training_truth, validation_truth = prep_data()
 
 training_data= training_data.reshape(-1,5,5,9)
 validation_data= validation_data.reshape(-1,5,5,9)

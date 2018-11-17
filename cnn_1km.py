@@ -54,16 +54,15 @@ MODEL_NAME = 'multi_layer_perceptron'.format(LR, 'convolutional')
 ###### PREPROCESSING
 
 
-# Take 1 CALIOP file from directory 
-# find the SLSTR images 
+# Please fill in below:
 
-# check if these are availaible 
-# if not dowload these
-  
-# Take one image and collocate pixels 
+SLSTR_pathname =
+CALIOP_pathname =
 
-
+# collcates pixels
 pixels= coll.collocate(SLSTR_pathname, CALIOP_pathname) # [SLSTR_row, SLSTR_col, CALIPSO_index]
+
+
 
 def prep_data(pixels, SLSTR_pathname,CALIOP_pathname):
     
@@ -76,7 +75,6 @@ def prep_data(pixels, SLSTR_pathname,CALIOP_pathname):
     #Load CALIOP file 
     file = SD(CALIOP_pathname, SDC.READ)
     data=cr2.load_data(CALIOP_pathname,'Feature_Classification_Flags')
-    
     
     pixel_info=[]
 
@@ -156,7 +154,7 @@ def prep_data(pixels, SLSTR_pathname,CALIOP_pathname):
 
 
 
-training_data, validation_data, training_truth, validation_truth = prep_data()
+training_data, validation_data, training_truth, validation_truth = prep_data(pixels, )
 
 training_data= training_data.reshape(-1,5,5,9)
 validation_data= validation_data.reshape(-1,5,5,9)

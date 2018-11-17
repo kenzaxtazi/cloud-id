@@ -7,9 +7,9 @@ Created on Sun Nov 11 19:03:33 2018
 
 from pyhdf.SD import SD, SDC
 
-filename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
+#filename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
 
-file = SD(filename, SDC.READ)
+#file = SD(filename, SDC.READ)
 
 
 
@@ -32,7 +32,11 @@ def load_data(file, variable):
     return(data)
     
 if __name__ == '__main__':
-    lat = load_data(file, 'Latitude')
-    lon = load_data(file, 'Longitude')
-    time = load_data(file, 'Profile_Time')
-    utctime = load_data(file, 'Profile_UTC_Time')
+    filename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
+
+    file = SD(filename, SDC.READ)
+    
+    clat = load_data(file, 'Latitude')
+    clon = load_data(file, 'Longitude')
+    ctime = load_data(file, 'Profile_Time')
+    cutctime = load_data(file, 'Profile_UTC_Time')

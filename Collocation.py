@@ -17,17 +17,15 @@ from tqdm import tqdm
 Cfilename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
 Sfilename = "D:/SatelliteData/S3A_SL_1_RBT____20180401T012743_20180401T013043_20180402T055007_0179_029_288_1620_LN2_O_NT_002.SEN3"
 
-def find_SLSTR_data(filename, timewindow=30, num=20, dryrun=False, outputdir=None, quiet=True):
+def find_SLSTR_data(filename, timewindow=30, num=20, dryrun=False, outputdir=None):
     data = []
     
     # Set download website, user credentials, instruments and product type
     command = ["-d", "https://scihub.copernicus.eu/s3/", "-u", "s3guest", "-p", "s3guest", "-i", "SLSTR", "-T", "SL_1_RBT___"]
     
     # Set correct commands for executing the .sh file. System dependent.
-    if quiet == True:
-        program = "dhusget_quiet.sh"
-    else:
-        program = "dhusget.sh"
+
+    program = "dhusget.sh"
         
     if platform.platform()[:10] == 'Windows-10': #
         command = ["C:/Program Files/Git/git-bash.exe", program] + command

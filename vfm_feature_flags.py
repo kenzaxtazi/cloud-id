@@ -195,6 +195,8 @@ def vfm_feature_flags (val):
         print("Horizontal averaging required for detection: 80 km")
     else : 
         print("*** error getting Horizontal averaging")
+    
+    return feature_type
 
     
         

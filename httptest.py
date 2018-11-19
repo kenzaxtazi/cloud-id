@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 import CalipsoReader2 as CR
 from datetime import datetime, timedelta
 import numpy as np
+from tqdm import tqdm
 
 def SLSTR_query(url):
     r = requests.get(url, auth=('s3guest', 's3guest'))
@@ -29,12 +30,11 @@ def SLSTR_query(url):
         for i in root:
             if "entry" in str(i):
                 out.append(i[0].text + "," + i[1].attrib['href'])
-    print(num_matches)
     return(out)
     
 def makeurlquery(Cfilename, timewindow=30, num=20):
     # Set download website, instrument and product type
-    
+
     base = "https://scihub.copernicus.eu/s3//search?q=%20instrumentshortname:SLSTR%20AND%20%20producttype:SL_1_RBT___"
 
     
@@ -85,15 +85,17 @@ def find_SLSTR_data(Cfilename, timewindow=30, num=20):
     queries = makeurlquery(Cfilename, timewindow, num)
     Sfilenames = []
     Sdownloads = []
-    for query in queries:
+    print('Finding matches for ' + Cfilename)
+    for query in tqdm(queries):
         response = SLSTR_query(query)
         if response != []:
             out += response
+            print('Match found')
     out = list(set(out))
     for i in out:
         q = i.split(',')
         Sfilenames.append(q[0])
-        Sdownloads(q[1])
+        Sdownloads.append(q[1])
     return(Sfilenames, Sdownloads)
     
     

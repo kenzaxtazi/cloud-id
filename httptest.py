@@ -10,7 +10,9 @@ import xml.etree.ElementTree as ET
 import CalipsoReader2 as CR
 from datetime import datetime, timedelta
 import numpy as np
-from tqdm import tqdm
+import os
+import zipfile
+import io
 
 def SLSTR_query(url):
     r = requests.get(url, auth=('s3guest', 's3guest'))
@@ -86,7 +88,7 @@ def find_SLSTR_data(Cfilename, timewindow=30, num=20):
     Sfilenames = []
     Sdownloads = []
     print('Finding matches for ' + Cfilename)
-    for query in tqdm(queries):
+    for query in queries:
         response = SLSTR_query(query)
         if response != []:
             out += response
@@ -97,8 +99,35 @@ def find_SLSTR_data(Cfilename, timewindow=30, num=20):
         Sfilenames.append(q[0])
         Sdownloads.append(q[1])
     return(Sfilenames, Sdownloads)
+
+
+def match_directory(directory, timewindow=30, num=20):
+    q = os.listdir(directory)
+    w = [i for i in q if i[-1] == 'f']
+    Data = []
+    for i in range(len(w)):
+        if i % 5 == 0:
+            print("%s of %s files processed"%(str(i), str(len(w))))
+        Sfilenames, Sdownloads = find_SLSTR_data(directory + w[i])
+        if Sfilenames != []:
+            Data.append([w[i], Sfilenames, Sdownloads])
+    return(Data)
     
-    
+def ESA_download(Sdownloads, targetdirectory):
+    olddir = os.getcwd()
+    os.chdir(targetdirectory)
+    for Sfile in Sdownloads:
+        print('Downloading from ' + Sfile)
+        if Sfile.endswith('$value'):
+            url = Sfile
+        else:
+            url = Sfile + '$value'
+        r = requests.get(url, auth=('s3guest', 's3guest'))
+        z = zipfile.ZipFile(io.BytesIO(r.content))
+        z.extractall()
+    os.chdir(olddir)
+            
+            
 if __name__ == '__main__':
     #url = "https://scihub.copernicus.eu/s3//search?q=%20instrumentshortname:SLSTR%20AND%20producttype:SL_1_RBT___%20AND%20(%20footprint:%22Intersects(POLYGON((101.1878500000000%2016.7101170000000,98.9603900000000%2016.7101170000000,98.9603900000000%2026.2178780000000,101.1878500000000%2026.2178780000000,101.1878500000000%2016.7101170000000%20)))%22)&rows=25&start=0"
     #print(SLSTR_query(url))

@@ -126,7 +126,10 @@ def match_directory(directory, timewindow=30, num=20):
 def ESA_download(Sdownloads, targetdirectory):
     olddir = os.getcwd()
     os.chdir(targetdirectory)
-    for Sfile in Sdownloads:
+    for i in range(len(Sdownloads)):
+        if i % 10 == 0:
+            print("%s of %s files downloaded"%(str(i), str(len(Sdownloads))))
+        Sfile = Sdownloads[i]
         print('Downloading from ' + Sfile)
         if Sfile.endswith('$value'):
             url = Sfile

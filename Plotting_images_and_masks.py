@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 import numpy as np 
 
 # create readers and open files
-scn = Scene(filenames=glob('/Users/kenzatazi/Downloads/S3A_SL_1_RBT____20180822T000619_20180822T000919_20180822T015223_0179_035_016_3240_SVL_O_NR_003.SEN3/*'), 
-            reader='nc_slstr')
+# scn = Scene(filenames=glob('/Users/kenzatazi/Downloads/S3A_SL_1_RBT____20180822T000619_20180822T000919_20180822T015223_0179_035_016_3240_SVL_O_NR_003.SEN3/*'), 
+#            reader='nc_slstr')
 
 
 # load datasets from input files
@@ -25,17 +25,17 @@ def load_scene(scn):
               'S9_in','bayes_an', 'bayes_in','cloud_an'])
     
 
-load_scene(scn)
+#load_scene(scn)
 
-S1= np.nan_to_num(scn['S1_an'].values)
-S2= np.nan_to_num(scn['S2_an'].values)
-S3= np.nan_to_num(scn['S3_an'].values)
-S4= np.nan_to_num(scn['S4_an'].values)
-S5= np.nan_to_num(scn['S5_an'].values)
-S6= np.nan_to_num(scn['S6_an'].values)
-S7= np.nan_to_num(np.array(scn['S7_in'][:-1])) 
-S8= np.nan_to_num(np.array(scn['S8_in'][:-1]))
-S9= np.nan_to_num(np.array(scn['S9_in'][:-1]))
+#S1= np.nan_to_num(scn['S1_an'].values)
+#S2= np.nan_to_num(scn['S2_an'].values)
+#S3= np.nan_to_num(scn['S3_an'].values)
+#S4= np.nan_to_num(scn['S4_an'].values)
+#S5= np.nan_to_num(scn['S5_an'].values)
+#S6= np.nan_to_num(scn['S6_an'].values)
+#S7= np.nan_to_num(np.array(scn['S7_in'][:-1])) 
+#S8= np.nan_to_num(np.array(scn['S8_in'][:-1]))
+#S9= np.nan_to_num(np.array(scn['S9_in'][:-1]))
 
 
 def create_mask(scn, mask_name):
@@ -48,17 +48,17 @@ def create_mask(scn, mask_name):
     return mask
 
 
-bayes_mask= create_mask(scn, 'bayes_in')
-emp_mask= create_mask(scn, 'cloud_an')
+#bayes_mask= create_mask(scn, 'bayes_in')
+#emp_mask= create_mask(scn, 'cloud_an')
 
 
 # single channel images 
 
-channel_arrays=[S1, S2, S3, S4, S5, S6, S7, S8, S9]
+# channel_arrays=[S1, S2, S3, S4, S5, S6, S7, S8, S9]
 
-for i in channel_arrays:
-    plt.figure()
-    plt.imshow(i, 'gray')
+#for i in channel_arrays:
+#    plt.figure()
+#    plt.imshow(i, 'gray')
 
 
 # false color image 
@@ -100,9 +100,9 @@ def mask(mask, mask_name, background):
     plt.imshow(mask, vmax=1, cmap='OrRd', alpha=0.3)
 
         
-false_color_image(S3, S2, S1, plot=True)
-mask(bayes_mask,'Baseyian mask', S1)
-mask(emp_mask,'Empirical mask', S1)
+#false_color_image(S3, S2, S1, plot=True)
+#mask(bayes_mask,'Baseyian mask', S1)
+#mask(emp_mask,'Empirical mask', S1)
 
 plt.show()
 

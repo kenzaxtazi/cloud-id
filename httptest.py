@@ -108,12 +108,16 @@ def match_directory(directory, timewindow=30, num=20):
     for i in range(len(w)):
         if i % 5 == 0:
             print("%s of %s files processed"%(str(i), str(len(w))))
-        Sfilenames, Sdownloads = find_SLSTR_data(directory + w[i])
-        if Sfilenames != []:
-            with open('Matches.txt', 'a') as file:
-                for j in range(len(Sfilenames)):
-                    file.write(str(w[i]) + ',' + str(Sfilenames[j]) + ',' + str(Sdownloads[j]) + '\n')
-            Data.append([w[i], Sfilenames, Sdownloads])
+        try:
+            Sfilenames, Sdownloads = find_SLSTR_data(directory + w[i])
+            if Sfilenames != []:
+                with open('Matches.txt', 'a') as file:
+                    for j in range(len(Sfilenames)):
+                        file.write(str(w[i]) + ',' + str(Sfilenames[j]) + ',' + str(Sdownloads[j]) + '\n')
+                Data.append([w[i], Sfilenames, Sdownloads])
+        except:
+            print("Error")
+            pass
     return(Data)
     
 def ESA_download(Sdownloads, targetdirectory):

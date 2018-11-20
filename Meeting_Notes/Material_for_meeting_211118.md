@@ -13,6 +13,12 @@ Kenza has written some functions to evaluate
 * A precision vs recall curve
 * A confusion matrix 
 
+She also lloked into meshing alternative network stuctures to make the model more accurate:
+* Reinforcment learning: un-supervised method, unsuitable as the performance is linked to weather cloud can be directly identified 
+* Recurrent network, supervised method., allows information to transported backwards and forwards. This could potentially be useful. 
+*
+
+Also need to think about most appropiate minimasation algorithm (optimiser). We are currently using: 
 
 ### Limitations
 We plotted about 200 images the model seems to be failing: 

@@ -61,9 +61,10 @@ for p in match_pathnames:
 # collcates pixels returns [SLSTR_row, SLSTR_col, CALIPSO_index]
 pixels=[]
 for n in range(len(CALIOP_pathnames)):
-    pixels.extend(coll.collocate(SLSTR_pathnames[n], CALIOP_pathnames[n]))
+    pixels.extend([coll.collocate(SLSTR_pathnames[n], CALIOP_pathnames[n]), 
+                   SLSTR_pathnames[n], CALIOP_pathnames[n]] )
 
-pixel_info = prep_data.save_data(pixels, SLSTR_pathnames, CALIOP_pathnames)
+pixel_info = prep_data.save_data(pixels)
 
 training_data, validation_data, training_truth, validation_truth = prep_data(pixel_info)
 

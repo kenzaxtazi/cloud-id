@@ -2,7 +2,7 @@
 
 We are succesfully training our network on CALIOP data. 
 
-###Fixes from last week:
+### Fixes from last week:
 
 Tom has installed Anaconda onto lx02 to succesfully get pyhdf working.
 * Attempted to follow the instructions to install without anaconda
@@ -14,7 +14,7 @@ In addition, the time discrepency has been fixed.
 * 10 seconds were from leap seconds added since Jan 1993
 * 1 hour is because the method used was .fromtimestamp instead of .utcfromtimestamp. The method returns the local date which was BST. 
 
-###Data processing
+### Data processing
 Tom rewrote the dhusget.sh script in python using requests.
 * The bash script always run verbosely, attempts to output to /dev/null failed
 * The bash script had strange behaviour, such as always making a failed connection attempt to some address
@@ -31,13 +31,13 @@ The [XML](https://scihub.copernicus.eu/s3//search?q=%20instrumentshortname:SLSTR
 Returns the name of the matching files and a URL to download from:
 * Generally downloads are pretty slow on lx02, and session keeps getting interrupted
 
-###Data processed so far
+### Data processed so far
 * All Caliop CLay 1km V4.10 products from April 2018 were downloaded onto lx02 (daytime)
 * All files were processed using ~ 9000 requests (1 exception)
 * ~ 500 pairings identified in Matches.txt
 * So far around 100 SLSTR files downloaded onto lx02 from ESA ([1 exception](https://scihub.copernicus.eu/s3/odata/v1/Products('147bc5af-5478-4268-8763-69f409486d4d')/$value))
 
-###Future processing
+### Future processing
 We intend to store the data from matching pixels into a new file to generate a dataset which does not require the satellite data.
 Variables to be stored:
 * Clatitude

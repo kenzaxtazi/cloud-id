@@ -54,7 +54,7 @@ def save_data(pixels):
     
     pixel_info=[]
     
-    for f in range(len(val):
+    for f in range(len(val)):
         
         #Load SLSTR file 
         scn = Scene(filenames=SLSTR_pathnames[f], reader='nc_slstr')

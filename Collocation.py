@@ -13,6 +13,9 @@ import numpy as np
 import os
 import zipfile
 import io
+import DataLoader as DL
+from tqdm import tqdm
+
 
 def SLSTR_query(url):
     r = requests.get(url, auth=('s3guest', 's3guest'))
@@ -151,8 +154,147 @@ def ESA_download(Sdownloads, targetdirectory):
     os.chdir(olddir)
             
             
+def collocate(SLSTR_filename, Calipso_filename):
+    # Finds pixels in both files which represent the same geographic position
+    
+    # Load SLSTR coords
+    scn = DL.scene_loader(SLSTR_filename)
+    scn.load(['latitude_an', 'longitude_an'])
+    slat = scn['latitude_an'].values
+    slon = scn['longitude_an'].values
+    
+    # Load Calipso coords
+    file = CR.load_hdf(Calipso_filename)
+    clat = CR.load_data(file, 'Latitude')
+    clon = CR.load_data(file, 'Longitude')
+    
+    # Find coord pairs which are close
+    coords = []
+    
+    # Want the latitude and longitude to be within 250m of each others
+    # 250m = 0.00224577793 degrees lon at equator
+    # 250m = 0.00224577793 * cos(lat) degrees lon at lat
+#    lontolerance = 0.00224577793 * np.cos(clat[0] * np.pi / 180)
+    lattolerance = 0.00224577793
+    #check edges
+    
+    # Edge flag
+    top, bottom, left, right = False, False, False, False
+    
+    # Top/Bottom Row
+    for i in [0, 2399]:
+        for j in range(3000):
+            matches = abs(slat[i, j] - clat) < lattolerance
+            if matches.any():
+                loc = np.where(matches == True)
+                lontolerance = 0.00224577793 / np.cos(slat[i, j] * np.pi / 180)
+                for k in loc[0]:
+                    if abs(slon[i, j] - clon[k]) < lontolerance:
+                        if i == 0:
+                            top = True
+                        if i == 2399:
+                            bottom = True
+                        coords.append([i, j, k])
+            
+    # Left/Right Col
+    for i in range(1, 2399):
+        for j in [0, 2999]:
+            matches = abs(slat[i, j] - clat) < lattolerance
+            if matches.any():
+                loc = np.where(matches == True)
+                lontolerance = 0.00224577793 / np.cos(slat[i, j] * np.pi / 180)
+                for k in loc[0]:
+                    if abs(slon[i, j] - clon[k]) < lontolerance:
+                        if j == 0:
+                            left = True
+                        if j == 2999:
+                            right = True
+                        coords.append([i, j, k])
+            
+    if len(coords) != 0:
+        print("Collocated pixel found on edge")
+        # Check adjacent(ish) neighbours
+        i = coords[0][0]
+        j = coords[0][1]
+
+        
+        if top == True:
+            for i in tqdm(range(2400)):
+                for k in range(j - 10, j + 10):
+                    try:
+                        matches = abs(slat[i, k] - clat) < lattolerance
+                        if matches.any():
+                            loc = np.where(matches == True)
+                            lontolerance = 0.00224577793 / np.cos(slat[i, k] * np.pi / 180)
+                            for l in loc[0]:
+                                if abs(slon[i, k] - clon[l]) < lontolerance:
+                                    coords.append([i, k, l])
+                                    j = k
+                    except IndexError:
+                        pass
+                    
+        elif bottom == True:
+            for i in tqdm(range(2399, -1, -1)): 
+                for k in range(j - 10, j + 10):
+                    try:
+                        matches = abs(slat[i, k] - clat) < lattolerance
+                        if matches.any():
+                            loc = np.where(matches == True)
+                            lontolerance = 0.00224577793 / np.cos(slat[i, k] * np.pi / 180)
+                            for l in loc[0]:
+                                if abs(slon[i, k] - clon[l]) < lontolerance:
+                                    coords.append([i, k, l])
+                                    j = k
+                    except IndexError:
+                        pass
+                
+        elif left == True:
+            for j in tqdm(range(3000)):
+                for k in range(i - 10, i + 11):
+                    try:
+                        matches = abs(slat[k, j] - clat) < lattolerance
+                        if matches.any():
+                            loc = np.where(matches == True)
+                            lontolerance = 0.00224577793 / np.cos(slat[k, j] * np.pi / 180)
+                            for l in loc[0]:
+                                if abs(slon[k, j] - clon[l]) < lontolerance:
+                                    coords.append([k, j, l])
+                                    i = k
+                    except IndexError:
+                        pass
+                    
+        elif right == True:
+            for j in tqdm(range(2999, -1, -1)):
+                for k in range(i - 10, i + 11):
+                    try:
+                        matches = abs(slat[k, j] - clat) < lattolerance
+                        if matches.any():
+                            loc = np.where(matches == True)
+                            lontolerance = 0.00224577793 / np.cos(slat[k, j] * np.pi / 180)
+                            for l in loc[0]:
+                                if abs(slon[k, j] - clon[l]) < lontolerance:
+                                    coords.append([k, j, l])
+                                    i = k
+                    except IndexError:
+                        pass
+                                
+    else:
+        print("No pixel found on edge")
+        for i in tqdm(range(2400)):
+            for j in range(3000):
+                matches = abs(slat[i, j] - clat) < lattolerance
+                if matches.any():
+                    loc = np.where(matches == True)
+                    lontolerance = 0.00224577793 / np.cos(slat[i, j] * np.pi / 180)
+                    for k in loc[0]:
+                        if abs(slon[i, j] - clon[k]) < lontolerance:
+                            coords.append([i, j, k])
+    
+    # Return position of matching coordinates in a row
+    # SLSTR_row, SLSTR_column, Calipso_index
+    return(coords)
+    
 if __name__ == '__main__':
-    #url = "https://scihub.copernicus.eu/s3//search?q=%20instrumentshortname:SLSTR%20AND%20producttype:SL_1_RBT___%20AND%20(%20footprint:%22Intersects(POLYGON((101.1878500000000%2016.7101170000000,98.9603900000000%2016.7101170000000,98.9603900000000%2026.2178780000000,101.1878500000000%2026.2178780000000,101.1878500000000%2016.7101170000000%20)))%22)&rows=25&start=0"
-    #print(SLSTR_query(url))
-    pass
+    Cfilename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
+    Sfilename = "D:/SatelliteData/S3A_SL_1_RBT____20180401T012743_20180401T013043_20180402T055007_0179_029_288_1620_LN2_O_NT_002.SEN3"
     

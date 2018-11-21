@@ -25,21 +25,11 @@ Created on Fri Oct 19 15:28:06 2018
 
 import os
 import numpy as np
-from glob import glob
-from satpy import Scene
-from random import shuffle
 import matplotlib.pyplot as plt
-from tqdm import tqdm   #percentage bar for tasks.
 import DataLoader as dl
 import re
-
-import Plotting_images_and_masks as pim
-
-import vfm_feature_flags as vfm 
-import CalipsoReader2 as cr2
+from PrepData import prep_data
 import Collocation as coll
-from pyhdf.SD import SD, SDC
-
 from tflearn.layers.conv import conv_2d, max_pool_2d
 
 # directory where we are storing the 1km CALIOP data
@@ -48,120 +38,41 @@ directory= '/Users/kenzatazi/Downloads/Directory'
 LR = 1e-3
 
  
-MODEL_NAME = 'multi_layer_perceptron'.format(LR, 'convolutional') 
+MODEL_NAME = 'cnn_1km'.format(LR, 'convolutional') 
 
 
 ###### PREPROCESSING
 
+match_pathnames= prep_data.open_matches()
+
+caliop_directory= '/home/hep/trz15/cloud/Calipso/1km/2018/04'
+slstr_directory= '/home/hep/trz15/cloud/SLSTR/2018/04'
+
+
+CALIOP_pathnames= []
+SLSTR_pathnames= []
 
 # Please fill in below:
+for p in match_pathnames:
+    print((p[0])[43:45])
+    CALIOP_pathnames.append(caliop_directory+(p[0])[43:45]+'/'+p[0])
+    SLSTR_pathnames.append(slstr_directory + p[1])
 
-SLSTR_pathname =
-CALIOP_pathname =
+# collcates pixels returns [SLSTR_row, SLSTR_col, CALIPSO_index]
+pixels=[]
+for n in range(len(CALIOP_pathnames)):
+    pixels.extend([coll.collocate(SLSTR_pathnames[n], CALIOP_pathnames[n]), 
+                   SLSTR_pathnames[n], CALIOP_pathnames[n]] )
 
-# collcates pixels
-pixels= coll.collocate(SLSTR_pathname, CALIOP_pathname) # [SLSTR_row, SLSTR_col, CALIPSO_index]
+pixel_info = prep_data.save_data(pixels)
 
-
-
-def prep_data(pixels, SLSTR_pathname,CALIOP_pathname):
-    
-    """ prepare data for one CALIOP and one SLSTR file at a time """
-    
-    #Load SLSTR file 
-    scn = Scene(filenames=SLSTR_pathname, reader='nc_slstr')
-    pim.load_scene(scn)
-        
-    #Load CALIOP file 
-    file = SD(CALIOP_pathname, SDC.READ)
-    data=cr2.load_data(CALIOP_pathname,'Feature_Classification_Flags')
-    
-    pixel_info=[]
-
-    for val in pixels:
-        
-        y,x,v = val[0],val[1],val[2]  
-        
-        truth_set=[]
-        
-        if 1 < float(vfm.vfm_feature_flags(data[v,0])) < 4:
-            truth_set.append(np.array([0,1])) # cloud 
-        else:
-            truth_set.append(np.array([1,0])) # not cloud
-        
-        S1set=[]
-        S2set=[]
-        S3set=[]
-        S4set=[]
-        S5set=[]
-        S6set=[]
-        S7set=[]
-        S8set=[]
-        S9set=[]
-                
-        for i in range(-4,5,2):
-            for j in range(-4,5,2):
-                
-                S1set.extend([float((scn['S1_an'])[x+i,y+j]+
-                                    (scn['S1_an'])[x+i+1,y+j]+
-                                    (scn['S1_an'])[x+i,y+1+j]+
-                                    (scn['S1_an'])[x+i+1,y+j+1])/4.])
-                S2set.extend([float((scn['S2_an'])[x+i,y+j]+
-                                    (scn['S2_an'])[x+i+1,y+j]+
-                                    (scn['S2_an'])[x+i,y+1+j]+
-                                    (scn['S2_an'])[x+i+1,y+j+1])/4.])
-                S3set.extend([float((scn['S3_an'])[x+i,y+j]+
-                                    (scn['S3_an'])[x+i+1,y+i]+
-                                    (scn['S3_an'])[x+i,y+1+j]+
-                                    (scn['S3_an'])[x+i+1,y+j+1])/4.])
-                S4set.extend([float((scn['S4_an'])[x+i,y+j]+
-                                    (scn['S4_an'])[x+i+1,y+j]+
-                                    (scn['S4_an'])[x+i,y+1+j]+
-                                    (scn['S4_an'])[x+i+1,y+j+1])/4.])
-                S5set.extend([float((scn['S5_an'])[x+i,y+j]+
-                                    (scn['S5_an'])[x+i+1,y+j]+
-                                    (scn['S5_an'])[x+i,y+1+j]+
-                                    (scn['S5_an'])[x+i+1,y+i+1])/4.])
-                S6set.extend([float((scn['S6_an'])[x+i,y+j]+
-                                    (scn['S6_an'])[x+i+1,y+j]+
-                                    (scn['S6_an'])[x+i,y+1+j]+
-                                    (scn['S6_an'])[x+i+1,y+j+1])/4.])
-                S7set.extend([(scn['S7_in'])[int(float(x+i)/2.),int(float(y+j)/2.)]]) 
-                S8set.extend([(scn['S8_in'])[int(float(x+i)/2.),int(float(y+j)/2.)]])
-                S9set.extend([(scn['S9_in'])[int(float(x+i)/2.),int(float(y+j)/2.)]])
-                
-        pixel_info.append([S1set, S2set, S3set, S4set, S5set, S6set,
-                            S7set, S8set, S9set, truth_set]) 
-    
-    np.nan_to_num(pixel_info)
-    shuffle(pixel_info)     # mix real good
-
-    data= []
-    truth= []
-    
-    for i in pixel_info:
-        data.append(i[:-1])
-        truth.append(i[-1])
-        
-  
-    training_data= np.array(data[:-500]) # take all but the 500 last 
-    validation_data= np.array(data[-500:])    # take 500 last pixels 
-    training_truth= np.array(truth[:-500])
-    validation_truth= np.array(truth[-500:])
-    
-    return training_data, validation_data, training_truth, validation_truth
-    
-
-
-
-training_data, validation_data, training_truth, validation_truth = prep_data(pixels, )
+training_data, validation_data, training_truth, validation_truth = prep_data(pixel_info)
 
 training_data= training_data.reshape(-1,5,5,9)
 validation_data= validation_data.reshape(-1,5,5,9)
 
 
 #### MACHINE LEARNING 
-
 
 
 import tflearn 
@@ -202,10 +113,6 @@ convnet = regression(convnet, optimizer='adam', learning_rate=LR, \
                      loss='categorical_crossentropy', name='targets')
 
 model = tflearn.DNN(convnet, tensorboard_verbose=0)
-
-
-
-### UNPACK SAVED DATA
 
 
 model.fit(training_data, training_truth, n_epoch=1, validation_set =

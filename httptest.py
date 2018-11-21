@@ -18,7 +18,6 @@ def SLSTR_query(url):
     r = requests.get(url, auth=('s3guest', 's3guest'))
     root = ET.fromstring(r.text)
     out = []
-    
     # Number of matches:
     if 'totalResult' in str(root[5]):
         num_matches = root[5].text
@@ -53,32 +52,40 @@ def makeurlquery(Cfilename, timewindow=30, num=20):
     xs = xs.astype(int)
     
     out = []
-    
-    # Set time query
-    for i in range(len(xs) - 1):
-        query = ""
-        a = xs[i]
-        b = xs[i+1]
-        c = int(0.5 * (a + b))
-        timestamp = datetime.utcfromtimestamp(time[c][0])
-        windowstart = timestamp - timedelta(minutes = timewindow)
-        windowend = timestamp + timedelta(minutes = timewindow)
-        query += "%20AND%20%20beginPosition:["
-        query += str(windowstart.isoformat())[:-3] + 'Z'
-        query += "%20TO%20"
-        query += str(windowend.isoformat())[:-3] + 'Z' + "]"
 
+    # Set time query
+    for j in range(2):
+        longquery = "%20AND%20%20"
+        for i in range(int(num/2)):
+            query = "("
+            a = xs[i]
+            b = xs[i+1]
+            c = int(0.5 * (a + b))
+            timestamp = datetime.utcfromtimestamp(time[c][0])
+            windowstart = timestamp - timedelta(minutes = timewindow)
+            windowend = timestamp + timedelta(minutes = timewindow)
+            query += "beginPosition:["
+            query += str(windowstart.isoformat())[:-3] + 'Z'
+            query += "%20TO%20"
+            query += str(windowend.isoformat())[:-3] + 'Z' + "]"
     
-    # Set Positional query
-        query += "%20%20%20AND%20%20(%20footprint:%22Intersects(POLYGON(("
-        query += str(lon[a][0]) + "%20" + str(lat[a][0]) + str(',')
-        query += str(lon[b][0]) + "%20" + str(lat[a][0]) + str(',')
-        query += str(lon[b][0]) + "%20" + str(lat[b][0]) + str(',')
-        query += str(lon[a][0]) + "%20" + str(lat[b][0]) + str(',')
-        query += str(lon[a][0]) + "%20" + str(lat[a][0])
-        query += "%20)))%22)&rows=25&start=0"
         
-        out.append(base + query)
+        # Set Positional query
+            query += "%20%20%20AND%20%20(%20footprint:%22Intersects(POLYGON(("
+            query += str(lon[a][0]) + "%20" + str(lat[a][0]) + str(',')
+            query += str(lon[b][0]) + "%20" + str(lat[a][0]) + str(',')
+            query += str(lon[b][0]) + "%20" + str(lat[b][0]) + str(',')
+            query += str(lon[a][0]) + "%20" + str(lat[b][0]) + str(',')
+            query += str(lon[a][0]) + "%20" + str(lat[a][0])
+            query += "%20)))%22))"
+            
+            if i == 0:
+                longquery += query
+            else:
+                longquery += "%20OR%20" + query
+        
+        longquery += "&rows=25&start=0"
+        out.append(base + longquery)
     return(out)
 
 
@@ -123,15 +130,24 @@ def match_directory(directory, timewindow=30, num=20):
 def ESA_download(Sdownloads, targetdirectory):
     olddir = os.getcwd()
     os.chdir(targetdirectory)
-    for Sfile in Sdownloads:
+    for i in range(len(Sdownloads)):
+        if i % 10 == 0:
+            print("%s of %s files downloaded"%(str(i), str(len(Sdownloads))))
+        Sfile = Sdownloads[i]
         print('Downloading from ' + Sfile)
         if Sfile.endswith('$value'):
             url = Sfile
         else:
             url = Sfile + '$value'
         r = requests.get(url, auth=('s3guest', 's3guest'))
-        z = zipfile.ZipFile(io.BytesIO(r.content))
-        z.extractall()
+        if r.status_code != 200:
+            print("Error downloading " + str(Sfile))
+        else:
+            try:
+                z = zipfile.ZipFile(io.BytesIO(r.content))
+                z.extractall()
+            except:
+                print("Error downloading " + str(Sfile))
     os.chdir(olddir)
             
             

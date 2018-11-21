@@ -48,6 +48,10 @@ Variables to be stored:
 * Stime
 * Slatitude
 * Slongitude
+* Store URL origin data (ref)
+* Solar Zenith Angle
+* SCloudMasks
+ 
 
 Probably using np.arrays, although possible may switch to pandas.dataframe
 

@@ -23,7 +23,7 @@ The [XML](https://scihub.copernicus.eu/s3//search?q=%20instrumentshortname:SLSTR
 
 
 
-###Known bugs for sending queries:
+### Known bugs for sending queries:
 * Combining queries together using OR gives unexpected results
 * Very rare bug (~1/60000) for if the timestamp is exactly on the minute - format becomes incorrect
 
@@ -51,7 +51,7 @@ Variables to be stored:
 
 Probably using np.arrays, although possible may switch to pandas.dataframe
 
-###Neural Networks
+### Neural Networks
 Kenza has written the code to input values from multiple CALIOP and SLSTR files into the 1km CNN (see ccn_1km.py and PrepData.py). She has also written some functions to evaluate future networks (see model_evaluation.py):
 * The accuracy
 * The accuracy vs number of inputs

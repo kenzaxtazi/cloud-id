@@ -16,7 +16,7 @@ from pyhdf.SD import SD, SDC
 from satpy import Scene
 from random import shuffle
 from tqdm import tqdm   #percentage bar for tasks.
-import pandas as pd 
+
 
 
 def open_matches():
@@ -54,7 +54,7 @@ def save_data(pixels):
     
     pixel_info=[]
     
-    for f in range(len(val)):
+    for f in tqdm(range(len(val))):
         
         #Load SLSTR file 
         scn = Scene(filenames=SLSTR_pathnames[f], reader='nc_slstr')
@@ -119,7 +119,7 @@ def save_data(pixels):
                             S7set, S8set, S9set], truth_set, [caliop_datetime, 
                                                slstr_datetime]]) 
     
-    np.savetxt("/home/hep/trz15/Masters_Project/Collocated_pixels/pixel_info.csv", 
+    np.savetxt("/home/hep/trz15/Collocated_Pixels/pixel_info.csv", 
                       pixel_info, delimiter=",")
         
     return pixel_info

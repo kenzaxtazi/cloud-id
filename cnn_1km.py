@@ -54,13 +54,13 @@ SLSTR_pathnames= []
 
 # Please fill in below:
 for p in match_pathnames:
-    print((p[0])[43:45])
     CALIOP_pathnames.append(caliop_directory+(p[0])[43:45]+'/'+p[0])
     SLSTR_pathnames.append(slstr_directory + p[1])
 
 # collcates pixels returns [SLSTR_row, SLSTR_col, CALIPSO_index]
 pixels=[]
 for n in range(len(CALIOP_pathnames)):
+    print(SLSTR_pathnames[n])
     pixels.extend([coll.collocate(SLSTR_pathnames[n], CALIOP_pathnames[n]), 
                    SLSTR_pathnames[n], CALIOP_pathnames[n]] )
 

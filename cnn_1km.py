@@ -61,8 +61,8 @@ for p in match_pathnames:
 pixels=[]
 for n in range(len(CALIOP_pathnames)):
     print(SLSTR_pathnames[n])
-    pixels.extend([coll.collocate(SLSTR_pathnames[n], CALIOP_pathnames[n]), 
-                   SLSTR_pathnames[n], CALIOP_pathnames[n]] )
+    pixels.append([coll.collocate(SLSTR_pathnames[n], CALIOP_pathnames[n]), 
+                   SLSTR_pathnames[n], CALIOP_pathnames[n]])
 
 pixel_info = prep.save_data(pixels)
 

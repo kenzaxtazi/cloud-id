@@ -28,7 +28,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import DataLoader as dl
 import re
-from PrepData import prep_data
+import PrepData as prep
 import Collocation as coll
 from tflearn.layers.conv import conv_2d, max_pool_2d
 
@@ -43,7 +43,7 @@ MODEL_NAME = 'cnn_1km'.format(LR, 'convolutional')
 
 ###### PREPROCESSING
 
-match_pathnames= prep_data.open_matches()
+match_pathnames= prep.open_matches()
 
 caliop_directory= '/home/hep/trz15/cloud/Calipso/1km/2018/04'
 slstr_directory= '/home/hep/trz15/cloud/SLSTR/2018/04'
@@ -64,9 +64,9 @@ for n in range(len(CALIOP_pathnames)):
     pixels.extend([coll.collocate(SLSTR_pathnames[n], CALIOP_pathnames[n]), 
                    SLSTR_pathnames[n], CALIOP_pathnames[n]] )
 
-pixel_info = prep_data.save_data(pixels)
+pixel_info = prep.save_data(pixels)
 
-training_data, validation_data, training_truth, validation_truth = prep_data(pixel_info)
+training_data, validation_data, training_truth, validation_truth = prep.prep_data(pixel_info)
 
 training_data= training_data.reshape(-1,5,5,9)
 validation_data= validation_data.reshape(-1,5,5,9)

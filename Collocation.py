@@ -182,7 +182,7 @@ def collocate(SLSTR_filename, Calipso_filename):
     top, bottom, left, right = False, False, False, False
     
     # Top/Bottom Row
-    for i in [0, 2399]:
+    for i in [0, 1, 2, 2397, 2398, 2399]:
         for j in range(3000):
             matches = abs(slat[i, j] - clat) < lattolerance
             if matches.any():
@@ -198,7 +198,7 @@ def collocate(SLSTR_filename, Calipso_filename):
             
     # Left/Right Col
     for i in range(1, 2399):
-        for j in [0, 2999]:
+        for j in [0, 1, 2, 2997, 2998, 2999]:
             matches = abs(slat[i, j] - clat) < lattolerance
             if matches.any():
                 loc = np.where(matches == True)
@@ -280,16 +280,8 @@ def collocate(SLSTR_filename, Calipso_filename):
                                 
     else:
         print("No pixel found on edge")
-        for i in tqdm(range(2400)):
-            for j in range(3000):
-                matches = abs(slat[i, j] - clat) < lattolerance
-                if matches.any():
-                    loc = np.where(matches == True)
-                    lontolerance = 0.00224577793 / np.cos(slat[i, j] * np.pi / 180)
-                    for k in loc[0]:
-                        if abs(slon[i, j] - clon[k]) < lontolerance:
-                            coords.append([i, j, k])
-    
+        return(None)
+    coords = [list(x) for x in set(tuple(x) for x in coords)]
     # Return position of matching coordinates in a row
     # SLSTR_row, SLSTR_column, Calipso_index
     return(coords)

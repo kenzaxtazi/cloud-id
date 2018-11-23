@@ -32,7 +32,7 @@ def SLSTR_query(url):
         else:
             print('No matches')
         return(out)
-        
+
     elif r.status_code == 400:
         print('Response Code Error')
         return([])
@@ -178,19 +178,19 @@ def collocate(SLSTR_filename, Calipso_filename):
     def match_SLSTR_pixel(indices):
         out = []
         i, j = indices
-        if 0 <= i < 2400 and 0 <= j < 3000:        
+        if 0 <= i < 2400 and 0 <= j < 3000:
             matches = abs(slat[i, j] - clat) < lattolerance
             if matches.any():
                 loc = np.where(matches == True)
-                lontolerance = (lattolerance / np.cos(slat[i, j] * np.pi / 180))
+                lontolerance = (
+                    lattolerance / np.cos(slat[i, j] * np.pi / 180))
                 for k in loc[0]:
                     if abs(slon[i, j] - clon[k]) < lontolerance:
                         out.append([i, j, k])
         if out == []:
             out = None
         return(out)
-        
-             
+
     def findedgepixel():
         # Check near the edge of SLSTR matrix for matches
 
@@ -204,7 +204,7 @@ def collocate(SLSTR_filename, Calipso_filename):
                     if i > 2396:
                         edge = 'bottom'
                     return(out, edge)
-                
+
         # Left/Right Col
         for i in range(1, 2399):
             for j in [0, 1, 2, 2999, 2998, 2997]:
@@ -220,8 +220,7 @@ def collocate(SLSTR_filename, Calipso_filename):
         return(None, None)
 
     coords, edge = findedgepixel()
- 
-    
+
     if coords != None:
         print("Collocated pixel found on edge")
         # Check adjacent(ish) neighbours
@@ -243,7 +242,7 @@ def collocate(SLSTR_filename, Calipso_filename):
                     if matches != None:
                         coords += matches
                         j = k
-                        
+
         elif edge == 'left':
             for j in tqdm(range(3000)):
                 for k in range(i - 10, i + 11):

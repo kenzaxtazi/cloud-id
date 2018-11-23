@@ -30,8 +30,6 @@ def open_matches():
     """
     df= pd.read_csv('/home/hep/trz15/Masters_Project/Matches.txt',dtype=str)
     array= df.values
-    print(array)
-    print(np.shape(array))
     filenames=[]
     for n in array:
         filenames.append([n[0],n[1],n[2]])
@@ -53,10 +51,7 @@ def save_data(pixels):
     val= pixels[:,0]
     SLSTR_pathnames = pixels[:,1]
     CALIOP_pathnames = pixels[:,2]
-    
-    
-    pixel_info=[]
-    
+        
     for f in tqdm(range(len(val))):
         
         #Load SLSTR file 
@@ -127,16 +122,16 @@ def save_data(pixels):
                 S8set.extend([(scn['S8_in'])[int(float(x+i)/2.),int(float(y+j)/2.)]])
                 S9set.extend([(scn['S9_in'])[int(float(x+i)/2.),int(float(y+j)/2.)]])
                 
-        pixel_info.append([[S1set, S2set, S3set, S4set, S5set, S6set,
-                            S7set, S8set, S9set], 
-                            truth_set, 
-                            [slstr_datetime, caliop_datetime],
-                            [[slstr_lat, slstr_lon], [caliop_lat, caliop_lon]]
-                            [slstr_sza, caliop_sza]])
+        pixel_info= [S1set, S2set, S3set, S4set, S5set, S6set, S7set, S8set, 
+                     S9set], 
+                     truth_set, 
+                     [slstr_datetime, caliop_datetime],
+                     [[slstr_lat, slstr_lon], [caliop_lat, caliop_lon]]
+                     [slstr_sza, caliop_sza]])
         scn.unload()
     
-    df= pd.DataFrame(pixel_info)
-    df.to_csv("/home/hep/trz15/Collocated_Pixels/pixel_info.csv", 
+        df= pd.DataFrame(pixel_info)
+        df.to_csv("/home/hep/trz15/Collocated_Pixels/pixel_info.csv", 
                  delimiter=",")
         
     return pixel_info

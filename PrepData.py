@@ -31,6 +31,7 @@ def open_matches():
     df= pd.read_csv('/home/hep/trz15/Masters_Project/Matches.txt',dtype=str)
     array= df.values
     print(array)
+    print(np.shape(array))
     filenames=[]
     for n in array:
         value0, value1, value2= n[0].split(',')

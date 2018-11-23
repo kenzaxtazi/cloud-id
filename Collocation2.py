@@ -270,6 +270,9 @@ def collocate(SLSTR_filename, Calipso_filename):
 
     # Return position of matching coordinates in a list
     # SLSTR_row, SLSTR_column, Calipso_index
+    
+    scn.unload()
+    
     return(coords)
 
 

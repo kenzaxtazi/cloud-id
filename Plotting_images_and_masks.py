@@ -22,7 +22,8 @@ def load_scene(scn):
     """ Loads the information from the netcdf files in the folder"""
     #scn.load(scn.available_dataset_names())
     scn.load(['S1_an','S2_an','S3_an','S4_an','S5_an','S6_an','S7_in','S8_in',
-              'S9_in','bayes_an', 'bayes_in','cloud_an'])
+              'S9_in','bayes_an', 'bayes_in','cloud_an', 'longitude_an', 
+              'latitude_an', 'solar_zenith_angle'])
     
 
 #load_scene(scn)

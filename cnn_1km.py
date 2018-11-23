@@ -29,7 +29,7 @@ import matplotlib.pyplot as plt
 import DataLoader as dl
 import re
 import PrepData as prep
-import Collocation as coll
+import Collocation2 as coll
 from tflearn.layers.conv import conv_2d, max_pool_2d
 
 # directory where we are storing the 1km CALIOP data

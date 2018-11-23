@@ -161,6 +161,8 @@ def collocate(SLSTR_filename, Calipso_filename):
     scn.load(['latitude_an', 'longitude_an'])
     slat = scn['latitude_an'].values
     slon = scn['longitude_an'].values
+    
+    scn.unload()
 
     # Load Calipso coords
     with CR.SDopener(Calipso_filename) as file:
@@ -271,7 +273,7 @@ def collocate(SLSTR_filename, Calipso_filename):
     # Return position of matching coordinates in a list
     # SLSTR_row, SLSTR_column, Calipso_index
     
-    scn.unload()
+    
     
     return(coords)
 

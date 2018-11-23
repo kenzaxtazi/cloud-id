@@ -122,14 +122,14 @@ def save_data(pixels):
                 S8set.extend([(scn['S8_in'])[int(float(x+i)/2.),int(float(y+j)/2.)]])
                 S9set.extend([(scn['S9_in'])[int(float(x+i)/2.),int(float(y+j)/2.)]])
                 
-        pixel_info= [S1set, S2set, S3set, S4set, S5set, S6set, S7set, S8set, 
-                     S9set], 
-                     truth_set, 
-                     [slstr_datetime, caliop_datetime],
-                     [[slstr_lat, slstr_lon], [caliop_lat, caliop_lon]]
-                     [slstr_sza, caliop_sza]])
+        pixel_info = [[S1set, S2set, S3set, S4set, S5set, S6set, S7set, S8set, S9set], 
+                      truth_set, 
+                      [slstr_datetime, caliop_datetime],
+                      [[slstr_lat, slstr_lon], [caliop_lat, caliop_lon]]
+                      [slstr_sza, caliop_sza]]
+        
         scn.unload()
-    
+        
         df= pd.DataFrame(pixel_info)
         df.to_csv("/home/hep/trz15/Collocated_Pixels/pixel_info.csv", 
                  delimiter=",")

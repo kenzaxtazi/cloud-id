@@ -34,7 +34,7 @@ def open_matches():
     print(np.shape(array))
     filenames=[]
     for n in array:
-        value0, value1, value2= n[0].split(',')
+        value0, value1, value2= n[0],n[1],n[2]
         filenames.append([value0, value1, value2])
     return filenames
     

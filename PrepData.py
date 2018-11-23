@@ -34,8 +34,7 @@ def open_matches():
     print(np.shape(array))
     filenames=[]
     for n in array:
-        value0, value1, value2= n[0],n[1],n[2]
-        filenames.append([value0, value1, value2])
+        filenames.append([n[0],n[1],n[2]])
     return filenames
     
 
@@ -134,6 +133,7 @@ def save_data(pixels):
                             [slstr_datetime, caliop_datetime],
                             [[slstr_lat, slstr_lon], [caliop_lat, caliop_lon]]
                             [slstr_sza, caliop_sza]])
+        scn.unload()
     
     df= pd.DataFrame(pixel_info)
     df.to_csv("/home/hep/trz15/Collocated_Pixels/pixel_info.csv", 

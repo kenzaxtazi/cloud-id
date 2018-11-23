@@ -201,7 +201,7 @@ def collocate(SLSTR_filename, Calipso_filename):
                         if abs(slon[i, j] - clon[k]) < lontolerance:
                             if i in [0, 1, 2]:
                                 edge = 'top'
-                            if i == [2397, 2398, 2399]:
+                            if i in [2397, 2398, 2399]:
                                 edge = 'bottom'
                             return([[i, j, k]], edge)
 

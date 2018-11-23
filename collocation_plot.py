@@ -10,139 +10,37 @@ from satpy import Scene
 from glob import glob
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-import numpy as np 
+import numpy as np
 import Plotting_images_and_masks as pim
-import vfm_feature_flags as vfm 
-import CalipsoReader2 as cr2
+import vfm_feature_flags2 as vfm
+import CalipsoReader2 as CR
+import DataLoader as DL
+from Collocation import collocate
 
 
-scn = Scene(filenames=glob('/Users/kenzatazi/Downloads/S3A_SL_1_RBT____20180401T012743_20180401T013043_20180402T055007_0179_029_288_1620_LN2_O_NT_002.SEN3/*'), 
-            reader='nc_slstr')
+def plotmatchingpixels(Sfilename, Cfilename, coords):
+    scn = DL.scene_loader(Sfilename)
+    scn.load(['S1_an'])
+    S1 = np.nan_to_num(scn['S1_an'].values)
+    with CR.SDopener(Cfilename) as file:
+        data = CR.load_data(file, 'Feature_Classification_Flags')
+    values = []
 
-pim.load_scene(scn)
-
-S1= np.nan_to_num(scn['S1_an'].values)
-
-
-pixels = np.array([[687, 61, 19188],
- [712, 121, 19156],
- [737, 181, 19124],
- [799, 331, 19044],
- [812, 362, 19028],
- [819, 380, 19018],
- [832, 411, 19002],
- [851, 458, 18977],
- [852, 460, 18976],
- [918, 624, 18889],
- [920, 629, 18886],
- [932, 659, 18870],
- [934, 665, 18867],
- [936, 669, 18865],
- [937, 671, 18864],
- [943, 686, 18856],
- [949, 702, 18847],
- [966, 746, 18824],
- [1006, 845, 18772],
- [1009, 852, 18768],
- [1082, 1038, 18670],
- [1113, 1119, 18627],
- [1115, 1124, 18624],
- [1137, 1180, 18595],
- [1144, 1198, 18585],
- [1155, 1227, 18570],
- [1166, 1255, 18555],
- [1181, 1295, 18534],
- [1183, 1301, 18531],
- [1193, 1326, 18518],
- [1195, 1331, 18515],
- [1202, 1350, 18505],
- [1217, 1388, 18485],
- [1227, 1415, 18471],
- [1235, 1436, 18460],
- [1238, 1445, 18455],
- [1284, 1566, 18391],
- [1290, 1584, 18382],
- [1295, 1595, 18376],
- [1322, 1667, 18338],
- [1330, 1688, 18327],
- [1346, 1732, 18304],
- [1365, 1782, 18278],
- [1378, 1817, 18259],
- [1405, 1890, 18221],
- [1423, 1939, 18195],
- [1435, 1972, 18178],
- [1436, 1974, 18177],
- [1440, 1985, 18171],
- [1456, 2031, 18147],
- [1462, 2046, 18139],
- [1478, 2090, 18116],
- [1489, 2121, 18100],
- [1498, 2145, 18087],
- [1509, 2174, 18072],
- [1536, 2248, 18033],
- [1536, 2250, 18032],
- [1540, 2259, 18027],
- [1540, 2261, 18026],
- [1557, 2307, 18002],
- [1572, 2349, 17980],
- [1573, 2351, 17979],
- [1573, 2353, 17978],
- [1581, 2374, 17967],
- [1582, 2376, 17966],
- [1585, 2384, 17962],
- [1592, 2405, 17951],
- [1602, 2433, 17936],
- [1637, 2529, 17886],
- [1646, 2555, 17872],
- [1660, 2594, 17852],
- [1666, 2611, 17843],
- [1675, 2638, 17829],
- [1677, 2643, 17826],
- [1693, 2687, 17803],
- [1695, 2693, 17800],
- [1696, 2695, 17799],
- [1698, 2702, 17795],
- [1710, 2735, 17778],
- [1714, 2748, 17771],
- [1727, 2783, 17753],
- [1736, 2808, 17740],
- [1737, 2812, 17738],
- [1738, 2815, 17736],
- [1739, 2819, 17734],
- [1744, 2831, 17728],
- [1747, 2840, 17723],
- [1749, 2846, 17720],
- [1752, 2854, 17716],
- [1777, 2925, 17679],
- [1783, 2942, 17670],
- [1783, 2944, 17669],
- [1784, 2946, 17668],
- [1799, 2988, 17646]])
+    for i in coords[:, 2]:
+        # see vfm function for value meaning
+        values.append(float(vfm.vfm_feature_flags((data[i, 0]))))
+    m = cm.ScalarMappable(cmap=cm.jet)
+    m.set_array(values)
+    plt.figure()
+    plt.imshow(S1, 'gray')
+    sc = plt.scatter(coords[:, 1], coords[:, 0], c=values, cmap='jet')
+    plt.colorbar(m)
+    plt.show()
 
 
+if __name__ == '__main__':
+    Cfilename = "D:\SatelliteData\Calipso1km\CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
+    Sfilename = "D:\SatelliteData\S3A_SL_1_RBT____20180401T012743_20180401T013043_20180402T055007_0179_029_288_1620_LN2_O_NT_002.SEN3"
+    coords = np.array(collocate(Sfilename, Cfilename))
 
-from pyhdf.SD import SD, SDC
-
-filename = "/Users/kenzatazi/Downloads/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
-
-file = SD(filename, SDC.READ)
-
-
-data= cr2.load_data(file,'Feature_Classification_Flags')
-
-
-values=[]
-
-for i in pixels[:,2]:
-    # see vfm function for value meaning 
-    values.append(float(vfm.vfm_feature_flags((data[i,0]))))  
-
-m = cm.ScalarMappable(cmap=cm.jet)
-m.set_array(values)
-plt.figure()
-plt.imshow(S1, 'gray')
-sc=plt.scatter(pixels[:,1], pixels[:,0], c=values, cmap='jet')
-plt.colorbar(m)
-plt.show()
-
-
+    plotmatchingpixels(Sfilename, Cfilename, coords)

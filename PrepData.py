@@ -8,6 +8,7 @@ Created on Mon Nov 19 17:20:12 2018
 
 ### Data prepareation
 
+import gc
 import numpy as np
 import Plotting_images_and_masks as pim
 import vfm_feature_flags2 as vfm 
@@ -134,7 +135,9 @@ def save_data(pixels):
         df.to_csv("/home/hep/trz15/Collocated_Pixels/pixel_info.csv", 
                  delimiter=",")
         
-    return pixel_info
+        gc.collect(scn, pixel_info, flags, longitudes, latitudes, times, szas)
+        
+    return 1
         
 
 

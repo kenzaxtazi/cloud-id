@@ -44,10 +44,10 @@ def makeurlquery(Cfilename, timewindow=30, num=20):
     base = "https://scihub.copernicus.eu/s3//search?q=%20instrumentshortname:SLSTR%20AND%20%20producttype:SL_1_RBT___"
 
     # Load parameters from hdf file
-    file = CR.load_hdf(Cfilename)
-    lat = CR.load_data(file, 'Latitude')
-    lon = CR.load_data(file, 'Longitude')
-    time = CR.load_data(file, 'Profile_Time')   # Time in IAT
+    with CR.SDopener(Cfilename) as file:
+        lat = CR.load_data(file, 'Latitude')
+        lon = CR.load_data(file, 'Longitude')
+        time = CR.load_data(file, 'Profile_Time')
     time += 725846400.0    # Time in UNIX
     time -= 10  # Leap second correction
 
@@ -163,7 +163,7 @@ def collocate(SLSTR_filename, Calipso_filename):
     slon = scn['longitude_an'].values
 
     # Load Calipso coords
-    with CR.SDopener(Cfilename) as file:
+    with CR.SDopener(Calipso_filename) as file:
         clat = CR.load_data(file, 'Latitude')
         clon = CR.load_data(file, 'Longitude')
 

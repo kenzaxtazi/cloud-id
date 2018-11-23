@@ -15,7 +15,7 @@ import Plotting_images_and_masks as pim
 import vfm_feature_flags2 as vfm
 import CalipsoReader2 as CR
 import DataLoader as DL
-from Collocation import collocate
+from Collocation2 import collocate
 
 
 def plotmatchingpixels(Sfilename, Cfilename, coords):

@@ -30,7 +30,7 @@ for i in range(len(Sfiles)):
     if Sfiles[i] + ".SEN3" not in q:
         path = Sfiles[i]
         path = path[16:20] + '/' + path[20:22] + '/' + path[22:24] + '/' + path[:] + ".zip"
-        Sfiles1.append(Sfiles[i])
+        Sfiles1.append(path)
         
 for i in tqdm(range(len(Sfiles1))):
     file = Sfiles1[i]

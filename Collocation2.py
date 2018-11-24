@@ -149,6 +149,8 @@ def ESA_download(Sdownloads, targetdirectory):
             except:
                 tqdm.write("Error extracting " + str(Sfile))
     os.chdir(olddir)
+    
+
 
 
 def collocate(SLSTR_filename, Calipso_filename):
@@ -178,7 +180,7 @@ def collocate(SLSTR_filename, Calipso_filename):
     def match_SLSTR_pixel(indices):
         out = []
         i, j = indices
-        if 0 <= i < 2400 and 0 <= j < 3000:
+        try:
             matches = abs(slat[i, j] - clat) < lattolerance
             if matches.any():
                 loc = np.where(matches == True)
@@ -187,6 +189,8 @@ def collocate(SLSTR_filename, Calipso_filename):
                 for k in loc[0]:
                     if abs(slon[i, j] - clon[k]) < lontolerance:
                         out.append([i, j, k])
+        except IndexError:
+            pass
         if out == []:
             out = None
         return(out)

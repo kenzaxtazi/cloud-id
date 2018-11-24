@@ -33,13 +33,14 @@ for i in range(len(Sfiles)):
         Sfiles1.append(path)
         
 for i in tqdm(range(len(Sfiles1))):
-    file = Sfiles1[i]
+    targetfile = Sfiles1[i]
+    downloadedfile = Sfiles[i] + ".zip"
     tqdm.write('Downloading' + file)
-    ftp.retrbinary("RETR " + file, open(file, "wb").write)
     try:
-        z = zipfile.ZipFile(file)
+        ftp.retrbinary("RETR " + targetfile, open(downloadedfile, "wb").write)
+        z = zipfile.ZipFile(downloadedfile)
         z.extractall()
-        os.remove(file)
+        os.remove(downloadedfile)
     except:
         print('Error downloading' + file)
         

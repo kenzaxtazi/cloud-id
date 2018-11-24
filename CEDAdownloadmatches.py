@@ -34,8 +34,8 @@ for i in range(len(Sfiles)):
         
 for i in tqdm(range(len(Sfiles1))):
     targetfile = Sfiles1[i]
-    downloadedfile = Sfiles[i] + ".zip"
-    tqdm.write('Downloading' + file)
+    downloadedfile = str(Sfiles[i] + ".zip")
+    tqdm.write('Downloading' + str(targetfile))
     try:
         ftp.retrbinary("RETR " + targetfile, open(downloadedfile, "wb").write)
         z = zipfile.ZipFile(downloadedfile)

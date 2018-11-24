@@ -132,24 +132,22 @@ def match_directory(directory, timewindow=30, num=20):
 def ESA_download(Sdownloads, targetdirectory):
     olddir = os.getcwd()
     os.chdir(targetdirectory)
-    for i in range(len(Sdownloads)):
-        if i % 10 == 0:
-            print("%s of %s files downloaded" % (str(i), str(len(Sdownloads))))
+    for i in tqdm(range(len(Sdownloads))):
         Sfile = Sdownloads[i]
-        print('Downloading from ' + Sfile)
+        tqdm.write('Downloading from ' + Sfile)
         if Sfile.endswith('$value'):
             url = Sfile
         else:
             url = Sfile + '$value'
         r = requests.get(url, auth=('s3guest', 's3guest'))
         if r.status_code != 200:
-            print("Error downloading " + str(Sfile))
+            tqdm.write("Error downloading " + str(Sfile))
         else:
             try:
                 z = zipfile.ZipFile(io.BytesIO(r.content))
                 z.extractall()
             except:
-                print("Error downloading " + str(Sfile))
+                tqdm.write("Error extracting " + str(Sfile))
     os.chdir(olddir)
 
 

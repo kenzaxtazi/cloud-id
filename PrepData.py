@@ -53,8 +53,7 @@ def save_data(pixels):
     """
     #write file
     df = pd.DataFrame([])
-    df.to_csv("/home/hep/trz15/Collocated_Pixels/pixel_info_k.csv", mode='w',
-              delimiter=',')
+    df.to_csv("/home/hep/trz15/Collocated_Pixels/pixel_info_k.csv", mode='w')
     
     pixels = np.array(pixels)
     
@@ -136,8 +135,7 @@ def save_data(pixels):
         scn.unload()
         
         df= pd.DataFrame(pixel_info)
-        df.to_csv("/home/hep/trz15/Collocated_Pixels/pixel_info_k.csv", mode='a', 
-                  delimiter=",")
+        df.to_csv("/home/hep/trz15/Collocated_Pixels/pixel_info_k.csv", mode='a')
         
     print('done')
         

@@ -8,12 +8,12 @@ Created on Mon Nov 19 17:20:12 2018
 
 ### Data prepareation
 
-import gc
+
 import numpy as np
 import Plotting_images_and_masks as pim
 import vfm_feature_flags2 as vfm 
 import CalipsoReader2 as cr2
-from pyhdf.SD import SD, SDC
+
 from satpy import Scene
 from random import shuffle
 from tqdm import tqdm   #percentage bar for tasks.
@@ -52,7 +52,7 @@ def save_data(pixels):
     
     """
     #write file
-    df = pd.Dataframe([])
+    df = pd.DataFrame([])
     df.to_csv("/home/hep/trz15/Collocated_Pixels/pixel_info_k.csv", mode='w',
               delimiter=',')
     
@@ -111,8 +111,8 @@ def save_data(pixels):
         S8set=[]
         S9set=[]
         
-        new_x= x-5
-        new_y= y-5
+        x= x-5
+        y= y-5
         
         for i in range(0,10,1):
             for j in range(0,10,1):

@@ -45,7 +45,7 @@ def process_all(Spaths, Cpaths):
     df = pd.DataFrame()
     for i in tqdm(range(num_files)):
         newdf = make_df(Spaths[i], Cpaths[i])
-        if newdf != None:
+        if len(newdf) != 0:
             df = df.append(newdf, ignore_index=True)
         if i % 10 == 0:
             df.to_pickle('April.pkl')
@@ -57,7 +57,7 @@ def make_df(Spath, Cpath):
 
     coords = collocate(Spath, Cpath)
     if coords == None:
-        return(None)
+        return(pd.DataFrame())
     rows = [int(i[0]) for i in coords]
     cols = [int(i[1]) for i in coords]
     Cindices = [int(i[2]) for i in coords]

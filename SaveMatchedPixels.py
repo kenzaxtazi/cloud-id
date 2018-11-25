@@ -12,6 +12,8 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import itertools
+from datetime import datetime, timedelta
+from geopy.distance import geodesic
 
 
 def get_file_pairs():
@@ -50,6 +52,7 @@ def process_all(Spaths, Cpaths):
         if i % 10 == 0:
             df.to_pickle('April.pkl')
     return(df)
+
 
 def make_df(Spath, Cpath):
     # Make a pandas dataframe for a single file pair
@@ -107,15 +110,47 @@ def make_df(Spath, Cpath):
 
     Sfilenameser = pd.Series([Spath[-99:]] * num_values, name='Sfilename')
     Cfilenameser = pd.Series([Cpath[-60:]] * num_values, name='Cfilename')
-    
+
     df = df.append(Sfilenameser)
     df = df.append(Cfilenameser)
     df = df.transpose()
-    df.columns = SLSTR_attributes + Calipso_attribute_names + ['Sfilename', 'Cfilename']
+    df.columns = SLSTR_attributes + \
+        Calipso_attribute_names + ['Sfilename', 'Cfilename']
     return(df)
+
+
+def add_time_col(df):
+    tqdm.pandas()
+
+    def time_diff(row):
+        # Time between satellite measurements, +ve if Calipso before SLSTR
+        Stime = row['Sfilename'][16:31]
+        Stimestamp = datetime.strptime(Stime, '%Y%m%dT%H%M%S')
+        Stimestamp += timedelta(minutes=1.5)
+        Ctime = row['Profile_Time']
+        Ctimestamp = datetime.utcfromtimestamp(Ctime)
+        diff1 = Stimestamp - Ctimestamp
+        if diff1.days == -1:
+            diff2 = Ctimestamp - Stimestamp
+            return(diff2.seconds * -1)
+        else:
+            return(diff1.seconds)
+    df['TimeDiff'] = df.progress_apply(lambda row: time_diff(row), axis=1)
+
+    return(df)
+
+
+def add_dist_col(df):
+    tqdm.pandas()
+
+    def get_dist(row):
+        dist = geodesic((row['latitude_an'], row['longitude_an']),
+                        (row['Latitude'], row['Longitude']))
+        return(dist)
+    df['Distance'] = df.progress_apply(lambda row: get_dist(row), axis=1)
+    return(df)
+
 
 if __name__ == "__main__":
     Cpaths, Spaths = get_file_pairs()
     df = process_all(Spaths, Cpaths)
-    
-    

@@ -6,23 +6,6 @@ Created on Sat Nov  3 18:02:38 2018
 @author: kenzatazi
 """
 
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Oct 24 16:12:12 2018
-
-@author: kenzatazi
-"""
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Oct 19 15:28:06 2018
-
-@author: kenzatazi
-"""
-
-
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -59,7 +42,7 @@ for p in match_pathnames:
 # collocates pixels returns [SLSTR_row, SLSTR_col, CALIPSO_index]
     
 pixels=[]
-for n in range(30):
+for n in range(5):
     print(n, '/n', SLSTR_pathnames[n])
     pixels.append([coll.collocate(SLSTR_pathnames[n], CALIOP_pathnames[n]), 
                    SLSTR_pathnames[n], CALIOP_pathnames[n]])

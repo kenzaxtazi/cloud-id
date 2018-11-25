@@ -6,23 +6,6 @@ Created on Sat Nov  3 18:02:38 2018
 @author: kenzatazi
 """
 
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Oct 24 16:12:12 2018
-
-@author: kenzatazi
-"""
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Oct 19 15:28:06 2018
-
-@author: kenzatazi
-"""
-
-
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -31,6 +14,7 @@ import re
 import PrepData as prep
 import Collocation2 as coll
 from tflearn.layers.conv import conv_2d, max_pool_2d
+import pandas as pd
 
 # directory where we are storing the 1km CALIOP data
 
@@ -48,32 +32,33 @@ match_pathnames= prep.open_matches()
 caliop_directory= '/home/hep/trz15/cloud/Calipso/1km/2018/04'
 slstr_directory= '/home/hep/trz15/cloud/SLSTR/2018/04'
 
-
 CALIOP_pathnames= []
 SLSTR_pathnames= []
 
-# Please fill in below:
 for p in match_pathnames:
     CALIOP_pathnames.append(caliop_directory+'/'+(p[0])[43:45]+'/'+p[0])
     SLSTR_pathnames.append(slstr_directory +'/'+p[1]+'.SEN3')
 
-# collcates pixels returns [SLSTR_row, SLSTR_col, CALIPSO_index]
+# collocates pixels returns [SLSTR_row, SLSTR_col, CALIPSO_index]
+    
 pixels=[]
-for n in range(len(CALIOP_pathnames)):
-    print(SLSTR_pathnames[n])
+for n in range(5):
+    print(n, '/n', SLSTR_pathnames[n])
     pixels.append([coll.collocate(SLSTR_pathnames[n], CALIOP_pathnames[n]), 
                    SLSTR_pathnames[n], CALIOP_pathnames[n]])
 
-pixel_info = prep.save_data(pixels)
+# retrieves and saves all the useful data about each pixel
+prep.save_data(pixels)    
+pixel_df = pd.read_csv("/home/hep/trz15/Collocated_Pixels/pixel_info_k.csv")
 
+# prepares data for cnn 
+pixel_info = pixel_df.as_matrix()[:,0:2]
 training_data, validation_data, training_truth, validation_truth = prep.prep_data(pixel_info)
-
 training_data= training_data.reshape(-1,5,5,9)
 validation_data= validation_data.reshape(-1,5,5,9)
 
 
 #### MACHINE LEARNING 
-
 
 import tflearn 
 from tensorflow import reset_default_graph

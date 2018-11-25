@@ -153,7 +153,7 @@ def ESA_download(Sdownloads, targetdirectory):
 
 
 
-def collocate(SLSTR_filename, Calipso_filename, verbose=False):
+def collocate(SLSTR_filename, Calipso_filename, verbose=False, persistent=False):
     # Finds pixels in both files which represent the same geographic position
 
     # Load SLSTR coords
@@ -262,8 +262,16 @@ def collocate(SLSTR_filename, Calipso_filename, verbose=False):
                         coords += matches
                         i = k
     else:
-        print("No pixel found on edge, skipping")
-        return(None)
+        if persistent == True:
+            ("No pixel found on edge, brute forcing")
+            for i in (tqdm(range(2400)) if verbose else range(2400)):
+                for j in range(3000):
+                    matches = match_SLSTR_pixel([i, j])
+                    if matches != None:
+                        coords += matches
+        else:
+            print("No pixel found on edge, skipping")
+            return(None)
 
     # Remove duplicates
     coords = [list(x) for x in set(tuple(x) for x in coords)]

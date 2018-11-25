@@ -46,9 +46,16 @@ def save_data(pixels):
     
     array1: SLSTR 5x5km data in 9 channels (1*9*25)
     array2: feature classification flag from CALIOP (1*1)
-    array3: datetimes for CALIOP and SLSTR respectively (1*2)
+    array3: datetimes for SLSTR and CALIOP respectively (1*2)
+    array4: coordinates for SLSTR and CALIOP respectively (lat, lon) (1*2*2)
+    array5: solar zenith angle for SLSTR and CALIOP respectively (1*2)
     
     """
+    #write file
+    df = pd.Dataframe([])
+    df.to_csv("/home/hep/trz15/Collocated_Pixels/pixel_info_k.csv", mode='w', 
+              delimiter=",")
+    
     val= pixels[:,0]
     SLSTR_pathnames = pixels[:,1]
     CALIOP_pathnames = pixels[:,2]
@@ -82,6 +89,16 @@ def save_data(pixels):
         slstr_lon= (scn['longitude_an'])[x,y]
         slstr_sza= (scn['solar_zenith_angle'])[x,y]
         
+        S1= np.nan_to_num(scn['S1_an'].values)
+        S2= np.nan_to_num(scn['S2_an'].values)
+        S3= np.nan_to_num(scn['S3_an'].values)
+        S4= np.nan_to_num(scn['S4_an'].values)
+        S5= np.nan_to_num(scn['S5_an'].values)
+        S6= np.nan_to_num(scn['S6_an'].values)
+        S7= np.nan_to_num(scn['S7_in'].values) 
+        S8= np.nan_to_num(scn['S8_in'].values)
+        S9= np.nan_to_num(scn['S9_in'].values)
+                
         S1set=[]
         S2set=[]
         S3set=[]
@@ -91,37 +108,22 @@ def save_data(pixels):
         S7set=[]
         S8set=[]
         S9set=[]
+        
+        new_x= x-5
+        new_y= y-5
+        
+        for i in range(0,10,1):
+            for j in range(0,10,1):
                 
-        for i in range(-4,5,2):
-            for j in range(-4,5,2):
-                
-                S1set.extend([float((scn['S1_an'])[x+i,y+j]+
-                                    (scn['S1_an'])[x+i+1,y+j]+
-                                    (scn['S1_an'])[x+i,y+1+j]+
-                                    (scn['S1_an'])[x+i+1,y+j+1])/4.])
-                S2set.extend([float((scn['S2_an'])[x+i,y+j]+
-                                    (scn['S2_an'])[x+i+1,y+j]+
-                                    (scn['S2_an'])[x+i,y+1+j]+
-                                    (scn['S2_an'])[x+i+1,y+j+1])/4.])
-                S3set.extend([float((scn['S3_an'])[x+i,y+j]+
-                                    (scn['S3_an'])[x+i+1,y+i]+
-                                    (scn['S3_an'])[x+i,y+1+j]+
-                                    (scn['S3_an'])[x+i+1,y+j+1])/4.])
-                S4set.extend([float((scn['S4_an'])[x+i,y+j]+
-                                    (scn['S4_an'])[x+i+1,y+j]+
-                                    (scn['S4_an'])[x+i,y+1+j]+
-                                    (scn['S4_an'])[x+i+1,y+j+1])/4.])
-                S5set.extend([float((scn['S5_an'])[x+i,y+j]+
-                                    (scn['S5_an'])[x+i+1,y+j]+
-                                    (scn['S5_an'])[x+i,y+1+j]+
-                                    (scn['S5_an'])[x+i+1,y+i+1])/4.])
-                S6set.extend([float((scn['S6_an'])[x+i,y+j]+
-                                    (scn['S6_an'])[x+i+1,y+j]+
-                                    (scn['S6_an'])[x+i,y+1+j]+
-                                    (scn['S6_an'])[x+i+1,y+j+1])/4.])
-                S7set.extend([(scn['S7_in'])[int(float(x+i)/2.),int(float(y+j)/2.)]]) 
-                S8set.extend([(scn['S8_in'])[int(float(x+i)/2.),int(float(y+j)/2.)]])
-                S9set.extend([(scn['S9_in'])[int(float(x+i)/2.),int(float(y+j)/2.)]])
+                S1set.extend([float(S1[x+i,y+j])])
+                S2set.extend([float(S2[x+i,y+j])])
+                S3set.extend([float(S3[x+i,y+j])])
+                S4set.extend([float(S4[x+i,y+j])])
+                S5set.extend([float(S5[x+i,y+j])])
+                S6set.extend([float(S6[x+i,y+j])])
+                S7set.extend([S7[int(float(x+i)/2.),int(float(y+j)/2.)]]) 
+                S8set.extend([S8[int(float(x+i)/2.),int(float(y+j)/2.)]])
+                S9set.extend([S9[int(float(x+i)/2.),int(float(y+j)/2.)]])
                 
         pixel_info = [[S1set, S2set, S3set, S4set, S5set, S6set, S7set, S8set, S9set], 
                       truth_set, 
@@ -132,12 +134,10 @@ def save_data(pixels):
         scn.unload()
         
         df= pd.DataFrame(pixel_info)
-        df.to_csv("/home/hep/trz15/Collocated_Pixels/pixel_info.csv", 
+        df.to_csv("/home/hep/trz15/Collocated_Pixels/pixel_info_k.csv", mode='a'
                  delimiter=",")
         
-        gc.collect(scn, pixel_info, flags, longitudes, latitudes, times, szas)
-        
-    return 1
+    print('done')
         
 
 

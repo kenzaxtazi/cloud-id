@@ -59,8 +59,8 @@ for p in match_pathnames:
 # collocates pixels returns [SLSTR_row, SLSTR_col, CALIPSO_index]
     
 pixels=[]
-for n in range(len(CALIOP_pathnames)):
-    print(SLSTR_pathnames[n])
+for n in range(30):
+    print(n, '/n', SLSTR_pathnames[n])
     pixels.append([coll.collocate(SLSTR_pathnames[n], CALIOP_pathnames[n]), 
                    SLSTR_pathnames[n], CALIOP_pathnames[n]])
 

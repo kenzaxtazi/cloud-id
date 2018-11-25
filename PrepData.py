@@ -56,6 +56,8 @@ def save_data(pixels):
     df.to_csv("/home/hep/trz15/Collocated_Pixels/pixel_info_k.csv", mode='w', 
               delimiter=",")
     
+    pixels = np.array(pixels)
+    
     val= pixels[:,0]
     SLSTR_pathnames = pixels[:,1]
     CALIOP_pathnames = pixels[:,2]

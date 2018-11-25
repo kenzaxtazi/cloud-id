@@ -153,7 +153,7 @@ def ESA_download(Sdownloads, targetdirectory):
 
 
 
-def collocate(SLSTR_filename, Calipso_filename):
+def collocate(SLSTR_filename, Calipso_filename, verbose=False):
     # Finds pixels in both files which represent the same geographic position
 
     # Load SLSTR coords
@@ -226,13 +226,12 @@ def collocate(SLSTR_filename, Calipso_filename):
     coords, edge = findedgepixel()
 
     if coords != None:
-        print("Collocated pixel found on edge")
         # Check adjacent(ish) neighbours
         i = coords[0][0]
         j = coords[0][1]
 
         if edge == 'top':
-            for i in tqdm(range(2400)):
+            for i in (tqdm(range(2400)) if verbose else range(2400)):
                 for k in range(j - 10, j + 10):
                     matches = match_SLSTR_pixel([i, k])
                     if matches != None:
@@ -240,7 +239,7 @@ def collocate(SLSTR_filename, Calipso_filename):
                         j = k
 
         elif edge == 'bottom':
-            for i in tqdm(range(2399, -1, -1)):
+            for i in (tqdm(range(2399, -1, -1)) if verbose else range(2399, -1, -1)):
                 for k in range(j - 10, j + 10):
                     matches = match_SLSTR_pixel([i, k])
                     if matches != None:
@@ -248,7 +247,7 @@ def collocate(SLSTR_filename, Calipso_filename):
                         j = k
 
         elif edge == 'left':
-            for j in tqdm(range(3000)):
+            for j in (tqdm(range(3000)) if verbose else range(3000)):
                 for k in range(i - 10, i + 11):
                     matches = match_SLSTR_pixel([k, j])
                     if matches != None:
@@ -256,7 +255,7 @@ def collocate(SLSTR_filename, Calipso_filename):
                         i = k
 
         elif edge == 'right':
-            for j in tqdm(range(2999, -1, -1)):
+            for j in (tqdm(range(2999, -1, -1)) if verbose else range(2999, -1, -1)):
                 for k in range(i - 10, i + 11):
                     matches = match_SLSTR_pixel([k, j])
                     if matches != None:
@@ -281,5 +280,5 @@ def collocate(SLSTR_filename, Calipso_filename):
 
 
 if __name__ == '__main__':
-    Cfilename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
-    Sfilename = "D:/SatelliteData/S3A_SL_1_RBT____20180401T012743_20180401T013043_20180402T055007_0179_029_288_1620_LN2_O_NT_002.SEN3"
+    Cfilename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T23-09-16ZD.hdf"
+    Sfilename = "D:/SatelliteData/SLSTR/S3A_SL_1_RBT____20180401T232333_20180401T232633_20180403T041425_0179_029_301_1800_LN2_O_NT_002.SEN3"

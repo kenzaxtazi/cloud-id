@@ -64,6 +64,7 @@ def save_data(pixels):
     for f in tqdm(range(len(val))):
         
         #Load SLSTR file 
+        print(SLSTR_pathnames)
         scn = Scene(filenames=SLSTR_pathnames[f], reader='nc_slstr')
         pim.load_scene(scn)
         slstr_datetime=(SLSTR_pathnames[f])[-83:-68]

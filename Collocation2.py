@@ -108,7 +108,7 @@ def find_SLSTR_data(Cfilename, timewindow=30, num=20):
     return(Sfilenames, Sdownloads)
 
 
-def match_directory(directory, timewindow=30, num=20):
+def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
     q = os.listdir(directory)
     w = [i for i in q if i[-1] == 'f']
     Data = []
@@ -118,7 +118,7 @@ def match_directory(directory, timewindow=30, num=20):
         try:
             Sfilenames, Sdownloads = find_SLSTR_data(directory + w[i])
             if Sfilenames != []:
-                with open('Matches.txt', 'a') as file:
+                with open(output, 'a') as file:
                     for j in range(len(Sfilenames)):
                         file.write(
                             str(w[i]) + ',' + str(Sfilenames[j]) + ',' + str(Sdownloads[j]) + '\n')

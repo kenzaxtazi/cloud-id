@@ -116,7 +116,7 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
         if i % 5 == 0:
             print("%s of %s files processed" % (str(i), str(len(w))))
         try:
-            Sfilenames, Sdownloads = find_SLSTR_data(directory + w[i])
+            Sfilenames, Sdownloads = find_SLSTR_data(directory + w[i], timewindow, num)
             if Sfilenames != []:
                 with open(output, 'a') as file:
                     for j in range(len(Sfilenames)):

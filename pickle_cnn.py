@@ -20,7 +20,7 @@ LR = 1e-3
  
 MODEL_NAME = 'pickle_cnn'.format(LR, 'feedforward') 
 
-pixel_info = pd.read_pickle("/Users/kenzatazi/Desktop/AprilP1.pkl")
+pixel_info = pd.read_pickle("/home/hep/trz15/Collocated_Pixels/AprilP1.pkl")
 
 pixel_info = pixel_info[abs(pixel_info['TimeDiff'])< 250]
 

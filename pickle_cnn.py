@@ -9,7 +9,7 @@ Created on Sun Nov 25 16:37:26 2018
 
 import pandas as pd
 import numpy as np
-from random import shuffle
+import visual_inspection as vi
 import vfm_feature_flags2 as vfm 
 import model_evaluation as me
 import sklearn.utils 
@@ -28,7 +28,7 @@ test_set = pixel_info[-100:]
 
 pixels = sklearn.utils.shuffle(pixel_info[:-100])
 
-pixel_values = (pixels[['S1_an','S2_an','S3_an','S4_an','S5_an','S6_an',
+p = (pixels[['S1_an','S2_an','S3_an','S4_an','S5_an','S6_an',
                            'S7_in','S8_in','S9_in', 
                            'Feature_Classification_Flags',
                            'TimeDiff']]).values 
@@ -130,8 +130,14 @@ mat = me.confusion_matrix(model,validation_data,validation_truth)
 AUC= me.AUC(model,validation_data,validation_truth)
 accuracy= me.get_accuracy(model,validation_data,validation_truth)
 
+
+
+
+vi.vis_inspection(model, test_set)
+
 reset_default_graph()
-    
+
+
 
 
     

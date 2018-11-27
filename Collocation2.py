@@ -199,24 +199,24 @@ def collocate(SLSTR_filename, Calipso_filename, verbose=False, persistent=False)
         # Check near the edge of SLSTR matrix for matches
 
         # Top/Bottom Row
-        for i in [0, 1, 2, 2399, 2398, 2397]:
+        for i in [0, 1, 2, 3, 4, 2399, 2398, 2397, 2396, 2395]:
             for j in range(3000):
                 out = match_SLSTR_pixel([i, j])
                 if out != None:
-                    if i < 3:
+                    if i < 5:
                         edge = 'top'
-                    if i > 2396:
+                    if i > 2394:
                         edge = 'bottom'
                     return(out, edge)
 
         # Left/Right Col
         for i in range(1, 2399):
-            for j in [0, 1, 2, 2999, 2998, 2997]:
+            for j in [0, 1, 2, 3, 4, 2999, 2998, 2997, 2996, 2995]:
                 out = match_SLSTR_pixel([i, j])
                 if out != None:
-                    if j < 3:
+                    if j < 5:
                         edge = 'left'
-                    if j > 2997:
+                    if j > 2994:
                         edge = 'right'
                     return(out, edge)
 

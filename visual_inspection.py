@@ -32,7 +32,7 @@ def vis_inspection(model, test_set):
      pixels = c.collocate(SLSTR_pathname, CALIOP_pathname)
      
      
-     scn = Scene(filenames=SLSTR_pathname, reader='nc_slstr')
+     scn = Scene(filenames=[SLSTR_pathname], reader='nc_slstr')
      pim.load_scene(scn)
      
      

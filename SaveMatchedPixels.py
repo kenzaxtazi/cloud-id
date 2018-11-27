@@ -145,7 +145,7 @@ def add_dist_col(df):
 
     def get_dist(row):
         dist = geodesic((row['latitude_an'], row['longitude_an']),
-                        (row['Latitude'], row['Longitude']))
+                        (row['Latitude'], row['Longitude'])).m
         return(dist)
     df['Distance'] = df.progress_apply(lambda row: get_dist(row), axis=1)
     return(df)

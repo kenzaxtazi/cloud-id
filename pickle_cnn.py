@@ -11,15 +11,30 @@ import pandas as pd
 import numpy as np
 from random import shuffle
 import vfm_feature_flags2 as vfm 
+import model_evaluation as me
+import sklearn.utils 
+
+
 
 LR = 1e-3
-MODEL_NAME = 'pickle_cnn'.format(LR, 'convolutional') 
+ 
+MODEL_NAME = 'pickle_cnn'.format(LR, 'feedforward') 
 
 pixel_info = pd.read_pickle("/Users/kenzatazi/Desktop/AprilP1.pkl")
-pixel_values = (pixel_info[['S1_an','S2_an','S3_an','S4_an','S5_an','S6_an',
-                           'S7_in','S8_in','S9_in', 
-                           'Feature_Classification_Flags']]).values
 
+pixel_info = pixel_info[abs(pixel_info['TimeDiff'])< 250]
+
+test_set = pixel_info[-100:]
+
+pixels = sklearn.utils.shuffle(pixel_info[:-100])
+
+pixel_values = (pixels[['S1_an','S2_an','S3_an','S4_an','S5_an','S6_an',
+                           'S7_in','S8_in','S9_in', 
+                           'Feature_Classification_Flags',
+                           'TimeDiff']]).values 
+
+
+#get rid of matches below 300
 
 
 def prep_data(pixel_info):
@@ -30,22 +45,23 @@ def prep_data(pixel_info):
     
     """
     
-    shuffle(pixel_info)     # mix real good
+    conv_pixels= pixel_info.astype(float)
+    pix= np.nan_to_num(conv_pixels)
     
-    data = pixel_info[:,:-1]
-    truth_flags = pixel_info[:,-1]
+    data = pix[:,:9]
+    truth_flags = pix[:,9]
     
     truth_oh=[]
     
     for d in truth_flags:
         i = vfm.vfm_feature_flags(int(d))
         if i == 2:
-            truth_oh.append([1,0])    # cloud 
+            truth_oh.append([1.,0.])    # cloud 
         if i != 2:
-            truth_oh.append([0,1])    # not cloud 
+            truth_oh.append([0.,1.])    # not cloud 
         
   
-    training_data= np.array(data[:-500])      # take all but the 500 last 
+    training_data= np.array(data[:-500])    # take all but the 500 last 
     validation_data= np.array(data[-500:])    # take 500 last pixels 
     training_truth= np.array(truth_oh[:-500])
     validation_truth= np.array(truth_oh[-500:])
@@ -56,7 +72,7 @@ def prep_data(pixel_info):
 
 # prepares data for cnn 
 
-training_data, validation_data, training_truth, validation_truth = prep_data(pixel_values)
+training_data, validation_data, training_truth, validation_truth = prep_data(p)
 
 
 
@@ -66,7 +82,7 @@ import tflearn
 from tensorflow import reset_default_graph
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
-from tflearn.layers.conv import conv_2d, max_pool_2d
+
 
 training_data= training_data.reshape(-1,1,9,1)
 validation_data= validation_data.reshape(-1,1,9,1)
@@ -94,7 +110,7 @@ dropout4 = dropout(layer4,0.8)
 softmax = fully_connected(dropout4, 2, activation='softmax') 
 
 
-network = regression(softmax, optimizer='adam', learning_rate=LR,
+network = regression(softmax, optimizer='Adam', learning_rate=LR,
                      loss='categorical_crossentropy', name='targets')
 
 model = tflearn.DNN(network, tensorboard_verbose=0)
@@ -104,9 +120,19 @@ model = tflearn.DNN(network, tensorboard_verbose=0)
 ### UNPACK SAVED DATA
 
 
-model.fit(training_data, training_truth, n_epoch=1, validation_set =
+model.fit(training_data, training_truth, n_epoch=2, validation_set =
           (validation_data, validation_truth), snapshot_step=1000, 
           show_metric=True, run_id=MODEL_NAME)
 
+me.ROC_curve(model,validation_data,validation_truth)
+me.precision_vs_recall(model,validation_data,validation_truth)
+mat = me.confusion_matrix(model,validation_data,validation_truth)
+AUC= me.AUC(model,validation_data,validation_truth)
+accuracy= me.get_accuracy(model,validation_data,validation_truth)
 
 reset_default_graph()
+    
+
+
+    
+    

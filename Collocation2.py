@@ -94,12 +94,12 @@ def find_SLSTR_data(Cfilename, timewindow=30, num=20):
     queries = makeurlquery(Cfilename, timewindow, num)
     Sfilenames = []
     Sdownloads = []
-    print('Finding matches for ' + Cfilename)
+    tqdm.write('Finding matches for ' + Cfilename)
     for query in queries:
         response = SLSTR_query(query)
         if response != []:
             out += response
-            print('Match found')
+            tqdm.write('Match found')
     out = list(set(out))
     for i in out:
         q = i.split(',')
@@ -112,9 +112,7 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
     q = os.listdir(directory)
     w = [i for i in q if i[-1] == 'f']
     Data = []
-    for i in range(len(w)):
-        if i % 5 == 0:
-            print("%s of %s files processed" % (str(i), str(len(w))))
+    for i in tqdm(range(len(w))):
         try:
             Sfilenames, Sdownloads = find_SLSTR_data(directory + w[i], timewindow, num)
             if Sfilenames != []:
@@ -124,7 +122,7 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
                             str(w[i]) + ',' + str(Sfilenames[j]) + ',' + str(Sdownloads[j]) + '\n')
                 Data.append([w[i], Sfilenames, Sdownloads])
         except:
-            print("Error")
+            tqdm.write("Error")
             pass
     return(Data)
 

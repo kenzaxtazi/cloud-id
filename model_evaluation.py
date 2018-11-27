@@ -15,9 +15,10 @@ import tflearn
 import numpy as np 
 
 
+
 def get_accuracy(model,validation_data,validation_truth):
     accuracy = model.evaluate(validation_data, validation_truth)
-    return(accuracy)
+    return accuracy[0]
     
     
     
@@ -36,7 +37,7 @@ def accuracy_vs_inputs(model, training_data, validation_data, training_truth,
    
     plt.figure('Accuracy vs inputs')
     plt.title ('Accuracy as a function of the number of inputs')
-    plt.plot(inputs)
+    plt.plot(inputs, accuracies)
     plt.xlabel('Inputs')
     plt.ylabel('Accuracy')
 
@@ -69,7 +70,7 @@ def AUC(model,validation_data,validation_truth):
 
 def precision_vs_recall(model,validation_data,validation_truth):
 
-    predictions = model.predict(validation_data)
+    predictions = np.nan_to_num(model.predict(validation_data))
     
     precision, recall, thresholds = metrics.precision_recall_curve(
             validation_truth[:,1], predictions[:,1], pos_label=1)
@@ -86,7 +87,8 @@ def confusion_matrix(model,validation_data,validation_truth):
     labels= model.predict_label(validation_data)
     confusion_matrix = tf.confusion_matrix(validation_truth[:,1], 
                                            labels[:,1])
-    m = tf.Tensor.eval(confusion_matrix,feed_dict=None, session=None)
+    with tf.Session().as_default() as sess:
+        m = tf.Tensor.eval(confusion_matrix,feed_dict=None, session=sess)
     return m 
     
 

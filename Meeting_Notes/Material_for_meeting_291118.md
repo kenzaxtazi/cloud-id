@@ -13,7 +13,7 @@ Fig 2: ROC Curve for validation set (500 random points).
 <img src=/Images/PvR.png width="800"> 
 Fig 3: Precicion as a function of recall for validation set.
 
-|Truth | Predicted as Not Cloud | Predicted as Cloud
+Truth | Predicted as Not Cloud | Predicted as Cloud
 ------------ | -------------| ----------
 Cloud | 38 | 253
 Not Cloud | 156 | 53
@@ -28,7 +28,7 @@ Fig 4: ROC Curve for larger training set.
 <img src=/Images/PvRlarge.png width="800"> 
 Fig 5: Precicion as a function of recall for larger training set.
 
-|Truth | Predicted as Not Cloud | Predicted as Cloud
+Truth | Predicted as Not Cloud | Predicted as Cloud
 ------------ | -------------| ----------
 Cloud | 20 | 319 
 Not Cloud | 48 | 113

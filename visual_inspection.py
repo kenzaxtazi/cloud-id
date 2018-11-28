@@ -95,9 +95,9 @@ def vis_inspection(model, test_set):
                 
          
         
-     plt.show()
+     
      plt.savefig('/home/hep/kt2015/cloud/ploooot.png')
-       
+     plt.close(fig) 
                        
                        
                        

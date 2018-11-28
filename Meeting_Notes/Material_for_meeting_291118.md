@@ -37,7 +37,7 @@ Table II: Confusion matrix for larger training set.
 
 We also plotted the some test data (100 new points for a single test image) as a sanity check but also to see where the classifier was struglling. But this is prooving hard to do without an interactive environment 
 
-<img src=/Images/testimage.png width="800">  
+<img src=/Images/ploooot.png width="800">  
 Fig 6: Test image 
 
 

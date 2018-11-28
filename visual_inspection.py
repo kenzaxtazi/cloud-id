@@ -26,8 +26,8 @@ def vis_inspection(model, test_set):
      caliop_directory= '/home/hep/trz15/cloud/Calipso/1km/2018/04'
      slstr_directory= '/home/hep/trz15/cloud/SLSTR/2018/04'
      
-     CALIOP_pathname= caliop_directory+'/'+caliop[43:45]+'/'+caliop
-     SLSTR_pathname= slstr_directory +'/'+slstr
+     CALIOP_pathname= caliop_directory+'/'+ caliop[43:45]+'/'+caliop
+     SLSTR_pathname= slstr_directory +'/'+ slstr+ '/*'
      
      pixels = c.collocate(SLSTR_pathname, CALIOP_pathname)
      

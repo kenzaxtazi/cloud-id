@@ -33,6 +33,7 @@ Fig 5: Precicion as a function of recall for larger training set.
 ------------ | -------------| ----------
 Cloud | 20 | 319 
 Not Cloud | 48 | 113
+
 Table II: Confusion matrix for larger training set.
 
 We also plotted the some test data (100 new points for a single test image) as a sanity check but also to see where the classifier was struglling. But this is prooving hard to do without an interactive environment 

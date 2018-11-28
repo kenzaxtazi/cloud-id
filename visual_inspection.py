@@ -94,10 +94,8 @@ def vis_inspection(model, test_set):
                         edgecolors='green')
                 
          
-        
      
-     plt.savefig('/home/hep/kt2015/cloud/ploooot.png')
-     plt.close(fig) 
+     plt.savefig('/home/hep/kt2015/cloud/ploooot.png') 
                        
                        
                        

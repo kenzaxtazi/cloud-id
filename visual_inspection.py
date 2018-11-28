@@ -81,22 +81,24 @@ def vis_inspection(model, test_set):
      model_input= (np.array(model_input)).reshape(-1,1,9,1)    
      predictions= model.predict_label(model_input)
      dots= np.array(truth_input) + np.array(predictions)
+     
+     pixels=np.array(pixels)
     
     
      for i in range(len(dots)):
         if dots[i,0] == 2.:
-            plt.scatter(int(pixels[i,0]),int(pixels[i,1]), c='lightgreen',
+            plt.scatter(pixels[i,0],pixels[i,1], c='lightgreen',
                         edgecolors='green')
         if dots[i,0] == 0.:   
-            plt.scatter(int(pixels[i,0]),int(pixels[i,1]), c='pink',
+            plt.scatter(pixels[i,0],pixels[i,1], c='pink',
                         edgecolors='red')
         
         if dots[i,0] == 1.:  
             if truth_input[0] == 1.:
-                plt.scatter(int(pixels[i,0]),int(pixels[i,1]), c='lightgreen',
+                plt.scatter(pixels[i,0],pixels[i,1], c='lightgreen',
                         edgecolors='red')   
             if truth_input[0] == 0.:
-                plt.scatter(int(pixels[i,0]),int(pixels[i,1]), c='pink',
+                plt.scatter(pixels[i,0],pixels[i,1], c='pink',
                         edgecolors='green')
                 
          

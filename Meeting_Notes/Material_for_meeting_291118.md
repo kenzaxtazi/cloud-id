@@ -2,7 +2,7 @@
 
 We are running the data data TOm dowloaded into 6 layer feed-forward network with the 9 channels as inputs. We first tried to vary the threshhold for the time difference between the CALIOP and SLSTR pixels. The results are shown in the graph below. The accuracy of the network peaks at about 250s. Below this limit, the model probably doesn't have enough data learn adaquately (<50'000 points). Above this limit, the correlation between the cloud presence is diminished. I think the variations probably come from the fact that more time does not mean less correlation. For e.g. strong winds could make the  scene change drastically.
 
-<img src=/Images/Time_difference_vs_accuracy2.png width="200">
+<img src=/Images/Time_difference_vs_accuracy2.png width="800">
 Fig 1: Accuracy as a function of time difference. 
 
 For a threshold of 250s we looked at the model evaulations I wrote for last time. The accuracy is 84%, area under the ROC curve is _ _ _ . Below are the graphs for the ROC curve, Precision vs. Recall curve and the table for the confusion matrix.
@@ -41,7 +41,10 @@ We also plotted the some test data (100 new points for a single test image) as a
 Fig 6: Test image 
 
 
-Next week: 
+### Comments:
+* we were suprised the accuracy decreased with the increased number of inputs
+
+### Next week: 
 * add ancilliary data to the network 
 
 

@@ -124,11 +124,11 @@ model.fit(training_data, training_truth, n_epoch=2, validation_set =
           (validation_data, validation_truth), snapshot_step=1000, 
           show_metric=True, run_id=MODEL_NAME)
 
-me.ROC_curve(model,validation_data,validation_truth)
-me.precision_vs_recall(model,validation_data,validation_truth)
-mat = me.confusion_matrix(model,validation_data,validation_truth)
-AUC= me.AUC(model,validation_data,validation_truth)
-accuracy= me.get_accuracy(model,validation_data,validation_truth)
+#me.ROC_curve(model,validation_data,validation_truth)
+#me.precision_vs_recall(model,validation_data,validation_truth)
+#mat = me.confusion_matrix(model,validation_data,validation_truth)
+#AUC= me.AUC(model,validation_data,validation_truth)
+#accuracy= me.get_accuracy(model,validation_data,validation_truth)
 
 
 

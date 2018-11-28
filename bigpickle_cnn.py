@@ -24,7 +24,7 @@ pixel_info1 = pd.read_pickle("/home/hep/trz15/Masters_Project/AprilP1.pkl")
 pixel_info2 = pd.read_pickle("/home/hep/trz15/Masters_Project/Run2P1.pkl")
 pixel_info3 = pd.read_pickle("/home/hep/trz15/Masters_Project/JulyP1.pkl") 
 
-pixel_info = pd.concat(pixel_info1,pixel_info2,pixel_info3)
+pixel_info = pd.concat([pixel_info1,pixel_info2,pixel_info3])
 
 pixel_info = pixel_info[abs(pixel_info['TimeDiff'])< 250]
 

@@ -6,17 +6,26 @@ We are running the data data TOm dowloaded into 6 layer feed-forward network wit
 
 Fig 1: Accuracy as a function of time difference. 
 
-For a threshold of 250s we looked at the model evaulations I wrote for last time. The accuracy is 84%, area under the ROC curve is _ _ _ . Below are the graphs for the ROC curve and  the table for the confusion matrix.
+For a threshold of 250s we looked at the model evaulations I wrote for last time. The accuracy is 84%, area under the ROC curve is _ _ _ . Below are the graphs for the ROC curve, Precision vs. Recall curve and the table for the confusion matrix.
 
 ![pic2](/Images/ROC.png) 
 Fig 2: ROC Curve for validation set (500 random points).
 
+![pic3](/Images/PvR.png) 
+Fig 3: Precicion as a function of recall for validation set.
+
+|Truth | Predicted as Not Cloud | Predicted as Cloud
+------------ | -------------| ----------
+Cloud | 38 | 253
+Not Cloud | 156 | 53
 
 Table I: Confusion matrix of validation set. 
 
 We repeated this process for the same time threshold but with dowloading almost twice as much data (which took over 6 hours to complete because the files wer non-existent on CEDA).
 
-Fig 3: ROC Curve for larger training set.
+Fig 4: ROC Curve for larger training set.
+
+Fig 5: 
 
 Table II: Confusion matrix for larger training set
 

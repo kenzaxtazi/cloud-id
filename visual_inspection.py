@@ -78,19 +78,18 @@ def vis_inspection(model, test_set):
     
     
      for i in range(len(dots)):
-        if dots[i] == [2., 0.]:
+        if dots[i] == [2., 0.].all():
             plt.scatter(pixels[i,0],pixels[i,1], c='lightgreen',
                         edgecolors='green')
-        if dots[i] == [0., 0.]:   
+        if dots[i] == [0., 0.].all():   
             plt.scatter(pixels[i,0],pixels[i,1], c='pink',
                         edgecolors='red')
         
-        if dots[i] == [1., 1.]:  
-            if truth_input == [1.,0.]:
+        if dots[i] == [1., 1.].all():  
+            if truth_input == [1.,0.].all():
                 plt.scatter(pixels[i,0],pixels[i,1], c='lightgreen',
-                        edgecolors='red')
-                
-            if truth_input == [0.,1.]:
+                        edgecolors='red')   
+            if truth_input == [0.,1.].all():
                 plt.scatter(pixels[i,0],pixels[i,1], c='pink',
                         edgecolors='green')
                 

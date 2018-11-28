@@ -8,7 +8,7 @@ Fig 1: Accuracy as a function of time difference.
 
 For a threshold of 250s we looked at the model evaulations I wrote for last time. The accuracy is 84%, area under the ROC curve is _ _ _ . Below are the graphs for the ROC curve and  the table for the confusion matrix.
 
-![pic2](/Images/Screenshot 2018-11-27 at 15.19.03.png) 
+![pic2](/Images/ROC.png) 
 Fig 2: ROC Curve for validation set (500 random points).
 
 

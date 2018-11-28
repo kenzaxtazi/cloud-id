@@ -11,6 +11,7 @@ import Collocation2 as c
 import Plotting_images_and_masks as pim
 import CalipsoReader2 as cr2
 import vfm_feature_flags2 as vfm 
+from glob import glob
 import numpy as np
 from satpy import Scene
 import matplotlib.pyplot as plt
@@ -32,7 +33,7 @@ def vis_inspection(model, test_set):
      pixels = c.collocate(SLSTR_pathname, CALIOP_pathname)
      
      
-     scn = Scene(filenames=[SLSTR_pathname], reader='nc_slstr')
+     scn = Scene(filenames=glob(SLSTR_pathname), reader='nc_slstr')
      pim.load_scene(scn)
      
      

@@ -16,11 +16,9 @@ from datetime import datetime, timedelta
 from geopy.distance import geodesic
 
 
-def get_file_pairs():
+def get_file_pairs(caliop_directory, slstr_directory, matchesfile):
     # Open Matches.txt and return path to pairs
-    caliop_directory = '/home/hep/trz15/cloud/Calipso/1km/2018/04'
-    slstr_directory = '/home/hep/trz15/cloud/SLSTR/2018/04'
-    with open('Matches.txt', 'r') as file:
+    with open(matchesfile, 'r') as file:
         data = file.readlines()
 
     num_pairs = len(data)
@@ -34,15 +32,14 @@ def get_file_pairs():
     Cpaths = []
     Spaths = []
     for i in range(num_pairs):
-        day = Cfilenames[i][43:45]
-        Cpaths.append(caliop_directory + '/' + day + '/' + Cfilenames[i])
+        Cpaths.append(caliop_directory + '/' + Cfilenames[i])
 
         Spaths.append(slstr_directory + '/' + Sfilenames[i] + '.SEN3')
 
     return(Cpaths, Spaths)
 
 
-def process_all(Spaths, Cpaths):
+def process_all(Spaths, Cpaths, pkl_output_name):
     num_files = len(Spaths)
     df = pd.DataFrame()
     for i in tqdm(range(num_files)):
@@ -50,7 +47,7 @@ def process_all(Spaths, Cpaths):
         if len(newdf) != 0:
             df = df.append(newdf, ignore_index=True)
         if i % 10 == 0:
-            df.to_pickle('April.pkl')
+            df.to_pickle(pkl_output_name)
     return(df)
 
 
@@ -152,5 +149,5 @@ def add_dist_col(df):
 
 
 if __name__ == "__main__":
-    Cpaths, Spaths = get_file_pairs()
+    Cpaths, Spaths = get_file_pairs('/home/hep/trz15/cloud/Calipso/1km/2018/04', '/home/hep/trz15/cloud/SLSTR/2018/04', 'Matches.txt')
     df = process_all(Spaths, Cpaths)

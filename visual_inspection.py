@@ -15,9 +15,11 @@ from glob import glob
 import numpy as np
 from satpy import Scene
 import matplotlib.pyplot as plt
+import matplotlib
 
 plt.ioff()
 
+matplotlib.use('Agg')
 
 def vis_inspection(model, test_set):
            

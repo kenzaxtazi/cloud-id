@@ -13,7 +13,7 @@ import visual_inspection as vi
 import vfm_feature_flags2 as vfm 
 import model_evaluation as me
 import sklearn.utils 
-
+import matplotlib.pyplot as plt
 
 
 LR = 1e-3
@@ -131,7 +131,7 @@ model.fit(training_data, training_truth, n_epoch=2, validation_set =
 #accuracy= me.get_accuracy(model,validation_data,validation_truth)
 
 
-
+plt.ioff()
 
 vi.vis_inspection(model, test_set)
 

@@ -16,6 +16,8 @@ import numpy as np
 from satpy import Scene
 import matplotlib.pyplot as plt
 
+plt.ioff()
+
 
 def vis_inspection(model, test_set):
            

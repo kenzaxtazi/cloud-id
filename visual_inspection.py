@@ -72,7 +72,7 @@ def vis_inspection(model, test_set):
          if i != 2:
              truth_input=[0.,1.]    # not cloud 
             
-     model_input= (np.array(model_input)).reshape(-1,5,5,9)    
+     model_input= (np.array(model_input)).reshape(-1,1,9,1)    
      predictions= model.predict_label(model_input)
      dots= truth_input + predictions
     

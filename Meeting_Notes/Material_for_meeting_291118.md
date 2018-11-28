@@ -5,7 +5,7 @@ We are running the data data TOm dowloaded into 6 layer feed-forward network wit
 <img src=/Images/Time_difference_vs_accuracy2.png width="800">
 Fig 1: Accuracy as a function of time difference. 
 
-For a threshold of 250s we looked at the model evaulations I wrote for last time. The accuracy is 84%, area under the ROC curve is _ _ _ . Below are the graphs for the ROC curve, Precision vs. Recall curve and the table for the confusion matrix.
+For a threshold of 250s we looked at the model evaulations I wrote for last time. The accuracy is 84%, area under the ROC curve is 0.91. Below are the graphs for the ROC curve, Precision vs. Recall curve and the table for the confusion matrix.
 
 <img src=/Images/ROC.png width="800">
 Fig 2: ROC Curve for validation set (500 random points).

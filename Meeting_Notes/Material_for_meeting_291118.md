@@ -5,18 +5,20 @@ We are running the data data TOm dowloaded into 6 layer feed-forward network wit
 <img src=/Images/Time_difference_vs_accuracy2.png width="600">
 Fig 1: Accuracy as a function of time difference. 
 
+&nbsp;  
+
 For a threshold of 250s we looked at the model evaulations I wrote for last time. The accuracy is 84%, area under the ROC curve is 0.91. Below are the graphs for the ROC curve, Precision vs. Recall curve and the table for the confusion matrix.
 
 
 <img src=/Images/ROC.png width="800">
 Fig 2: ROC Curve for validation set (500 random points).
 
-<br>
+&nbsp; 
 
 <img src=/Images/PvR.png width="800"> 
 Fig 3: Precicion as a function of recall for validation set.
 
-<br>
+&nbsp;
 
 Truth | Predicted as Not Cloud | Predicted as Cloud
 ------------ | -------------| ----------
@@ -30,12 +32,12 @@ We repeated this process for the same time threshold but with dowloading almost 
 <img src=/Images/ROClarge.png width="800"> 
 Fig 4: ROC Curve for larger training set.
 
-<br>
+&nbsp;
 
 <img src=/Images/PvRlarge.png width="800"> 
 Fig 5: Precicion as a function of recall for larger training set.
 
-<br>
+&nbsp;
 
 Truth | Predicted as Not Cloud | Predicted as Cloud
 ------------ | -------------| ----------
@@ -44,16 +46,14 @@ Not Cloud | 48 | 113
 
 Table II: Confusion matrix for larger training set.
 
-<br>
+&nbsp;
 
 We also plotted the some test data (100 new points for a single test image) as a sanity check but also to see where the classifier was struglling. But this is prooving hard to do without an interactive environment 
-
-<br>
 
 <img src=/Images/ploooot.png width="800">  
 Fig 6: Test image 
 
-<br>
+&nbsp;
 
 ### Comments:
 * we were suprised the accuracy decreased with the increased number of inputs

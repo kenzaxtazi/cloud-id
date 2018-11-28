@@ -7,16 +7,19 @@ Created on Sun Nov 25 16:37:26 2018
 """
 # open pickled file
 
+
+import matplotlib
+matplotlib.use('Agg')
+
+import matplotlib.pyplot as plt
+
 import pandas as pd
 import numpy as np
 import visual_inspection as vi
 import vfm_feature_flags2 as vfm 
 import model_evaluation as me
 import sklearn.utils 
-import matplotlib.pyplot as plt
-import matplotlib
 
-matplotlib.use('Agg')
 
 
 LR = 1e-3

@@ -7,6 +7,11 @@ Created on Tue Nov 27 15:54:45 2018
 """
 
 
+
+import matplotlib
+matplotlib.use('Agg')
+
+
 import Collocation2 as c
 import Plotting_images_and_masks as pim
 import CalipsoReader2 as cr2
@@ -15,11 +20,8 @@ from glob import glob
 import numpy as np
 from satpy import Scene
 import matplotlib.pyplot as plt
-import matplotlib
 
 plt.ioff()
-
-matplotlib.use('Agg')
 
 def vis_inspection(model, test_set):
            

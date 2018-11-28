@@ -14,6 +14,9 @@ import vfm_feature_flags2 as vfm
 import model_evaluation as me
 import sklearn.utils 
 import matplotlib.pyplot as plt
+import matplotlib
+
+matplotlib.use('Agg')
 
 
 LR = 1e-3

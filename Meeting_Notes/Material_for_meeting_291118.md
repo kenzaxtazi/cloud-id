@@ -42,6 +42,8 @@ We also plotted the some test data (100 new points for a single test image) as a
 Fig 6: Test image 
 
 
+Next week: 
+* add ancilliary data to the network 
 
 
 

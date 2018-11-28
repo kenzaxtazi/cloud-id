@@ -23,16 +23,22 @@ Table I: Confusion matrix of validation set.
 
 We repeated this process for the same time threshold but with dowloading almost twice as much data (which took over 6 hours to complete because the files wer non-existent on CEDA).
 
+![pic4](/Images/ROClarge.png) 
 Fig 4: ROC Curve for larger training set.
 
-Fig 5: 
+![pic5](/Images/PvRlarge.png) 
+Fig 5: Precicion as a function of recall for larger training set.
 
-Table II: Confusion matrix for larger training set
+|Truth | Predicted as Not Cloud | Predicted as Cloud
+------------ | -------------| ----------
+Cloud | 20 | 319 
+Not Cloud | 48 | 113
+Table II: Confusion matrix for larger training set.
 
-We also plotted the some test data (100 new points for a single test image) as a sanity check but also to see where the classifier was struglling.
+We also plotted the some test data (100 new points for a single test image) as a sanity check but also to see where the classifier was struglling. But this is prooving hard to do without an interactive environment 
 
-
-Fig 4: Test image 
+![pic6](/Images/testimage.png) 
+Fig 6: Test image 
 
 
 

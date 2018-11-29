@@ -35,7 +35,7 @@ Approximately 3 months of data has been processed so far, currently storing data
 
 ### Model Evaluation
 
-We are running the data data TOm dowloaded into 6 layer feed-forward network with the 9 channels as inputs. We first tried to vary the threshhold for the time difference between the CALIOP and SLSTR pixels. The results are shown in the graph below. The accuracy of the network peaks at about 300s (run dependant). The variations within the threshold ranges may come from the model not having enough data learn adaquately (<50'000 points) and lack of correlation between the cloudy pixels after a certain amount of time diminished. However, on short scales, more time does not always translate to much less correlation. For e.g. strong winds could make the scene change drastically.
+We are running the data data TOm dowloaded into 6 layer feed-forward network with the 9 channels as inputs. We first tried to vary the threshhold for the time difference between the CALIOP and SLSTR pixels. The results are shown in the graph below. The accuracy of the network  seem to be a function of the time difference. The variations within the threshold ranges may come from the model not having enough data learn adaquately (<50'000 points) and lack of correlation between the cloudy pixels after a certain amount of time diminished. However, on short scales, more time does not always translate to much less correlation. For e.g. strong winds could make the scene change drastically.
 
 <img src=/Images/Time_difference_vs_accuracy2.png width="600">
 Fig 1: Accuracy as a function of time difference. 

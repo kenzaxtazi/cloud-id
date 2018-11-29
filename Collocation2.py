@@ -131,6 +131,7 @@ def ESA_download(Sdownloads, targetdirectory):
     olddir = os.getcwd()
     os.chdir(targetdirectory)
     for i in tqdm(range(len(Sdownloads))):
+        faileddownloads = []
         Sfile = Sdownloads[i]
         tqdm.write('Downloading from ' + Sfile)
         if Sfile.endswith('$value'):
@@ -146,8 +147,9 @@ def ESA_download(Sdownloads, targetdirectory):
                 z.extractall()
             except:
                 tqdm.write("Error extracting " + str(Sfile))
+                faileddownloads.append(i)
     os.chdir(olddir)
-    
+    return(faileddownloads)
 
 
 

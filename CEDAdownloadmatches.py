@@ -16,7 +16,7 @@ def CEDA_download(MatchesFilename='Matches.txt', SLSTR_target_directory="/vols/l
         data = file.readlines()
         
     Sfiles = [i.split(',')[1] for i in data]
-    
+    Sfiles = list(set(Sfiles))
     
     ftp = DL.FTPlogin()
         
@@ -29,13 +29,18 @@ def CEDA_download(MatchesFilename='Matches.txt', SLSTR_target_directory="/vols/l
     
     for i in range(len(Sfiles)):
         if Sfiles[i] + ".SEN3" not in q:
-            path = Sfiles[i]
-            path = path[16:20] + '/' + path[20:22] + '/' + path[22:24] + '/' + path[:] + ".zip"
-            Sfiles1.append(path)
+            Sfiles1.append(Sfiles[i])
             
+    Sfiles2 = []
+    
     for i in tqdm(range(len(Sfiles1))):
-        targetfile = Sfiles1[i]
-        downloadedfile = str(Sfiles[i] + ".zip")
+        path = Sfiles1[i]
+        path = path[16:20] + '/' + path[22:24] + '/' + path[:] + '.zip'
+        Sfiles2.append(path)
+            
+    for i in tqdm(range(len(Sfiles2))):
+        targetfile = Sfiles2[i]
+        downloadedfile = str(Sfiles1[i] + ".zip")
         tqdm.write('Downloading' + str(targetfile))
         try:
             ftp.retrbinary("RETR " + targetfile, open(downloadedfile, "wb").write)

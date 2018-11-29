@@ -1,5 +1,37 @@
 ## Material for meeting 29/11/18
 
+### Updates from last week
+Data has been downloaded and matching has been done on a pixel by pixel basis. 
+This information is stored as a pandas dataframe with 28 fields of raw data. 
+For the first stage of processing, 2 additional columns were calculated, the time separation (and the order of satellite arrival) and the distance between pixel locations (using geodesic formula).
+
+Approximately 3 months of data has been processed so far, currently storing data on around 750,000 collocated pixels in pickle file format ~ 200MB. This comes from ~ 1 TB of raw data. 
+
+#### Data processing workflow
+
+1. Calipso data is downloaded from https://search.earthdata.nasa.gov/ ~16GB per month (day files only).
+2. Matches are found using ESA queries ~ 1 hour per month of data. The matches are stored in .txt format.
+3. The identified SLSTR files are downloaded. This is the slowest part of the process ~ 7 hours
+  * ESA downloads are reliable, typically 1 in 200 files fail to download, speeds are typically ~ 10MBps (probably due to Sentinel3 data not being on the main server).
+  * CEDA FTP downloads are reliable if the files are present. More recent files are missing. Download speeds are typically ~ 20MBps. 
+  * CEDA http downloads should be the most reliable. Uses OpenID authentication which requires creation of temporary certificates. Test run was successful using cURL at ~ 10MBps.
+4. Once all files are downloaded, the collocation is performed on the paired files and the relevent pixels are stored. This takes ~ 1 hour and produces the output .pkl files.
+
+#### Known issues
+* The time difference calculated is only correct +- 90 seconds as we treat all pixels in a single SLSTR file as being contemporaneous. It should be possible to use linear interpolation to make better time measurements of SLSTR pixels.
+* Strange artifcats on some [images](http://www.hep.ph.ic.ac.uk/~trz15/Figure_7.png) 
+* The acceptable time window seems to be only a few minutes, large time differences lead to poor truthing
+* For the most recent files, we have been looking at S3B data. Some of the channel values are negative, these seem to correlate with [dead pixels](http://www.hep.ph.ic.ac.uk/~trz15/Figure_11.png).
+* All data are from polar regions, latitudes between 65.20 and 81.16 degrees. However, as we are selecting day files, in certain months we only have data from either the north or the south.
+* Depending on the month, we are using slightly different Calipso products.
+* Running some of the scripts requires setting the environment variable OMP_NUM_THREADS=1, this seems to be related to the tqdm module we are using as a progress bar. There is no noticeable difference in performance when this is set.
+* Using screen produces this [message](https://imgur.com/a/EyocbU2) on startup. Also requires deactivating and reactivating the virtual environment to access packages despite which python being set correctly.
+* Of the pairings identified in stage 2., around 1 in 10 fail the first step of the collocation function.
+
+
+### Comments
+* The scripts in use should scale easily, we should be able to process the data for different months in parallel. Currently using screen to be able to detach from session.
+
 We are running the data data TOm dowloaded into 6 layer feed-forward network with the 9 channels as inputs. We first tried to vary the threshhold for the time difference between the CALIOP and SLSTR pixels. The results are shown in the graph below. The accuracy of the network peaks at about 250s. Below this limit, the model probably doesn't have enough data learn adaquately (<50'000 points). Above this limit, the correlation between the cloud presence is diminished. I think the variations probably come from the fact that more time does not mean less correlation. For e.g. strong winds could make the  scene change drastically.
 
 <img src=/Images/Time_difference_vs_accuracy2.png width="600">

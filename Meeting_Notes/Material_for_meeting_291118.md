@@ -37,7 +37,7 @@ Approximately 3 months of data has been processed so far, currently storing data
 
 We are running the data data TOm dowloaded into 6 layer feed-forward network with the 9 channels as inputs. We first tried to vary the threshhold for the time difference between the CALIOP and SLSTR pixels. The results are shown in the graph below. The accuracy of the network  seem to be a function of the time difference. The variations within the threshold ranges may come from the model not having enough data learn adaquately (<50'000 points) and lack of correlation between the cloudy pixels after a certain amount of time diminished. However, on short scales, more time does not always translate to much less correlation. For e.g. strong winds could make the scene change drastically.
 
-<img src=/Images/Time_difference_vs_accuracy2.png width="600">
+<img src=/Images/Time_difference_vs_accuracy2.png width="800">
 Fig 1: Accuracy as a function of time difference. 
 
 &nbsp;  
@@ -91,10 +91,14 @@ Fig 6: Test image
 &nbsp;
 
 ### Comments:
-* we were suprised the accuracy decreased with the increased number of inputs
+* we were not surprised the accuracy decreased with the increased number of inputs, because the location of the images is no longer uniquely over the Arctic but also over the Antarctic. 
 
 ### Next week: 
-* add ancilliary data to the network 
+* add ancilliary more data to the network 
+* get more data to feed into the network (lower latitudes)
+* improve visualisation method
+
+
 
 
 

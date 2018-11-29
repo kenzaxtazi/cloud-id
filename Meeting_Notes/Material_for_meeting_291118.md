@@ -32,7 +32,10 @@ Approximately 3 months of data has been processed so far, currently storing data
 ### Comments
 * The scripts in use should scale easily, we should be able to process the data for different months in parallel. Currently using screen to be able to detach from session.
 
-We are running the data data TOm dowloaded into 6 layer feed-forward network with the 9 channels as inputs. We first tried to vary the threshhold for the time difference between the CALIOP and SLSTR pixels. The results are shown in the graph below. The accuracy of the network peaks at about 250s. Below this limit, the model probably doesn't have enough data learn adaquately (<50'000 points). Above this limit, the correlation between the cloud presence is diminished. I think the variations probably come from the fact that more time does not mean less correlation. For e.g. strong winds could make the  scene change drastically.
+
+### Model Evaluation
+
+We are running the data data TOm dowloaded into 6 layer feed-forward network with the 9 channels as inputs. We first tried to vary the threshhold for the time difference between the CALIOP and SLSTR pixels. The results are shown in the graph below. The accuracy of the network peaks at about 300s (run dependant). The variations within the threshold ranges may come from the model not having enough data learn adaquately (<50'000 points) and lack of correlation between the cloudy pixels after a certain amount of time diminished. However, on short scales, more time does not always translate to much less correlation. For e.g. strong winds could make the scene change drastically.
 
 <img src=/Images/Time_difference_vs_accuracy2.png width="600">
 Fig 1: Accuracy as a function of time difference. 

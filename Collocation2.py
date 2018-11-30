@@ -130,8 +130,8 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
 def ESA_download(Sdownloads, targetdirectory):
     olddir = os.getcwd()
     os.chdir(targetdirectory)
+    faileddownloads = []
     for i in tqdm(range(len(Sdownloads))):
-        faileddownloads = []
         Sfile = Sdownloads[i]
         tqdm.write('Downloading from ' + Sfile)
         if Sfile.endswith('$value'):

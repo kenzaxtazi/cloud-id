@@ -11,9 +11,10 @@ from tqdm import tqdm
 import zipfile
 
 
-def CEDA_download(MatchesFilename='Matches.txt', SLSTR_target_directory="/vols/lhcb/egede/cloud/SLSTR/2018/04"):
+def CEDA_download(MatchesFilename='Matches4.txt', SLSTR_target_directory="/vols/lhcb/egede/cloud/SLSTR/2018/08"):
+    failed_downloads = []
 
-    with open('Matches.txt', 'r') as file:
+    with open(MatchesFilename, 'r') as file:
         data = file.readlines()
 
     Sfiles = [i.split(',')[1] for i in data]
@@ -36,13 +37,13 @@ def CEDA_download(MatchesFilename='Matches.txt', SLSTR_target_directory="/vols/l
 
     for i in tqdm(range(len(Sfiles1))):
         path = Sfiles1[i]
-        path = path[16:20] + '/' + path[22:24] + '/' + path[:] + '.zip'
+        path = path[16:20] + '/' + path[20:22] + '/' +  path[22:24] + '/' + path[:] + '.zip'
         Sfiles2.append(path)
 
     for i in tqdm(range(len(Sfiles2))):
         targetfile = Sfiles2[i]
         downloadedfile = str(Sfiles1[i] + ".zip")
-        tqdm.write('Downloading' + str(targetfile))
+        tqdm.write('Downloading ' + str(targetfile))
         try:
             ftp.retrbinary("RETR " + targetfile,
                            open(downloadedfile, "wb").write)
@@ -50,14 +51,15 @@ def CEDA_download(MatchesFilename='Matches.txt', SLSTR_target_directory="/vols/l
             z.extractall()
             os.remove(downloadedfile)
         except:
-            tqdm.write('Error downloading' + file)
+            tqdm.write('Error downloading ' + str(targetfile))
+            failed_downloads.append(Sfiles1[i])
             try:
                 os.remove(downloadedfile)
             except FileNotFoundError:
                 pass
 
     os.chdir(startdir)
-
+    return(failed_downloads)
 
 if __name__ == "__main__":
     CEDA_download()

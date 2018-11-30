@@ -124,6 +124,24 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
         except:
             tqdm.write("Error")
             pass
+    Data.sort()
+    sortedoutput = output[:-4] + "a.txt"
+    with open(sortedoutput, 'w') as file:
+        for line in Data:
+            file.write(line[0] + ',' + line[1] + ',' + line[2] + '\n')
+    uniqueoutput = output[:-4] + "b.txt"
+    Sfilenames = [i[1] for i in Data]
+    duplicates = []
+    for i in range(1, len(Sfilenames)):
+        if Sfilenames[i-1][77:81] == Sfilenames[i][77:81] and Sfilenames[i-1][73:76] == Sfilenames[i][73:76] and Sfilenames[i-1][69:72] == Sfilenames[i][69:72]:
+            duplicates.append(i)
+    uniquedata = []
+    for i in range(len(Data)):
+        if i not in q:
+            uniquedata.append(Data[i])
+    with open(uniqueoutput, 'w') as file:
+        for line in uniquedata:
+            file.write(line[0] + ',' + line[1] + ',' + line[2] + '\n')
     return(Data)
 
 

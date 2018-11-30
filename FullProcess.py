@@ -9,13 +9,14 @@ from ftplib import FTP
 import os
 from SaveMatchedPixels import get_file_pairs, process_all, add_dist_col, add_time_col
 from tqdm import tqdm
+from CEDAdownloadmatches import CEDA_download
 
 Home_directory = "/home/hep/trz15/Masters_Project"
-NASA_FTP_directory = "840c8b96-803a-40c6-a71c-f966b79096f5"
-calipso_directory = "/vols/lhcb/egede/cloud/Calipso/1km/2018/08/"
-SLSTR_target_directory = "/vols/lhcb/egede/cloud/SLSTR/2018/08"
-MatchesFilename = "Matches4.txt"
-pkl_output_name = "Aug.pkl"
+NASA_FTP_directory = "8aff26d6-6b5a-4544-ac03-bdddf25d7bbb"
+calipso_directory = "/vols/lhcb/egede/cloud/Calipso/1km/2018/01/"
+SLSTR_target_directory = "/vols/lhcb/egede/cloud/SLSTR/2018/01"
+MatchesFilename = "Matches6.txt"
+pkl_output_name = "Jan.pkl"
 timewindow = 20
 
 ftp = FTP('xfr140.larc.nasa.gov')
@@ -39,10 +40,13 @@ match_directory(calipso_directory, MatchesFilename, timewindow)
 with open(MatchesFilename, 'r') as file:
     data = file.readlines()
     
-downloaded_SLSTR_files = os.listdir(SLSTR_target_directory)
-
 download_urls = [i.split(',')[2].strip() for i in data]
 Sfilenames = [i.split(',')[1] for i in data]
+
+# Attempt to download from CEDA's FTP server
+failed_downloads = CEDA_download(MatchesFilename, SLSTR_target_directory)
+
+downloaded_SLSTR_files = os.listdir(SLSTR_target_directory)
 
 remaining_downloads = []
 
@@ -53,13 +57,12 @@ for i in range(len(Sfilenames)):
 failed_downloads = ESA_download(remaining_downloads, SLSTR_target_directory)
 
 
-
 if len(failed_downloads) > 0:
     DownloadedMatchesFilename = MatchesFilename[:-4] + 'b.txt'
-    for i in range(len(data)):
     with open(DownloadedMatchesFilename, 'w') as file:
-        if i not in failed_downloads:
-            file.write(data[i])
+        for i in range(len(data)):
+            if i not in failed_downloads:
+                file.write(data[i])
     Cpaths, Spaths = get_file_pairs(calipso_directory, SLSTR_target_directory, DownloadedMatchesFilename)
 
 else:

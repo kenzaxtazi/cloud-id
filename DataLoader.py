@@ -4,17 +4,19 @@ Created on Sun Oct 21 15:46:43 2018
 
 @author: tomzh
 """
-import re
 import os
-from satpy import Scene
-from glob import glob
-import matplotlib.pyplot as plt
-import numpy as np
-from time import time
+import platform
+import re
+import zipfile
 from ftplib import FTP
 from getpass import getuser
-import zipfile
-import platform
+from glob import glob
+from time import time
+
+import matplotlib.pyplot as plt
+import numpy as np
+from satpy import Scene
+
 
 def FTPlogin():
     ftp = FTP('ftp.ceda.ac.uk')
@@ -44,106 +46,18 @@ def FTPdownload(ftpobj, path, destination):
     os.chdir(startdir)
     print('Download complete')
     
-
-def unzip_delete(filename):
-    with open(filename, 'rb') as fileobj:
-        z = zipfile.ZipFile(fileobj)
-        z.extractall()
-        z.close()
-    os.remove(filename)
-
-
 def fixdir(list_in):
     for i in range(len(list_in)):
         list_in[i] = list_in[i].replace('\\', '/')
     return(list_in)
-    
-def _regpattern():
-    cpattern = re.compile("(?P<mission_id>.{3})\_SL\_(?P<processing_level>.{1})\_(?P<datatype_id>.{6})\_(?P<start_time>\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2})\_(?P<end_time>\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2})\_(?P<creation_time>\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2})\_(?P<duration>.{4})\_(?P<cycle>.{3})\_(?P<relative_orbit>.{3})\_(?P<frame>.{4})\_(?P<centre>.{3})\_(?P<mode>.{1})\_(?P<timeliness>.{2})\_(?P<collection>.{3})\.zip")
-    return(cpattern)
-
-def _regpatternf():
-    fpattern = re.compile("(?P<mission_id>.{3})\_SL\_(?P<processing_level>.{1})\_(?P<datatype_id>.{6})\_(?P<start_time>\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2})\_(?P<end_time>\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2})\_(?P<creation_time>\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2})\_(?P<duration>.{4})\_(?P<cycle>.{3})\_(?P<relative_orbit>.{3})\_(?P<frame>.{4})\_(?P<centre>.{3})\_(?P<mode>.{1})\_(?P<timeliness>.{2})\_(?P<collection>.{3})\.SEN3")
-    return(fpattern)
-
-
-def foldermatch_dict(folder):
-    cpattern = _regpattern()
-    out = [m.groupdict() for m in cpattern.finditer(folder)]
-    return(out)
-   
-
-def foldermatch(folder):
-    cpattern = _regpattern()
-    out = re.findall(cpattern, folder)
-    return(out)    
-
-
-def find_files(ftp):
-    filenames = open("filenames17.txt", "w")
-    years = ["2016", "2017", "2018"]
-    months = ["%.2d" % i for i in range(1, 13)]
-    days = ["%.2d" % i for i in range(1, 32)]
-    for year in years[1:2]:  # Only update 2018 onwards
-        ftp.cwd(year)
-        print(year)
-        for month in months:  # Only update from Sep onwards
-            print("m", month)
-            try:
-                ftp.cwd(month)
-                for day in days:
-                    print(day)
-                    try:
-                        ftp.cwd(day)            
-                        files_in_dir = ftp.nlst()
-                        for folder in files_in_dir:
-                            if foldermatch(folder) != []:
-                                print(folder)
-                                filenames.write(str(folder))
-                                filenames.write("\n")
-                        ftp.cwd("..")
-                    except:
-                        pass
-                    
-                ftp.cwd("..")
-            except:
-                pass
-        ftp.cwd("..")
-    filenames.close()
-
-def find_files_for_pos(rel_orbit, frame, centre=None):
-    os.chdir('SLSTRInfo')
-    filefolders = ["filenames16.txt", "filenames17.txt", "filenames18.txt"]
-    out = []
-    for filefolder in filefolders:
-        with open(filefolder, 'r') as filenamefolder:
-            names = filenamefolder.readlines()
-            for name in names:
-                regexlist = foldermatch(name)
-                file_rel_orbit = int(regexlist[0][8])
-                if file_rel_orbit == rel_orbit:
-                    file_frame = int(regexlist[0][9])
-                    if abs(file_frame - frame) < 90:
-                        if centre == None:
-                            out.append(name.strip())
-                        elif centre == regexlist[0][10]:
-                            out.append(name.strip())
-                        else:
-                            pass
-    out.sort()
-    os.chdir('..')
-    return(out)
-
-
 
 
 def path_to_public():
     user = getuser()
     path = ("/home/hep/" + str(user) + "/public_html")
     return(path)
-    
-    
-    
+
+
 def scene_loader(path):
     # Returns a satpy scene object from the provided file
     if path[-1] == '/':
@@ -169,48 +83,6 @@ def scene_loader(path):
     scn = Scene(filenames=filenames, reader='nc_slstr')
     os.chdir(olddir)
     return(scn)
-
-def mask_analysis(scn):
-    # Loads the a masks from simplistic and bayesian files. 
-    # WIP: Creates figure of all simplistic masks
-    scn.load(['cloud_an', 'bayes_in'])
-    """ 
-    Cloud_bn file
-    Flag masks: Flag meanings
-    1: Visible 1.37_threshold
-    2: 1.6_small_histogram
-    4: 1.6_large_histogram
-    8: 2.25_small_histogram
-    16: 2.25 large_histogram
-    32: 11_spatial_coherence
-    64: gross_cloud
-    128: thin_cirrus
-    256: medium_high
-    512: fog_low_stratus
-    1024: 11_12_view_difference
-    2048: 3.7.11_view_difference
-    4096: thermal_histogram
-    8192: spare
-    16384: spare
-    
-    Bayes_bn file
-    Flag masks: Flag meanings
-    1: single_low
-    2: single_moderate
-    4: dual_low
-    8: dual_moderate
-    16: spare
-    32: spare
-    64: spare
-    128: spare
-    """
-    for mask in scn['cloud_an'].flag_masks[:-2]:
-        plt.figure()
-        plt.title(str(mask))
-        data = scn['cloud_an'].values & mask
-        plt.imshow(data)
-        
-    
     
 def summary(scene, filenames=None, saveimage=False, outputpath='public'):
     # Loads positional S1_n channel data. Prints lat/lon of corner pixel
@@ -246,5 +118,98 @@ def makepngimage(scene, channel='S1_an', outputpath='public'):
         # cd to public folder
         os.chdir(path_to_public())
     scene.save_dataset(channel, str(time()) + '.png')
+
+# create readers and open files
+# scn = Scene(filenames=glob('/Users/kenzatazi/Downloads/S3A_SL_1_RBT____20180822T000619_20180822T000919_20180822T015223_0179_035_016_3240_SVL_O_NR_003.SEN3/*'), 
+#            reader='nc_slstr')
+
+
+# load datasets from input files
+def load_scene(scn):
+    """ Loads the information from the netcdf files in the folder"""
+    #scn.load(scn.available_dataset_names())
+    scn.load(['S1_an','S2_an','S3_an','S4_an','S5_an','S6_an','S7_in','S8_in',
+              'S9_in','bayes_an', 'bayes_in','cloud_an', 'longitude_an', 
+              'latitude_an', 'solar_zenith_angle'])
     
+
+#load_scene(scn)
+
+#S1= np.nan_to_num(scn['S1_an'].values)
+#S2= np.nan_to_num(scn['S2_an'].values)
+#S3= np.nan_to_num(scn['S3_an'].values)
+#S4= np.nan_to_num(scn['S4_an'].values)
+#S5= np.nan_to_num(scn['S5_an'].values)
+#S6= np.nan_to_num(scn['S6_an'].values)
+#S7= np.nan_to_num(np.array(scn['S7_in'][:-1])) 
+#S8= np.nan_to_num(np.array(scn['S8_in'][:-1]))
+#S9= np.nan_to_num(np.array(scn['S9_in'][:-1]))
+
+
+def create_mask(scn, mask_name):
+    """Extracts bitmasks and combines them into an overall mask array"""
+    mask=[]
+    for bitmask in scn[mask_name].flag_masks[:-2]:
+        data = scn[mask_name].values & bitmask
+        mask.append(data)
+    mask= np.sum(mask, axis=0)
+    return mask
+
+
+#bayes_mask= create_mask(scn, 'bayes_in')
+#emp_mask= create_mask(scn, 'cloud_an')
+
+
+# single channel images 
+
+# channel_arrays=[S1, S2, S3, S4, S5, S6, S7, S8, S9]
+
+#for i in channel_arrays:
+#    plt.figure()
+#    plt.imshow(i, 'gray')
+
+
+# false color image 
+
+def norm(band):
+    """ Normalises the bands for the false color image"""
+    band_min, band_max = band.min(), band.max()
+    return ((band - band_min)/(band_max - band_min))
+
+
+def false_color_image(band1, band2, band3, plot=True):
+    """ 
+    Creates a false colour image
     
+    Input: 
+    band1 (2D array) <=> red 
+    band2 (2D array) <=> green
+    band3 (2D array) <=> blue
+    
+    Output: 6D array (3*2D)
+    
+    if: plot= True, the image is plotted
+    """
+    rgb = np.dstack((norm(band1),norm(band2),norm(band3)))
+
+    if plot == True:
+        plt.figure()
+        plt.imshow(rgb)
+        plt.title('False colour image')
+    
+    return rgb
+
+
+def mask(mask, mask_name, background):
+    """Plots a semi-transparent mask over a background image"""
+    plt.figure()
+    plt.imshow(background, 'gray')
+    plt.title(mask_name)
+    plt.imshow(mask, vmax=1, cmap='OrRd', alpha=0.3)
+
+        
+#false_color_image(S3, S2, S1, plot=True)
+#mask(bayes_mask,'Baseyian mask', S1)
+#mask(emp_mask,'Empirical mask', S1)
+
+plt.show()

@@ -149,5 +149,18 @@ def add_dist_col(df):
 
 
 if __name__ == "__main__":
-    Cpaths, Spaths = get_file_pairs('/home/hep/trz15/cloud/Calipso/1km/2018/04', '/home/hep/trz15/cloud/SLSTR/2018/04', 'Matches.txt')
-    df = process_all(Spaths, Cpaths)
+    Home_directory = "/home/hep/trz15/Masters_Project"
+    NASA_FTP_directory = "8aff26d6-6b5a-4544-ac03-bdddf25d7bbb"
+    calipso_directory = "/vols/lhcb/egede/cloud/Calipso/1km/2018/01/"
+    SLSTR_target_directory = "/vols/lhcb/egede/cloud/SLSTR/2018/01"
+    MatchesFilename = "Matches6.txt"
+    pkl_output_name = "Jan.pkl"
+    timewindow = 20
+
+    Cpaths, Spaths = get_file_pairs(calipso_directory, SLSTR_target_directory, MatchesFilename)
+    df = process_all(Spaths, Cpaths, pkl_output_name)
+    df['Profile_Time'] += 725846390.0
+    df = add_dist_col(df)
+    df = add_time_col(df)
+    processed_pkl_name = pkl_output_name[:-4] + "P1.pkl"
+    df.to_pickle(processed_pkl_name)

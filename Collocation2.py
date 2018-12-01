@@ -129,12 +129,12 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
             if Sfilenames != []:
                 with open(rawoutput, 'a') as file:
                     for j in range(len(Sfilenames)):
-                        file.write(
-                            str(w[i]) + ',' + str(Sfilenames[j]) + ',' + str(Sdownloads[j]) + '\n')
-                Data.append([w[i], Sfilenames, Sdownloads])
+                        file.write(str(w[i]) + ',' + str(Sfilenames[j]) + ',' + str(Sdownloads[j]) + '\n')
+                        Data.append([w[i], Sfilenames[j], Sdownloads[j]])
         except:
             tqdm.write("Error")
             pass
+
 
     # Sort the data
     Data.sort()
@@ -142,8 +142,8 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
     # Create new output file for sorted data
     sortedoutput = output[:-4] + "_sorted.txt"
     with open(sortedoutput, 'w') as file:
-        for line in Data:
-            file.write(line[0] + ',' + line[1] + ',' + line[2] + '\n')
+        for i in Data:
+            file.write(i[0] + ',' + i[1] + ',' + i[2] + '\n')
 
     # Create new output file for unique sorted data
     uniqueoutput = output
@@ -155,16 +155,16 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
         if Sfilenames[i-1][77:81] == Sfilenames[i][77:81] and Sfilenames[i-1][73:76] == Sfilenames[i][73:76] and Sfilenames[i-1][69:72] == Sfilenames[i][69:72]:
             duplicates.append(i)
 
-    # Create unique version of sorted Data
+    # Create unique version of sorted data
     uniquedata = []
     for i in range(len(Data)):
-        if i not in q:
+        if i not in duplicates:
             uniquedata.append(Data[i])
 
-    # Output unique sorted data to .txt
+    # Output unique sorted Data to .txt
     with open(uniqueoutput, 'w') as file:
-        for line in uniquedata:
-            file.write(line[0] + ',' + line[1] + ',' + line[2] + '\n')
+        for i in uniquedata:
+            file.write(i[0] + ',' + i[1] + ',' + i[2] + '\n')
     return(Data)
 
 
@@ -311,7 +311,7 @@ def collocate(SLSTR_filename, Calipso_filename, verbose=False, persistent=False)
                     if matches != None:
                         coords += matches
         else:
-            print("No pixel found on edge, skipping")
+            tqdm.write("No pixel found on edge, skipping")
             return(None)
 
     # Remove duplicates

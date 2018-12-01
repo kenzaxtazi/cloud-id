@@ -111,14 +111,20 @@ def find_SLSTR_data(Cfilename, timewindow=30, num=20):
 
 
 def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
+    """For a directory of Calipso files, find SLSTR files which are collocated"""
+
+    # Find Calipso files
     q = os.listdir(directory)
     w = [i for i in q if i[-1] == 'f']
+
+    # Query the ESA database for each file, append matches to Data and raw output file
+    rawoutput = output[:-4] + "_raw.txt"
     Data = []
     for i in tqdm(range(len(w))):
         try:
             Sfilenames, Sdownloads = find_SLSTR_data(directory + w[i], timewindow, num)
             if Sfilenames != []:
-                with open(output, 'a') as file:
+                with open(rawoutput, 'a') as file:
                     for j in range(len(Sfilenames)):
                         file.write(
                             str(w[i]) + ',' + str(Sfilenames[j]) + ',' + str(Sdownloads[j]) + '\n')
@@ -126,21 +132,33 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
         except:
             tqdm.write("Error")
             pass
+
+    # Sort the data
     Data.sort()
-    sortedoutput = output[:-4] + "a.txt"
+
+    # Create new output file for sorted data
+    sortedoutput = output[:-4] + "_sorted.txt"
     with open(sortedoutput, 'w') as file:
         for line in Data:
             file.write(line[0] + ',' + line[1] + ',' + line[2] + '\n')
-    uniqueoutput = output[:-4] + "b.txt"
+
+    # Create new output file for unique sorted data
+    uniqueoutput = output
     Sfilenames = [i[1] for i in Data]
     duplicates = []
+
+    # Find files which are duplicates, i.e. they have the same Framenumber, Relative Orbit Number and Absolute Orbit Number
     for i in range(1, len(Sfilenames)):
         if Sfilenames[i-1][77:81] == Sfilenames[i][77:81] and Sfilenames[i-1][73:76] == Sfilenames[i][73:76] and Sfilenames[i-1][69:72] == Sfilenames[i][69:72]:
             duplicates.append(i)
+
+    # Create unique version of sorted Data
     uniquedata = []
     for i in range(len(Data)):
         if i not in q:
             uniquedata.append(Data[i])
+
+    # Output unique sorted data to .txt
     with open(uniqueoutput, 'w') as file:
         for line in uniquedata:
             file.write(line[0] + ',' + line[1] + ',' + line[2] + '\n')

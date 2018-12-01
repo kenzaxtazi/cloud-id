@@ -11,7 +11,7 @@ from tqdm import tqdm
 import zipfile
 
 
-def CEDA_download(MatchesFilename='Matches4.txt', SLSTR_target_directory="/vols/lhcb/egede/cloud/SLSTR/2018/08"):
+def CEDA_download_matches(MatchesFilename='Matches4.txt', SLSTR_target_directory="/vols/lhcb/egede/cloud/SLSTR/2018/08"):
     """Function to download SLSTR files in a Matches.txt from CEDA's FTP server""" 
     failed_downloads = []
 
@@ -68,5 +68,4 @@ def CEDA_download(MatchesFilename='Matches4.txt', SLSTR_target_directory="/vols/
     return(failed_downloads)
 
 if __name__ == "__main__":
-    CEDA_download()
-    
+    CEDA_download_matches()

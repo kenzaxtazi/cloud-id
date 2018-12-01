@@ -5,16 +5,18 @@ Created on Sun Nov 18 15:07:55 2018
 @author: tomzh
 """
 
-import requests
-import xml.etree.ElementTree as ET
-import CalipsoReader2 as CR
-from datetime import datetime, timedelta
-import numpy as np
-import os
-import zipfile
 import io
-import DataLoader as DL
+import os
+import xml.etree.ElementTree as ET
+import zipfile
+from datetime import datetime, timedelta
+
+import numpy as np
+import requests
 from tqdm import tqdm
+
+import CalipsoReader2 as CR
+import DataLoader as DL
 
 
 def SLSTR_query(url):
@@ -159,8 +161,8 @@ def collocate(SLSTR_filename, Calipso_filename, verbose=False, persistent=False)
     # Load SLSTR coords
     scn = DL.scene_loader(SLSTR_filename)
     scn.load(['latitude_an', 'longitude_an'])
-    slat = scn['latitude_an'].values
-    slon = scn['longitude_an'].values
+    slat = np.array(scn['latitude_an'].values)
+    slon = np.array(scn['longitude_an'].values)
     
     scn.unload()
 

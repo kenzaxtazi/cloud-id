@@ -113,6 +113,9 @@ def find_SLSTR_data(Cfilename, timewindow=30, num=20):
 def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
     """For a directory of Calipso files, find SLSTR files which are collocated"""
 
+    if directory[-1] != '/':
+        directory += '/'
+    
     # Find Calipso files
     q = os.listdir(directory)
     w = [i for i in q if i[-1] == 'f']

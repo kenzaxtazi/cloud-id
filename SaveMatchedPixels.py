@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 from geopy.distance import geodesic
 
 
-def get_file_pairs(caliop_directory, slstr_directory, matchesfile):
+def get_file_pairs(caliop_directory, slstr_directory, matchesfile, failed_downloads=[]):
     # Open Matches.txt and return path to pairs
     with open(matchesfile, 'r') as file:
         data = file.readlines()
@@ -26,8 +26,9 @@ def get_file_pairs(caliop_directory, slstr_directory, matchesfile):
     Sfilenames = []
     for i in data:
         pairings = i.split(',')
-        Cfilenames.append(pairings[0])
-        Sfilenames.append(pairings[1])
+        if pairings[1] not in failed_downloads:
+            Cfilenames.append(pairings[0])
+            Sfilenames.append(pairings[1])
 
     Cpaths = []
     Spaths = []
@@ -157,7 +158,8 @@ if __name__ == "__main__":
     pkl_output_name = "Jan.pkl"
     timewindow = 20
 
-    Cpaths, Spaths = get_file_pairs(calipso_directory, SLSTR_target_directory, MatchesFilename)
+    Cpaths, Spaths = get_file_pairs(
+        calipso_directory, SLSTR_target_directory, MatchesFilename)
     df = process_all(Spaths, Cpaths, pkl_output_name)
     df['Profile_Time'] += 725846390.0
     df = add_dist_col(df)

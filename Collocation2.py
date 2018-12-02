@@ -115,7 +115,7 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
 
     if directory[-1] != '/':
         directory += '/'
-    
+
     # Find Calipso files
     q = os.listdir(directory)
     w = [i for i in q if i[-1] == 'f']
@@ -125,23 +125,23 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
     Data = []
     for i in tqdm(range(len(w))):
         try:
-            Sfilenames, Sdownloads = find_SLSTR_data(directory + w[i], timewindow, num)
+            Sfilenames, Sdownloads = find_SLSTR_data(
+                directory + w[i], timewindow, num)
             if Sfilenames != []:
                 with open(rawoutput, 'a') as file:
                     for j in range(len(Sfilenames)):
-                        file.write(str(w[i]) + ',' + str(Sfilenames[j]) + ',' + str(Sdownloads[j]) + '\n')
+                        file.write(
+                            str(w[i]) + ',' + str(Sfilenames[j]) + ',' + str(Sdownloads[j]) + '\n')
                         Data.append([w[i], Sfilenames[j], Sdownloads[j]])
         except:
             tqdm.write("Error")
             pass
 
-
     # Sort the data
     Data.sort()
 
-    # Create new output file for sorted data
-    sortedoutput = output[:-4] + "_sorted.txt"
-    with open(sortedoutput, 'w') as file:
+    # Overwrite raw output file with sorted data
+    with open(rawoutput, 'w') as file:
         for i in Data:
             file.write(i[0] + ',' + i[1] + ',' + i[2] + '\n')
 
@@ -168,32 +168,6 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
     return(Data)
 
 
-def ESA_download(Sdownloads, targetdirectory):
-    olddir = os.getcwd()
-    os.chdir(targetdirectory)
-    faileddownloads = []
-    for i in tqdm(range(len(Sdownloads))):
-        Sfile = Sdownloads[i]
-        tqdm.write('Downloading from ' + Sfile)
-        if Sfile.endswith('$value'):
-            url = Sfile
-        else:
-            url = Sfile + '$value'
-        r = requests.get(url, auth=('s3guest', 's3guest'))
-        if r.status_code != 200:
-            tqdm.write("Error downloading " + str(Sfile))
-        else:
-            try:
-                z = zipfile.ZipFile(io.BytesIO(r.content))
-                z.extractall()
-            except:
-                tqdm.write("Error extracting " + str(Sfile))
-                faileddownloads.append(i)
-    os.chdir(olddir)
-    return(faileddownloads)
-
-
-
 def collocate(SLSTR_filename, Calipso_filename, verbose=False, persistent=False):
     # Finds pixels in both files which represent the same geographic position
 
@@ -202,7 +176,7 @@ def collocate(SLSTR_filename, Calipso_filename, verbose=False, persistent=False)
     scn.load(['latitude_an', 'longitude_an'])
     slat = np.array(scn['latitude_an'].values)
     slon = np.array(scn['longitude_an'].values)
-    
+
     scn.unload()
 
     # Load Calipso coords
@@ -322,9 +296,7 @@ def collocate(SLSTR_filename, Calipso_filename, verbose=False, persistent=False)
 
     # Return position of matching coordinates in a list
     # SLSTR_row, SLSTR_column, Calipso_index
-    
-    
-    
+
     return(coords)
 
 

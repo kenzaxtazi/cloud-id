@@ -21,7 +21,12 @@ def Calipso_download(NASA_FTP_directory, calipso_directory):
     files_to_download = [str(i) for i in available_files if str(i)[-1] == 'f']
 
     print("Beginning download...")
-    os.chdir(calipso_directory)
+    try:
+        os.chdir(calipso_directory)
+    except FileNotFoundError:
+        os.mkdir(calipso_directory)
+        os.chdir(calipso_directory)
+
     for i in tqdm(files_to_download):
         ftp.retrbinary("RETR " + str(i), open(str(i), "wb").write)
 
@@ -39,8 +44,13 @@ def CEDA_download_matches(MatchesFilename, SLSTR_target_directory):
     ftp = DL.FTPlogin()
 
     startdir = os.getcwd()
-    os.chdir(SLSTR_target_directory)
 
+    try:
+        os.chdir(SLSTR_target_directory)
+    except FileNotFoundError:
+        os.mkdir(SLSTR_target_directory)
+        os.chdir(SLSTR_target_directory)
+    
     # List of files which are already downloaded
     q = os.listdir()
 
@@ -103,7 +113,12 @@ def ESA_download_matches(MatchesFilename, SLSTR_target_directory):
             Sdownloads1.append(Sdownloads[i])
 
     olddir = os.getcwd()
-    os.chdir(SLSTR_target_directory)
+    
+    try:
+        os.chdir(SLSTR_target_directory)
+    except FileNotFoundError:
+        os.mkdir(SLSTR_target_directory)
+        os.chdir(SLSTR_target_directory)
 
     # Keep track of files which fail to download
     faileddownloads = []

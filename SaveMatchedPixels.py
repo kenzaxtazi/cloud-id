@@ -85,11 +85,12 @@ def make_df(Spath, Cpath):
         Longitude = CR.load_data(file, 'Longitude')
         Profile_Time = CR.load_data(file, 'Profile_Time')
         Solar_Zenith_Angle = CR.load_data(file, 'Solar_Zenith_Angle')
+        IGBP_Surface_Type = CR.load_data(file, 'IGBP_Surface_Type')
 
     Calipso_attributes = [Feature_Classification_Flags,
-                          Latitude, Longitude, Profile_Time, Solar_Zenith_Angle]
+                          Latitude, Longitude, Profile_Time, Solar_Zenith_Angle, IGBP_Surface_Type]
     Calipso_attribute_names = ['Feature_Classification_Flags',
-                               'Latitude', 'Longitude', 'Profile_Time', 'Solar_Zenith_Angle']
+                               'Latitude', 'Longitude', 'Profile_Time', 'Solar_Zenith_Angle', 'IGBP_Surface_Type']
 
     def Cmake_series(Cattribute):
         if np.shape(Cattribute)[1] != 1:
@@ -152,11 +153,11 @@ def add_dist_col(df):
 if __name__ == "__main__":
     Home_directory = "/home/hep/trz15/Masters_Project"
     NASA_FTP_directory = "8aff26d6-6b5a-4544-ac03-bdddf25d7bbb"
-    calipso_directory = "/vols/lhcb/egede/cloud/Calipso/1km/2018/01/"
-    SLSTR_target_directory = "/vols/lhcb/egede/cloud/SLSTR/2018/01"
-    MatchesFilename = "Matches6.txt"
-    pkl_output_name = "Jan.pkl"
-    timewindow = 20
+    calipso_directory = "/vols/lhcb/egede/cloud/Calipso/1km/2018/06/"
+    SLSTR_target_directory = "/vols/lhcb/egede/cloud/SLSTR/2018/061"
+    MatchesFilename = "Matches9.txt"
+    pkl_output_name = "Jun.pkl"
+    timewindow = 15
 
     Cpaths, Spaths = get_file_pairs(
         calipso_directory, SLSTR_target_directory, MatchesFilename)

@@ -18,6 +18,7 @@ SLSTR_target_directory = "/vols/lhcb/egede/cloud/SLSTR/2018/03"
 MatchesFilename = "Matches8.txt"
 pkl_output_name = "Mar.pkl"
 timewindow = 20
+creds_path = '/home/hep/trz15/Masters_Project/credentials.txt'
 
 # Download Calipso file from NASA
 Calipso_download(NASA_FTP_directory, calipso_directory)
@@ -29,7 +30,7 @@ os.chdir(Home_directory)
 match_directory(calipso_directory, MatchesFilename, timewindow)
 
 # Download the files found by match_directory
-failed_downloads = download_matches(MatchesFilename, SLSTR_target_directory)
+failed_downloads = download_matches(MatchesFilename, SLSTR_target_directory, creds_path)
 
 # Find matching pixels and store in pkl file
 Cpaths, Spaths = get_file_pairs(

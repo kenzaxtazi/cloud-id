@@ -34,7 +34,7 @@ def Calipso_download(NASA_FTP_directory, calipso_directory):
             ftp.retrbinary("RETR " + str(i), open(str(i), "wb").write)
 
 
-def CEDA_download_matches(MatchesFilename, SLSTR_target_directory):
+def CEDA_download_matches(MatchesFilename, SLSTR_target_directory, creds_path='credentials.txt'):
     """Function to download SLSTR files in a Matches.txt from CEDA's FTP server"""
     failed_downloads = []
 
@@ -44,7 +44,7 @@ def CEDA_download_matches(MatchesFilename, SLSTR_target_directory):
     # Get list of unique SLSTR files from Matches file
     Sfiles = [i.split(',')[1] for i in data]
 
-    ftp = DL.FTPlogin()
+    ftp = DL.FTPlogin(creds_path)
 
     startdir = os.getcwd()
 
@@ -151,9 +151,9 @@ def ESA_download_matches(MatchesFilename, SLSTR_target_directory):
     return(faileddownloads)
 
 
-def download_matches(MatchesFilename, SLSTR_target_directory):
+def download_matches(MatchesFilename, SLSTR_target_directory, creds_path='credentials.txt'):
     failed_CEDA_downloads = CEDA_download_matches(
-        MatchesFilename, SLSTR_target_directory)
+        MatchesFilename, SLSTR_target_directory, creds_path)
     if len(failed_CEDA_downloads) > 0:
         failed_ESA_downloads = ESA_download_matches(
             MatchesFilename, SLSTR_target_directory)

@@ -18,9 +18,9 @@ import numpy as np
 from satpy import Scene
 
 
-def FTPlogin():
+def FTPlogin(creds_path='credentials.txt'):
     ftp = FTP('ftp.ceda.ac.uk')
-    with open('credentials.txt', 'r') as file:
+    with open(creds_path, 'r') as file:
         username, password = file.readlines()
         ftp.login(username.strip(), password.strip())
     ftp.cwd('neodc/sentinel3a/data/SLSTR/L1_RBT')

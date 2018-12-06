@@ -27,8 +27,11 @@ def Calipso_download(NASA_FTP_directory, calipso_directory):
         os.mkdir(calipso_directory)
         os.chdir(calipso_directory)
 
+    files_present = os.listdir()
+
     for i in tqdm(files_to_download):
-        ftp.retrbinary("RETR " + str(i), open(str(i), "wb").write)
+        if i not in files_present:
+            ftp.retrbinary("RETR " + str(i), open(str(i), "wb").write)
 
 
 def CEDA_download_matches(MatchesFilename, SLSTR_target_directory):

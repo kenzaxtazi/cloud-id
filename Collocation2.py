@@ -42,7 +42,7 @@ def SLSTR_query(url):
 
 def makeurlquery(Cfilename, timewindow=30, num=20):
     """Creates list of URLs to query SLSTR database for a given file"""
-    
+
     # Set download website and product type
     base = "https://scihub.copernicus.eu/s3//search?q=%20producttype:SL_1_RBT___%20AND%20("
 
@@ -65,9 +65,9 @@ def makeurlquery(Cfilename, timewindow=30, num=20):
         windowstart = timestamp - timedelta(minutes=timewindow)
         windowend = timestamp + timedelta(minutes=timewindow)
         queryfrag += "beginPosition:["
-        queryfrag += str(windowstart.isoformat())[:-3] + 'Z'
+        queryfrag += str(windowstart.strftime("%Y-%m-%dT%H:%M:%S.%f"))[:-3] + 'Z'
         queryfrag += "%20TO%20"
-        queryfrag += str(windowend.isoformat())[:-3] + 'Z' + "]"
+        queryfrag += str(windowend.strftime("%Y-%m-%dT%H:%M:%S.%f"))[:-3] + 'Z' + "]"
 
         # Set Positional query
         queryfrag += "%20AND%20(%20footprint:%22Intersects(POLYGON(("

@@ -158,6 +158,8 @@ def download_matches(MatchesFilename, SLSTR_target_directory, creds_path='creden
         failed_ESA_downloads = ESA_download_matches(
             MatchesFilename, SLSTR_target_directory)
 
-    failed_downloads = [
-        i for i in failed_ESA_downloads if i in failed_CEDA_downloads]
+        failed_downloads = [
+            i for i in failed_ESA_downloads if i in failed_CEDA_downloads]
+    else:
+        failed_downloads = []
     return(failed_downloads)

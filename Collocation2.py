@@ -41,53 +41,61 @@ def SLSTR_query(url):
 
 
 def makeurlquery(Cfilename, timewindow=30, num=20):
-    # Set download website, instrument and product type
-
-    base = "https://scihub.copernicus.eu/s3//search?q=%20instrumentshortname:SLSTR%20AND%20%20producttype:SL_1_RBT___"
+    """Creates list of URLs to query SLSTR database for a given file"""
+    
+    # Set download website and product type
+    base = "https://scihub.copernicus.eu/s3//search?q=%20producttype:SL_1_RBT___%20AND%20("
 
     # Load parameters from hdf file
     with CR.SDopener(Cfilename) as file:
         lat = CR.load_data(file, 'Latitude')
         lon = CR.load_data(file, 'Longitude')
         time = CR.load_data(file, 'Profile_Time')
-    time += 725846400.0    # Time in UNIX
-    time -= 10  # Leap second correction
+    time += 725846400.0     # Time in UNIX
+    time -= 10              # Leap second correction
+
+    def _makequeryforslice(a, b):
+        "Makes a query fragment between two calipso indices"
+        c = int(0.5 * (a + b))  # Mean index
+
+        queryfrag = "("
+
+        # Set Time query
+        timestamp = datetime.utcfromtimestamp(time[c][0])
+        windowstart = timestamp - timedelta(minutes=timewindow)
+        windowend = timestamp + timedelta(minutes=timewindow)
+        queryfrag += "beginPosition:["
+        queryfrag += str(windowstart.isoformat())[:-3] + 'Z'
+        queryfrag += "%20TO%20"
+        queryfrag += str(windowend.isoformat())[:-3] + 'Z' + "]"
+
+        # Set Positional query
+        queryfrag += "%20AND%20(%20footprint:%22Intersects(POLYGON(("
+        queryfrag += str(lon[a][0]) + "%20" + str(lat[a][0]) + str(',')
+        queryfrag += str(lon[b][0]) + "%20" + str(lat[a][0]) + str(',')
+        queryfrag += str(lon[b][0]) + "%20" + str(lat[b][0]) + str(',')
+        queryfrag += str(lon[a][0]) + "%20" + str(lat[b][0]) + str(',')
+        queryfrag += str(lon[a][0]) + "%20" + str(lat[a][0])
+        queryfrag += "%20)))%22))"
+
+        return(queryfrag)
 
     # Select which indices to use to slice list
     xs = np.linspace(0, len(lat) - 1, num + 1)
     xs = xs.astype(int)
 
     out = []
+    for i in range(num):
+        if i % 10 == 0:     # Too many connected queries returns an empty response
+            query = base
+        else:
+            query += "%20OR%20"
+        query += _makequeryforslice(xs[i], xs[i+1])
+        if i % 10 == 9 or i == num - 1:     # End the query
+            query += ")"
+            query += "&rows=25&start=0"
+            out.append(query)
 
-    for i in range(len(xs) - 1):
-        query = "%20AND%20"
-
-        # Select indices
-        a = xs[i]
-        b = xs[i+1]
-        c = int(0.5 * (a + b))
-
-        # Set Time query
-        timestamp = datetime.utcfromtimestamp(time[c][0])
-        windowstart = timestamp - timedelta(minutes=timewindow)
-        windowend = timestamp + timedelta(minutes=timewindow)
-        query += "beginPosition:["
-        query += str(windowstart.isoformat())[:-3] + 'Z'
-        query += "%20TO%20"
-        query += str(windowend.isoformat())[:-3] + 'Z' + "]"
-
-        # Set Positional query
-        query += "%20AND%20(%20footprint:%22Intersects(POLYGON(("
-        query += str(lon[a][0]) + "%20" + str(lat[a][0]) + str(',')
-        query += str(lon[b][0]) + "%20" + str(lat[a][0]) + str(',')
-        query += str(lon[b][0]) + "%20" + str(lat[b][0]) + str(',')
-        query += str(lon[a][0]) + "%20" + str(lat[b][0]) + str(',')
-        query += str(lon[a][0]) + "%20" + str(lat[a][0])
-        query += "%20)))%22)"
-
-        # End query with results display options
-        query += "&rows=25&start=0"
-        out.append(base + query)
     return(out)
 
 

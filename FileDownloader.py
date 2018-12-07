@@ -9,23 +9,33 @@ import requests
 import io
 
 
-def Calipso_download(NASA_FTP_directory, calipso_directory):
-    """Download Calipso files from NASA"""
+def NASA_download(NASA_FTP_directory, calipso_directory=None, CATS_directory=None):
+    """Download Calipso or CATS files from NASA"""
     print("Connecting to NASA server...")
     ftp = FTP('xfr140.larc.nasa.gov')
     ftp.login('anonymous', 'trz15@imperial.ac.uk')
     ftp.cwd(NASA_FTP_directory)
     available_files = ftp.nlst()
 
-    # Select all .hdf files
-    files_to_download = [str(i) for i in available_files if str(i)[-1] == 'f']
-
-    print("Beginning download...")
-    try:
-        os.chdir(calipso_directory)
-    except FileNotFoundError:
-        os.mkdir(calipso_directory)
-        os.chdir(calipso_directory)
+    # Select all .hdf files if Calipso
+    if calipso_directory != None:
+        files_to_download = [str(i) for i in available_files if str(i)[-1] == 'f']
+        print("Beginning download...")
+        try:
+            os.chdir(calipso_directory)
+        except FileNotFoundError:
+            os.mkdir(calipso_directory)
+            os.chdir(calipso_directory)
+            
+    # Select all .hdf5 files if CATS
+    if CATS_directory != None:
+        files_to_download = [str(i) for i in available_files if str(i)[-1] == '5']
+        print("Beginning download...")
+        try:
+            os.chdir(CATS_directory)
+        except FileNotFoundError:
+            os.mkdir(CATS_directory)
+            os.chdir(CATS_directory)
 
     files_present = os.listdir()
 

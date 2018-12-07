@@ -43,7 +43,7 @@ class SDopener():
 
 
 if __name__ == '__main__':
-    Cfilename = "D:\SatelliteData\Calipso1km\CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T08-19-14ZD.hdf"
+    Cfilename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T08-19-14ZD.hdf"
     with SDopener(Cfilename) as file:
         clat = load_data(file, 'Latitude')
         clon = load_data(file, 'Longitude')

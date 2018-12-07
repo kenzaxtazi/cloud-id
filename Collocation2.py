@@ -35,8 +35,8 @@ def SLSTR_query(url):
             print('No matches')
         return(out)
 
-    elif r.status_code == 400:
-        print('Response Code Error')
+    else:
+        print('Response Code Error: %s' %(r.status_code))
         return([])
 
 
@@ -285,8 +285,8 @@ def collocate(SLSTR_filename, Calipso_filename, verbose=False, persistent=False)
                         coords += matches
                         i = k
     else:
-        if persistent == True:
-            ("No pixel found on edge, brute forcing")
+        if persistent is True:
+            tqdm.write("No pixel found on edge, brute forcing")
             for i in (tqdm(range(2400)) if verbose else range(2400)):
                 for j in range(3000):
                     matches = match_SLSTR_pixel([i, j])

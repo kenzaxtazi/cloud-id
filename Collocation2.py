@@ -77,7 +77,7 @@ def makeurlquery(Cfilename, timewindow=30, num=20):
         queryfrag = "("
 
         # Set Time query
-        timestamp = datetime.utcfromtimestamp(time[c][0])
+        timestamp = datetime.utcfromtimestamp(time[c])
         windowstart = timestamp - timedelta(minutes=timewindow)
         windowend = timestamp + timedelta(minutes=timewindow)
         queryfrag += "beginPosition:["

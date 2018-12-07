@@ -11,7 +11,7 @@ from glob import glob
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
-import Plotting_images_and_masks as pim
+import DataLoader as DL
 import vfm_feature_flags2 as vfm
 import CalipsoReader2 as CR
 import DataLoader as DL
@@ -29,18 +29,18 @@ def plotmatchingpixels(Sfilename, Cfilename, coords):
     for i in coords[:, 2]:
         # see vfm function for value meaning
         values.append(float(vfm.vfm_feature_flags((data[i, 0]))))
-    m = cm.ScalarMappable(cmap=cm.jet)
+    m = cm.ScalarMappable(cmap=cm.get_cmap('jet'))
     m.set_array(values)
     plt.figure()
     plt.imshow(S1, 'gray')
-    sc = plt.scatter(coords[:, 1], coords[:, 0], c=values, cmap='jet')
+    plt.scatter(coords[:, 1], coords[:, 0], c=values, cmap='jet')
     plt.colorbar(m)
     plt.show()
 
 
 if __name__ == '__main__':
-    Cfilename = "D:\SatelliteData\Calipso1km\CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
-    Sfilename = "D:\SatelliteData\S3A_SL_1_RBT____20180401T012743_20180401T013043_20180402T055007_0179_029_288_1620_LN2_O_NT_002.SEN3"
+    Cfilename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T00-04-48ZD.hdf"
+    Sfilename = "D:/SatelliteData/SLSTR/S3A_SL_1_RBT____20180401T012743_20180401T013043_20180402T055007_0179_029_288_1620_LN2_O_NT_002.SEN3"
     coords = np.array(collocate(Sfilename, Cfilename))
 
     plotmatchingpixels(Sfilename, Cfilename, coords)

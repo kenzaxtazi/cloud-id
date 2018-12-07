@@ -14,12 +14,6 @@ Created on Tue Nov 27 15:54:45 2018
 @author: kenzatazi
 """
 
-
-import matplotlib
-matplotlib.use('Agg')
-
-
-<<<<<<< HEAD
 import Collocation2 as c
 import DataLoader as pim
 import CalipsoReader2 as cr2
@@ -29,10 +23,6 @@ import numpy as np
 from satpy import Scene
 import matplotlib.pyplot as plt
 
-
-=======
->>>>>>> 22696dd0518344ee03b5296a1a9b6b2b7a1ccd5b
-plt.ioff()
 
 
 def vis_inspection(model, test_set):

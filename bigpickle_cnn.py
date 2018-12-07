@@ -12,7 +12,7 @@ import numpy as np
 import vfm_feature_flags2 as vfm 
 import model_evaluation as me
 import sklearn.utils 
-
+import visual_inspection as vi
 
 
 LR = 1e-3

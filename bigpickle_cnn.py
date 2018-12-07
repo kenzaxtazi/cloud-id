@@ -18,27 +18,29 @@ import sklearn.utils
 
 LR = 1e-3
  
-MODEL_NAME = 'pickle_cnn'.format(LR, 'feedforward') 
+MODEL_NAME = 'bigpickle_cnn'.format(LR, 'feedforward') 
 
-pixel_info1 = pd.read_pickle("/home/hep/trz15/Masters_Project/AprilP1.pkl")
-pixel_info2 = pd.read_pickle("/home/hep/trz15/Masters_Project/Run2P1.pkl")
-pixel_info3 = pd.read_pickle("/home/hep/trz15/Masters_Project/JulyP1.pkl") 
+pixel_info1 = pd.read_pickle("/Users/kenzatazi/Desktop/AprilP1.pkl")
+pixel_info2 = pd.read_pickle("/Users/kenzatazi/Desktop/Run2P1.pkl")
+pixel_info3 = pd.read_pickle("/Users/kenzatazi/Desktop/JulyP1.pkl") 
 
 pixel_info = pd.concat([pixel_info1,pixel_info2,pixel_info3])
 
-pixel_info = pixel_info[abs(pixel_info['TimeDiff'])< 250]
+pixel_info = pixel_info[abs(pixel_info['TimeDiff'])< 200]
 
 test_set = pixel_info[-100:]
 
 pixels = sklearn.utils.shuffle(pixel_info[:-100])
 
-p = (pixels[['S1_an','S2_an','S3_an','S4_an','S5_an','S6_an',
-                           'S7_in','S8_in','S9_in', 
-                           'Feature_Classification_Flags',
-                           'TimeDiff']]).values 
+pixel_values = (pixel_info[['S1_an','S2_an','S3_an','S4_an','S5_an','S6_an',
+                            'S7_in','S8_in','S9_in',
+                            'satellite_zenith_angle', 'solar_zenith_angle', 
+                            'latitude_an', 'longitude_an',
+                            'Feature_Classification_Flags',
+                            'TimeDiff']]).values
 
 
-#get rid of matches below 300
+p = pixel_values[abs(pixel_values[:,-1])< 500] #get rid of matches below 300
 
 
 def prep_data(pixel_info):
@@ -49,14 +51,16 @@ def prep_data(pixel_info):
     
     """
     
+    # shuffle(pixel_info)     # mix real good
+    
     conv_pixels= pixel_info.astype(float)
     pix= np.nan_to_num(conv_pixels)
     
-    data = pix[:,:9]
-    truth_flags = pix[:,9]
+    data = pix[:,:-2]
+    truth_flags = pix[:,-2]
     
     truth_oh=[]
-    
+
     for d in truth_flags:
         i = vfm.vfm_feature_flags(int(d))
         if i == 2:
@@ -64,11 +68,11 @@ def prep_data(pixel_info):
         if i != 2:
             truth_oh.append([0.,1.])    # not cloud 
         
-  
-    training_data= np.array(data[:-500])    # take all but the 500 last 
-    validation_data= np.array(data[-500:])    # take 500 last pixels 
-    training_truth= np.array(truth_oh[:-500])
-    validation_truth= np.array(truth_oh[-500:])
+      
+    training_data= np.array(data[:-1000])    # take all but the 500 last 
+    validation_data= np.array(data[-1000:])    # take 500 last pixels 
+    training_truth= np.array(truth_oh[:-1000])
+    validation_truth= np.array(truth_oh[-1000:])
     
     return training_data, validation_data, training_truth, validation_truth
         
@@ -88,11 +92,11 @@ from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
 
 
-training_data= training_data.reshape(-1,1,9,1)
-validation_data= validation_data.reshape(-1,1,9,1)
+training_data= training_data.reshape(-1,1,13,1)
+validation_data= validation_data.reshape(-1,1,13,1)
 
 # Layer 0: generates a 4D tensor
-layer0 = input_data(shape=[None, 1, 9, 1], name='input')
+layer0 = input_data(shape=[None, 1, 13, 1], name='input')
 
 # Layer 1
 layer1 = fully_connected(layer0, 32, activation='relu')
@@ -137,7 +141,7 @@ accuracy= me.get_accuracy(model,validation_data,validation_truth)
 
 
 
-vi.vis_inspection(model, test_set)
+#vi.vis_inspection(model, test_set)
 
 reset_default_graph()
 

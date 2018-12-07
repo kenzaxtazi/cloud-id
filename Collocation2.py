@@ -10,7 +10,7 @@ import os
 import xml.etree.ElementTree as ET
 import zipfile
 from datetime import datetime, timedelta
-
+import traceback
 import numpy as np
 import requests
 from tqdm import tqdm
@@ -161,6 +161,7 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
                             str(w[i]) + ',' + str(Sfilenames[j]) + ',' + str(Sdownloads[j]) + '\n')
                         Data.append([w[i], Sfilenames[j], Sdownloads[j]])
         except Exception as e:
+            traceback.print_exc()
             tqdm.write("Error: %s" %e)
             pass
 

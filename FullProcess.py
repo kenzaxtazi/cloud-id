@@ -33,6 +33,8 @@ if calipso_directory != "":
 elif CATS_directory != "":
     match_directory(CATS_directory, MatchesFilename, timewindow)
 
+print("File matching complete")
+
 # Download the files found by match_directory
 failed_downloads = download_matches(MatchesFilename, SLSTR_target_directory, creds_path)
 

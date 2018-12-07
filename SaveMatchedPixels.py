@@ -118,6 +118,8 @@ def make_df(Spath, Cpath):
         for i in range(len(Mdatetimes)):
             Mdatetimes[i] = Mdatetimes[i] + timedelta(days=Mtimes[i])
         Profile_Time = [i.timestamp() for i in Mdatetimes]
+        Profile_Time = np.array(Profile_Time)
+        Profile_Time -= 725846390.0 # Temporary workaround
         Solar_Zenith_Angle = np.array(file['geolocation']['Solar_Zenith_Angle'])
         Feature_Type_Fore_FOV = np.array(file['layer_descriptor']['Feature_Type_Fore_FOV'])[:, 0]
         Sky_Condition_Fore_FOV = np.array(file['layer_descriptor']['Sky_Condition_Fore_FOV'])

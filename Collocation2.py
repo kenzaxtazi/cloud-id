@@ -142,8 +142,11 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
 
     # Find Calipso files
     q = os.listdir(directory)
-    w = [i for i in q if i[-1] == 'f']
 
+    w = [i for i in q if i[-1] == 'f']
+    
+    if len(w) == 0:
+        w = [i for i in q if i[-1] == '5']
     # Query the ESA database for each file, append matches to Data and raw output file
     rawoutput = output[:-4] + "_raw.txt"
     Data = []

@@ -8,33 +8,36 @@ from Collocation2 import match_directory
 import os
 from SaveMatchedPixels import get_file_pairs, process_all, add_dist_col, add_time_col
 from tqdm import tqdm
-from FileDownloader import download_matches, Calipso_download
+from FileDownloader import download_matches, NASA_download
 
 
 Home_directory = "/home/hep/trz15/Masters_Project"
-NASA_FTP_directory = "48fcaa55-08b9-4eb8-b0e1-815769c43a2f"
-calipso_directory = "/vols/lhcb/egede/cloud/Calipso/1km/2018/03/"
-SLSTR_target_directory = "/vols/lhcb/egede/cloud/SLSTR/2018/03"
-MatchesFilename = "Matches8.txt"
-pkl_output_name = "Mar.pkl"
+NASA_FTP_directory = "528836af-a8ec-45eb-8391-8d24324fe1b6"
+calipso_directory = ""
+CATS_directory = "/vols/lhcb/egede/cloud/CATS/2017/08/"
+SLSTR_target_directory = "/vols/lhcb/egede/cloud/SLSTR/2017/08"
+MatchesFilename = "Matches12.txt"
+pkl_output_name = "Aug17.pkl"
 timewindow = 20
 creds_path = '/home/hep/trz15/Masters_Project/credentials.txt'
 
 # Download Calipso file from NASA
-Calipso_download(NASA_FTP_directory, calipso_directory)
+NASA_download(NASA_FTP_directory, calipso_directory, CATS_directory)
 
 # Find the SLSTR filenames which match the Calipso Filename
 print("Beginning matching...")
 
 os.chdir(Home_directory)
-match_directory(calipso_directory, MatchesFilename, timewindow)
+if calipso_directory != "":
+    match_directory(calipso_directory, MatchesFilename, timewindow)
+elif CATS_directory != "":
+    match_directory(CATS_directory, MatchesFilename, timewindow)
 
 # Download the files found by match_directory
 failed_downloads = download_matches(MatchesFilename, SLSTR_target_directory, creds_path)
 
 # Find matching pixels and store in pkl file
-Cpaths, Spaths = get_file_pairs(
-    calipso_directory, SLSTR_target_directory, MatchesFilename, failed_downloads)
+Cpaths, Spaths = get_file_pairs(SLSTR_target_directory, MatchesFilename, failed_downloads, calipso_directory, CATS_directory)
 df = process_all(Spaths, Cpaths, pkl_output_name)
 df['Profile_Time'] += 725846390.0
 df = add_dist_col(df)

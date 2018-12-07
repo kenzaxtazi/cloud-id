@@ -14,9 +14,9 @@ from tqdm import tqdm
 import itertools
 from datetime import datetime, timedelta
 from geopy.distance import geodesic
+import h5py
 
-
-def get_file_pairs(caliop_directory, slstr_directory, matchesfile, failed_downloads=[]):
+def get_file_pairs(slstr_directory, matchesfile, failed_downloads=[], caliop_directory="", CATS_directory=""):
     # Open Matches.txt and return path to pairs
     with open(matchesfile, 'r') as file:
         data = file.readlines()
@@ -32,10 +32,16 @@ def get_file_pairs(caliop_directory, slstr_directory, matchesfile, failed_downlo
 
     Cpaths = []
     Spaths = []
-    for i in range(num_pairs):
-        Cpaths.append(caliop_directory + '/' + Cfilenames[i])
+    if caliop_directory != "":
+        for i in range(num_pairs):
+            Cpaths.append(caliop_directory + '/' + Cfilenames[i])
 
-        Spaths.append(slstr_directory + '/' + Sfilenames[i] + '.SEN3')
+            Spaths.append(slstr_directory + '/' + Sfilenames[i] + '.SEN3')
+    elif CATS_directory != "":
+        for i in range(num_pairs):
+            Cpaths.append(CATS_directory + '/' + Cfilenames[i])
+
+            Spaths.append(slstr_directory + '/' + Sfilenames[i] + '.SEN3')
 
     return(Cpaths, Spaths)
 
@@ -78,34 +84,65 @@ def make_df(Spath, Cpath):
             data = scn[Sattribute].values[rows, cols]
         return(pd.Series(data, name=Sattribute))
 
-    with CR.SDopener(Cpath) as file:
-        Feature_Classification_Flags = CR.load_data(
-            file, 'Feature_Classification_Flags')
-        Latitude = CR.load_data(file, 'Latitude')
-        Longitude = CR.load_data(file, 'Longitude')
-        Profile_Time = CR.load_data(file, 'Profile_Time')
-        Solar_Zenith_Angle = CR.load_data(file, 'Solar_Zenith_Angle')
-        IGBP_Surface_Type = CR.load_data(file, 'IGBP_Surface_Type')
+    if Cpath[0].endswith('f'):  # Calipso file
+        with CR.SDopener(Cpath) as file:
+            Feature_Classification_Flags = CR.load_data(
+                file, 'Feature_Classification_Flags')
+            Latitude = CR.load_data(file, 'Latitude')
+            Longitude = CR.load_data(file, 'Longitude')
+            Profile_Time = CR.load_data(file, 'Profile_Time')
+            Solar_Zenith_Angle = CR.load_data(file, 'Solar_Zenith_Angle')
+            IGBP_Surface_Type = CR.load_data(file, 'IGBP_Surface_Type')
 
-    Calipso_attributes = [Feature_Classification_Flags,
-                          Latitude, Longitude, Profile_Time, Solar_Zenith_Angle, IGBP_Surface_Type]
-    Calipso_attribute_names = ['Feature_Classification_Flags',
-                               'Latitude', 'Longitude', 'Profile_Time', 'Solar_Zenith_Angle', 'IGBP_Surface_Type']
+        Calipso_attributes = [Feature_Classification_Flags,
+                              Latitude, Longitude, Profile_Time, Solar_Zenith_Angle, IGBP_Surface_Type]
+        Calipso_attribute_names = ['Feature_Classification_Flags',
+                                   'Latitude', 'Longitude', 'Profile_Time', 'Solar_Zenith_Angle', 'IGBP_Surface_Type']
+        def Cmake_series(Cattribute):
+            if np.shape(Cattribute)[1] != 1:
+                out = Cattribute[:, 0][Cindices]
+            else:
+                out = Cattribute[Cindices]
+                if type(out[0]) == np.ndarray:
+                    out = list(itertools.chain.from_iterable(out))
+            return(pd.Series(out, name=str(Cattribute)))
 
-    def Cmake_series(Cattribute):
-        if np.shape(Cattribute)[1] != 1:
-            out = Cattribute[:, 0][Cindices]
-        else:
+    elif Cpath[0].endswith('5'):
+        file = h5py.File(Cpath)
+        Latitude = np.array(file['geolocation']['CATS_Fore_FOV_Latitude'])[:, 1]
+        Longitude = np.array(file['geolocation']['CATS_Fore_FOV_Longitude'])[:, 1]
+
+        Mdates = np.array(file['layer_descriptor']['Profile_UTC_Date'])
+        Mtimes = np.array(file['layer_descriptor']['Profile_UTC_Time'])[:, 1]
+        Mdatetimes = [datetime.strptime(str(i), "%Y%m%d") for i in Mdates]
+        for i in range(len(Mdatetimes)):
+            Mdatetimes[i] = Mdatetimes[i] + timedelta(days=Mtimes[i])
+        Profile_Time = [i.timestamp() for i in Mdatetimes]
+        Solar_Zenith_Angle = np.array(file['geolocation']['Solar_Zenith_Angle'])
+        Feature_Type_Fore_FOV = np.array(file['layer_descriptor']['Feature_Type_Fore_FOV'])[:, 0]
+        Sky_Condition_Fore_FOV = np.array(file['layer_descriptor']['Sky_Condition_Fore_FOV'])
+
+        CATS_attributes = [Feature_Type_Fore_FOV,
+                           Latitude, Longitude, Profile_Time, Solar_Zenith_Angle, Sky_Condition_Fore_FOV]
+        CATS_attribute_names = ['Feature_Type_Fore_FOV',
+                                'Latitude', 'Longitude', 'Profile_Time', 'Solar_Zenith_Angle', 'Sky_Condition_Fore_FOV']
+
+        def Cmake_series(Cattribute):
             out = Cattribute[Cindices]
             if type(out[0]) == np.ndarray:
                 out = list(itertools.chain.from_iterable(out))
-        return(pd.Series(out, name=str(Cattribute)))
+            return(pd.Series(out, name=str(Cattribute)))
+
 
     for attribute in SLSTR_attributes:
         df = df.append(Smake_series(attribute))
 
-    for attribute in Calipso_attributes:
-        df = df.append(Cmake_series(attribute))
+    if Cpath[0].endswith('f'):
+        for attribute in Calipso_attributes:
+            df = df.append(Cmake_series(attribute))
+    elif Cpath[0].endswith('5'):
+        for attribute in CATS_attributes:
+            df = df.append(Cmake_series(attribute))
 
     Sfilenameser = pd.Series([Spath[-99:]] * num_values, name='Sfilename')
     Cfilenameser = pd.Series([Cpath[-60:]] * num_values, name='Cfilename')
@@ -113,8 +150,13 @@ def make_df(Spath, Cpath):
     df = df.append(Sfilenameser)
     df = df.append(Cfilenameser)
     df = df.transpose()
-    df.columns = SLSTR_attributes + \
-        Calipso_attribute_names + ['Sfilename', 'Cfilename']
+
+    if Cpath[0].endswith('f'):
+        df.columns = SLSTR_attributes + \
+            Calipso_attribute_names + ['Sfilename', 'Cfilename']
+    elif Cpath[0].endswith('5'):
+        df.columns = SLSTR_attributes + \
+            CATS_attribute_names + ['Sfilename', 'Cfilename']
     return(df)
 
 

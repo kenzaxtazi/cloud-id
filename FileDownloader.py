@@ -9,7 +9,7 @@ import requests
 import io
 
 
-def NASA_download(NASA_FTP_directory, calipso_directory=None, CATS_directory=None):
+def NASA_download(NASA_FTP_directory, calipso_directory="", CATS_directory=""):
     """Download Calipso or CATS files from NASA"""
     print("Connecting to NASA server...")
     ftp = FTP('xfr140.larc.nasa.gov')
@@ -18,7 +18,7 @@ def NASA_download(NASA_FTP_directory, calipso_directory=None, CATS_directory=Non
     available_files = ftp.nlst()
 
     # Select all .hdf files if Calipso
-    if calipso_directory != None:
+    if calipso_directory != "":
         files_to_download = [str(i) for i in available_files if str(i)[-1] == 'f']
         print("Beginning download...")
         try:
@@ -28,7 +28,7 @@ def NASA_download(NASA_FTP_directory, calipso_directory=None, CATS_directory=Non
             os.chdir(calipso_directory)
             
     # Select all .hdf5 files if CATS
-    if CATS_directory != None:
+    if CATS_directory != "":
         files_to_download = [str(i) for i in available_files if str(i)[-1] == '5']
         print("Beginning download...")
         try:

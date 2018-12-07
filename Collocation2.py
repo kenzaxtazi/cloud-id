@@ -14,6 +14,7 @@ from datetime import datetime, timedelta
 import numpy as np
 import requests
 from tqdm import tqdm
+import h5py
 
 import CalipsoReader2 as CR
 import DataLoader as DL
@@ -43,16 +44,31 @@ def SLSTR_query(url):
 def makeurlquery(Cfilename, timewindow=30, num=20):
     """Creates list of URLs to query SLSTR database for a given file"""
 
+    if Cfilename.endswith('f'):
+        # Calipso File
+        # Load parameters from hdf file
+        with CR.SDopener(Cfilename) as file:
+            lat = CR.load_data(file, 'Latitude')
+            lon = CR.load_data(file, 'Longitude')
+            time = CR.load_data(file, 'Profile_Time')
+        time += 725846400.0     # Time in UNIX
+        time -= 10              # Leap second correction
+
+    elif Cfilename.endswith('5'):
+        # CATS File
+        file = h5py.File(Cfilename)
+        lat = np.array(file['geolocation']['CATS_Fore_FOV_Latitude'])[:, 1]
+        lon = np.array(file['geolocation']['CATS_Fore_FOV_Longitude'])[:, 1]
+        Mdates = np.array(file['layer_descriptor']['Profile_UTC_Date'])
+        Mtimes = np.array(file['layer_descriptor']['Profile_UTC_Time'])[:, 1]
+        Mdatetimes = [datetime.strptime(str(i), "%Y%m%d") for i in Mdates]
+        for i in range(len(Mdatetimes)):
+            Mdatetimes[i] = Mdatetimes[i] + timedelta(days=Mtimes[i])
+        time = [i.timestamp() for i in Mdatetimes]
+
     # Set download website and product type
     base = "https://scihub.copernicus.eu/s3//search?q=%20producttype:SL_1_RBT___%20AND%20("
 
-    # Load parameters from hdf file
-    with CR.SDopener(Cfilename) as file:
-        lat = CR.load_data(file, 'Latitude')
-        lon = CR.load_data(file, 'Longitude')
-        time = CR.load_data(file, 'Profile_Time')
-    time += 725846400.0     # Time in UNIX
-    time -= 10              # Leap second correction
 
     def _makequeryforslice(a, b):
         "Makes a query fragment between two calipso indices"
@@ -119,7 +135,7 @@ def find_SLSTR_data(Cfilename, timewindow=30, num=20):
 
 
 def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
-    """For a directory of Calipso files, find SLSTR files which are collocated"""
+    """For a directory of Calipso or CATS files, find SLSTR files which are collocated"""
 
     if directory[-1] != '/':
         directory += '/'

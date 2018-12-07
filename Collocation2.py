@@ -141,8 +141,8 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
                         file.write(
                             str(w[i]) + ',' + str(Sfilenames[j]) + ',' + str(Sdownloads[j]) + '\n')
                         Data.append([w[i], Sfilenames[j], Sdownloads[j]])
-        except:
-            tqdm.write("Error")
+        except Exception as e:
+            tqdm.write("Error: %s" %e)
             pass
 
     # Sort the data

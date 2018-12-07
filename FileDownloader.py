@@ -85,8 +85,9 @@ def CEDA_download_matches(MatchesFilename, SLSTR_target_directory, creds_path='c
             z = zipfile.ZipFile(downloadedfile)
             z.extractall()
             os.remove(downloadedfile)
-        except:
+        except Exception as e:
             tqdm.write('Error downloading ' + str(targetfile))
+            tqdm.write('Error: %s' %e)
             failed_downloads.append(Sfiles1[i])
             try:
                 os.remove(downloadedfile)
@@ -142,8 +143,9 @@ def ESA_download_matches(MatchesFilename, SLSTR_target_directory):
             try:
                 z = zipfile.ZipFile(io.BytesIO(r.content))
                 z.extractall()
-            except:
+            except Exception as e:
                 tqdm.write("Error extracting " + str(S_URL))
+                tqdm.write('Error: %s' %e)
                 faileddownloads.append(Sfiles1[i])
 
     # Go back to previous directory

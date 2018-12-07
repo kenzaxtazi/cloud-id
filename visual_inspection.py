@@ -24,7 +24,6 @@ from satpy import Scene
 import matplotlib.pyplot as plt
 
 
-
 def vis_inspection(model, test_set):
 
     # get SLTSR and caliop file
@@ -97,22 +96,7 @@ def vis_inspection(model, test_set):
                 plt.scatter(pixels[i, 1], pixels[i, 0], c='lightgreen',
                             edgecolors='red')
             if truth_input[0] == 0.:
-<<<<<<< HEAD
                 plt.scatter(pixels[i,1],pixels[i,0], c='pink',
                         edgecolors='green')
-                
-         
-     
-     plt.show() 
-                       
-                       
-                       
-                
-     
-    
-=======
-                plt.scatter(pixels[i, 1], pixels[i, 0], c='pink',
-                            edgecolors='green')
+    plt.show() 
 
-    plt.savefig('/home/hep/kt2015/cloud/ploooot.png')
->>>>>>> 22696dd0518344ee03b5296a1a9b6b2b7a1ccd5b

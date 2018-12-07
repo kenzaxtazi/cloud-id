@@ -14,12 +14,15 @@ Created on Tue Nov 27 15:54:45 2018
 @author: kenzatazi
 """
 
+import Collocation2 as c
+import DataLoader as pim
+import CalipsoReader2 as cr2
+import vfm_feature_flags2 as vfm 
+from glob import glob
+import numpy as np
+from satpy import Scene
+import matplotlib.pyplot as plt
 
-import matplotlib
-matplotlib.use('Agg')
-
-
-plt.ioff()
 
 
 def vis_inspection(model, test_set):
@@ -94,7 +97,22 @@ def vis_inspection(model, test_set):
                 plt.scatter(pixels[i, 1], pixels[i, 0], c='lightgreen',
                             edgecolors='red')
             if truth_input[0] == 0.:
+<<<<<<< HEAD
+                plt.scatter(pixels[i,1],pixels[i,0], c='pink',
+                        edgecolors='green')
+                
+         
+     
+     plt.show() 
+                       
+                       
+                       
+                
+     
+    
+=======
                 plt.scatter(pixels[i, 1], pixels[i, 0], c='pink',
                             edgecolors='green')
 
     plt.savefig('/home/hep/kt2015/cloud/ploooot.png')
+>>>>>>> 22696dd0518344ee03b5296a1a9b6b2b7a1ccd5b

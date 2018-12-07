@@ -9,22 +9,27 @@ Created on Sun Nov 25 16:37:26 2018
 
 import pandas as pd
 import numpy as np
-import visual_inspection as vi
 import vfm_feature_flags2 as vfm 
 import model_evaluation as me
 import sklearn.utils 
-
+import visual_inspection as vi
 
 
 LR = 1e-3
  
 MODEL_NAME = 'bigpickle_cnn'.format(LR, 'feedforward') 
 
-pixel_info1 = pd.read_pickle("/Users/kenzatazi/Desktop/AprilP1.pkl")
-pixel_info2 = pd.read_pickle("/Users/kenzatazi/Desktop/Run2P1.pkl")
-pixel_info3 = pd.read_pickle("/Users/kenzatazi/Desktop/JulyP1.pkl") 
+pixel_info1 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/AprP1.pkl")
+pixel_info2 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/Run2P1.pkl")
+pixel_info3 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/FebP1.pkl") 
+pixel_info4 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/MarP1.pkl")
+pixel_info5 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/JunP1.pkl")
+pixel_info6 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/JulP1.pkl") 
+pixel_info7 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/AugP1.pkl") 
+pixel_info8 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/JanP1.pkl") 
 
-pixel_info = pd.concat([pixel_info1,pixel_info2,pixel_info3])
+pixel_info = pd.concat([pixel_info1,pixel_info2,pixel_info3,pixel_info4,
+                        pixel_info5,pixel_info6,pixel_info7,pixel_info8])
 
 pixel_info = pixel_info[abs(pixel_info['TimeDiff'])< 200]
 
@@ -38,10 +43,6 @@ pixel_values = (pixel_info[['S1_an','S2_an','S3_an','S4_an','S5_an','S6_an',
                             'latitude_an', 'longitude_an',
                             'Feature_Classification_Flags',
                             'TimeDiff']]).values
-
-
-p = pixel_values[abs(pixel_values[:,-1])< 500] #get rid of matches below 300
-
 
 def prep_data(pixel_info):
     
@@ -67,12 +68,12 @@ def prep_data(pixel_info):
             truth_oh.append([1.,0.])    # cloud 
         if i != 2:
             truth_oh.append([0.,1.])    # not cloud 
-        
-      
-    training_data= np.array(data[:-1000])    # take all but the 500 last 
-    validation_data= np.array(data[-1000:])    # take 500 last pixels 
-    training_truth= np.array(truth_oh[:-1000])
-    validation_truth= np.array(truth_oh[-1000:])
+    
+    pct = int(len(data)*.15)
+    training_data= np.array(data[:-pct])    # take all but the 15% last 
+    validation_data= np.array(data[-pct:])    # take the last 15% of pixels 
+    training_truth= np.array(truth_oh[:-pct])
+    validation_truth= np.array(truth_oh[-pct:])
     
     return training_data, validation_data, training_truth, validation_truth
         
@@ -80,7 +81,7 @@ def prep_data(pixel_info):
 
 # prepares data for cnn 
 
-training_data, validation_data, training_truth, validation_truth = prep_data(p)
+training_data, validation_data, training_truth, validation_truth = prep_data(pixel_values)
 
 
 
@@ -138,12 +139,11 @@ mat = me.confusion_matrix(model,validation_data,validation_truth)
 AUC= me.AUC(model,validation_data,validation_truth)
 accuracy= me.get_accuracy(model,validation_data,validation_truth)
 
-
-
-
-#vi.vis_inspection(model, test_set)
+vi.vis_inspection(model, test_set)
 
 reset_default_graph()
+
+
 
 
 

@@ -19,7 +19,7 @@ LR = 1e-3
  
 MODEL_NAME = 'bigpickle_cnn'.format(LR, 'feedforward') 
 
-pixel_info1 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/AprlP1.pkl")
+pixel_info1 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/AprP1.pkl")
 pixel_info2 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/Run2P1.pkl")
 pixel_info3 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/FebP1.pkl") 
 pixel_info4 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/MarP1.pkl")

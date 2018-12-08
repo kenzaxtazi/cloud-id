@@ -197,7 +197,7 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
     return(Data)
 
 
-def collocate(SLSTR_filename, Calipso_filename, verbose=False, persistent=False):
+def collocate(SLSTR_filename, Cfilename, verbose=False, persistent=False):
     """Finds pixels in both files which represent the same geographic position"""
 
     # Load SLSTR coords
@@ -208,11 +208,18 @@ def collocate(SLSTR_filename, Calipso_filename, verbose=False, persistent=False)
 
     scn.unload()
 
-    # Load Calipso coords
-    with CR.SDopener(Calipso_filename) as file:
-        clat = CR.load_data(file, 'Latitude')
-        clon = CR.load_data(file, 'Longitude')
+    if Cfilename.endswith('f'):
+        # Load Calipso coords
+        with CR.SDopener(Cfilename) as file:
+            clat = CR.load_data(file, 'Latitude')
+            clon = CR.load_data(file, 'Longitude')
 
+    elif Cfilename.endswith('5'):
+        # Load CATS coords
+        clat = np.array(file['geolocation']
+                            ['CATS_Fore_FOV_Latitude'])[:, 1]
+        clon = np.array(file['geolocation']
+                             ['CATS_Fore_FOV_Longitude'])[:, 1]
     # Find coord pairs which are close
     coords = []
 

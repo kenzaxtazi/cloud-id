@@ -22,7 +22,6 @@ def get_file_pairs(slstr_directory, matchesfile, failed_downloads=[], caliop_dir
     with open(matchesfile, 'r') as file:
         data = file.readlines()
 
-    num_pairs = len(data)
     Cfilenames = []
     Sfilenames = []
     for i in data:
@@ -31,6 +30,8 @@ def get_file_pairs(slstr_directory, matchesfile, failed_downloads=[], caliop_dir
             Cfilenames.append(pairings[0])
             Sfilenames.append(pairings[1])
 
+    num_pairs = len(Sfilenames)
+    
     Cpaths = []
     Spaths = []
     if caliop_directory != "":

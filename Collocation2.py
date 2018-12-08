@@ -21,7 +21,7 @@ import DataLoader as DL
 
 
 def SLSTR_query(url):
-    # Send SLSTR database query via http using default credentials
+    """Send SLSTR database query via http using default credentials"""
     r = requests.get(url, auth=('s3guest', 's3guest'))
     if r.status_code == 200:
         root = ET.fromstring(r.text)
@@ -48,9 +48,9 @@ def makeurlquery(Cfilename, timewindow=30, num=20):
         # Calipso File
         # Load parameters from hdf file
         with CR.SDopener(Cfilename) as file:
-            lat = CR.load_data(file, 'Latitude')
-            lon = CR.load_data(file, 'Longitude')
-            time = CR.load_data(file, 'Profile_Time')
+            lat = CR.load_data(file, 'Latitude').flatten()
+            lon = CR.load_data(file, 'Longitude').flatten()
+            time = CR.load_data(file, 'Profile_Time').flatten()
         time += 725846400.0     # Time in UNIX
         time -= 10              # Leap second correction
 
@@ -87,11 +87,11 @@ def makeurlquery(Cfilename, timewindow=30, num=20):
 
         # Set Positional query
         queryfrag += "%20AND%20(%20footprint:%22Intersects(POLYGON(("
-        queryfrag += str(lon[a][0]) + "%20" + str(lat[a][0]) + str(',')
-        queryfrag += str(lon[b][0]) + "%20" + str(lat[a][0]) + str(',')
-        queryfrag += str(lon[b][0]) + "%20" + str(lat[b][0]) + str(',')
-        queryfrag += str(lon[a][0]) + "%20" + str(lat[b][0]) + str(',')
-        queryfrag += str(lon[a][0]) + "%20" + str(lat[a][0])
+        queryfrag += str(lon[a]) + "%20" + str(lat[a]) + str(',')
+        queryfrag += str(lon[b]) + "%20" + str(lat[a]) + str(',')
+        queryfrag += str(lon[b]) + "%20" + str(lat[b]) + str(',')
+        queryfrag += str(lon[a]) + "%20" + str(lat[b]) + str(',')
+        queryfrag += str(lon[a]) + "%20" + str(lat[a])
         queryfrag += "%20)))%22))"
 
         return(queryfrag)
@@ -116,6 +116,7 @@ def makeurlquery(Cfilename, timewindow=30, num=20):
 
 
 def find_SLSTR_data(Cfilename, timewindow=30, num=20):
+    """Finds all SLSTR files and their ESA download URLs for a given Calipso/CATS file """
     out = []
     queries = makeurlquery(Cfilename, timewindow, num)
     Sfilenames = []
@@ -197,7 +198,7 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
 
 
 def collocate(SLSTR_filename, Calipso_filename, verbose=False, persistent=False):
-    # Finds pixels in both files which represent the same geographic position
+    """Finds pixels in both files which represent the same geographic position"""
 
     # Load SLSTR coords
     scn = DL.scene_loader(SLSTR_filename)

@@ -216,6 +216,7 @@ def collocate(SLSTR_filename, Cfilename, verbose=False, persistent=False):
 
     elif Cfilename.endswith('5'):
         # Load CATS coords
+        file = h5py.File(Cfilename)
         clat = np.array(file['geolocation']
                             ['CATS_Fore_FOV_Latitude'])[:, 1]
         clon = np.array(file['geolocation']

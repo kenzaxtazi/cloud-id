@@ -31,7 +31,7 @@ def get_file_pairs(slstr_directory, matchesfile, failed_downloads=[], caliop_dir
             Sfilenames.append(pairings[1])
 
     num_pairs = len(Sfilenames)
-    
+
     Cpaths = []
     Spaths = []
     if caliop_directory != "":
@@ -86,23 +86,24 @@ def make_df(Spath, Cpath):
             data = scn[Sattribute].values[rows, cols]
         return(pd.Series(data, name=Sattribute))
 
-
     if Cpath[0].endswith('f'):  # Calipso file
         with CR.SDopener(Cpath) as file:
             Feature_Classification_Flags = CR.load_data(
-                file, 'Feature_Classification_Flags')
-            Latitude = CR.load_data(file, 'Latitude')
-            Longitude = CR.load_data(file, 'Longitude')
-            Profile_Time = CR.load_data(file, 'Profile_Time')
-            Solar_Zenith_Angle = CR.load_data(file, 'Solar_Zenith_Angle')
-            IGBP_Surface_Type = CR.load_data(file, 'IGBP_Surface_Type')
+                file, 'Feature_Classification_Flags')[:, 0].flatten()
+            Latitude = CR.load_data(file, 'Latitude').flatten()
+            Longitude = CR.load_data(file, 'Longitude').flatten()
+            Profile_Time = CR.load_data(file, 'Profile_Time').flatten()
+            Solar_Zenith_Angle = CR.load_data(
+                file, 'Solar_Zenith_Angle').flatten()
+            IGBP_Surface_Type = CR.load_data(
+                file, 'IGBP_Surface_Type').flatten()
 
         Calipso_attributes = [Feature_Classification_Flags,
                               Latitude, Longitude, Profile_Time, Solar_Zenith_Angle, IGBP_Surface_Type]
         Calipso_attribute_names = ['Feature_Classification_Flags',
                                    'Latitude', 'Longitude', 'Profile_Time', 'Solar_Zenith_Angle', 'IGBP_Surface_Type']
 
-    elif Cpath[0].endswith('5'):
+    elif Cpath[0].endswith('5'):    # CATS file
         file = h5py.File(Cpath)
         Latitude = np.array(file['geolocation']
                             ['CATS_Fore_FOV_Latitude'])[:, 1]
@@ -131,12 +132,8 @@ def make_df(Spath, Cpath):
 
     def Cmake_series(Cattribute):
         """Make a labelled pandas series for a given Calipso/CATS attribute for all matched pixels in an Calipso/CATS file"""
-        if np.shape(Cattribute)[1] != 1:
-            out = Cattribute[:, 0][Cindices]
-        else:
-            out = Cattribute[Cindices]
-            if type(out[0]) == np.ndarray:
-                out = list(itertools.chain.from_iterable(out))
+        out = Cattribute[Cindices]
+
         return(pd.Series(out, name=str(Cattribute)))
 
     for attribute in SLSTR_attributes:
@@ -145,12 +142,13 @@ def make_df(Spath, Cpath):
     if Cpath[0].endswith('f'):
         for attribute in Calipso_attributes:
             df = df.append(Cmake_series(attribute))
+        Sfilenameser = pd.Series([Spath[-99:]] * num_values, name='Sfilename')
+        Cfilenameser = pd.Series([Cpath[-60:]] * num_values, name='Cfilename')
     elif Cpath[0].endswith('5'):
         for attribute in CATS_attributes:
             df = df.append(Cmake_series(attribute))
-
-    Sfilenameser = pd.Series([Spath[-99:]] * num_values, name='Sfilename')
-    Cfilenameser = pd.Series([Cpath[-60:]] * num_values, name='Cfilename')
+        Sfilenameser = pd.Series([Spath[-99:]] * num_values, name='Sfilename')
+        Cfilenameser = pd.Series([Cpath[-70:]] * num_values, name='Cfilename')
 
     df = df.append(Sfilenameser)
     df = df.append(Cfilenameser)

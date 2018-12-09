@@ -86,7 +86,7 @@ def make_df(Spath, Cpath):
             data = scn[Sattribute].values[rows, cols]
         return(pd.Series(data, name=Sattribute))
 
-    if Cpath[0].endswith('f'):  # Calipso file
+    if Cpath.endswith('f'):  # Calipso file
         with CR.SDopener(Cpath) as file:
             Feature_Classification_Flags = CR.load_data(
                 file, 'Feature_Classification_Flags')[:, 0].flatten()
@@ -103,7 +103,7 @@ def make_df(Spath, Cpath):
         Calipso_attribute_names = ['Feature_Classification_Flags',
                                    'Latitude', 'Longitude', 'Profile_Time', 'Solar_Zenith_Angle', 'IGBP_Surface_Type']
 
-    elif Cpath[0].endswith('5'):    # CATS file
+    elif Cpath.endswith('5'):    # CATS file
         file = h5py.File(Cpath)
         Latitude = np.array(file['geolocation']
                             ['CATS_Fore_FOV_Latitude'])[:, 1]
@@ -139,12 +139,12 @@ def make_df(Spath, Cpath):
     for attribute in SLSTR_attributes:
         df = df.append(Smake_series(attribute))
 
-    if Cpath[0].endswith('f'):
+    if Cpath.endswith('f'):
         for attribute in Calipso_attributes:
             df = df.append(Cmake_series(attribute))
         Sfilenameser = pd.Series([Spath[-99:]] * num_values, name='Sfilename')
         Cfilenameser = pd.Series([Cpath[-60:]] * num_values, name='Cfilename')
-    elif Cpath[0].endswith('5'):
+    elif Cpath.endswith('5'):
         for attribute in CATS_attributes:
             df = df.append(Cmake_series(attribute))
         Sfilenameser = pd.Series([Spath[-99:]] * num_values, name='Sfilename')

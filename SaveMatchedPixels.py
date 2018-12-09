@@ -54,7 +54,7 @@ def process_all(Spaths, Cpaths, pkl_output_name):
     for i in tqdm(range(num_files)):
         newdf = make_df(Spaths[i], Cpaths[i])
         if len(newdf) != 0:
-            df = df.append(newdf, ignore_index=True)
+            df = df.append(newdf, ignore_index=True, sort=True)
         if i % 10 == 0:
             df.to_pickle(pkl_output_name)
     return(df)
@@ -154,10 +154,10 @@ def make_df(Spath, Cpath):
     df = df.append(Cfilenameser)
     df = df.transpose()
 
-    if Cpath[0].endswith('f'):
+    if Cpath.endswith('f'):
         df.columns = SLSTR_attributes + \
             Calipso_attribute_names + ['Sfilename', 'Cfilename']
-    elif Cpath[0].endswith('5'):
+    elif Cpath.endswith('5'):
         df.columns = SLSTR_attributes + \
             CATS_attribute_names + ['Sfilename', 'Cfilename']
     return(df)

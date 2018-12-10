@@ -19,12 +19,16 @@ Collocation has the full range of longitudes for latitudes between -50 and +50.
 
 * Did some simple analysis on the existing 2,000,000 pixels. PCC has been measured at ~ 0.12 when excluding high time difference pixel pairs.
 
+* Looked into the corellation btw bayes masks and CALIOP data
+
 ### Kenza 
 
 Things Kenza did this week:
 * Added ancillary data to the network ('satellite_zenith_angle', 'solar_zenith_angle', 'latitude_an', 'longitude_an', 'Feature_Classification_Flags') 
 
-* Run the code on whole images 
+* Run the code on whole images, slicing to look at accuracy as a function of time difference. The images below are only 0 to 200s. 
+<img src=/Images/mask1.png width="800"> 
+<img src=/Images/mask2.png width="800"> 
 
 * Investigated the upward slope in for the precision vs recall curve
   - Created by lack of data
@@ -41,8 +45,11 @@ Things Kenza did this week:
   - 1°x 1° resolution
   - Doesn't represent sea ice (-> limited use for CALIOP data) 
   
-* Looked into the corellation btw bayes masks and the model output 
+ 
+ ### Over the holidays:
+ * add before/after data to model
+ * add surface type data
+ 
 
-* Used slicing to look at accuracy as a function of time difference 
 
 

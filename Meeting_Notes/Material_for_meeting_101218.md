@@ -21,8 +21,8 @@ Things Kenza did this week:
   
 * Found a header in the CALIOP and CATS data theat gives the surface type following the International Feosphere Programme Surface Type Map. 
   - 17 different surface types 
-  - 1°lat x 1°long resolution
-  - Doesn't represent sea ice (limited use for CALIOP data) 
+  - 1°x 1° resolution
+  - Doesn't represent sea ice (-> limited use for CALIOP data) 
   
 * Looked into the corellation btw bayes masks and the model output 
 

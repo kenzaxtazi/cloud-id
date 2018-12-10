@@ -1,6 +1,23 @@
 ## Material for meeting 10/12/18
 
 ### Tom 
+* Downloaded additional data from SLSTR/CALIPSO pairings. 
+** Accidentally filled /vols/lhcb/, now deleting a month for each new month downloaded
+
+* Currently have ~ 2,000,000 pixels from 2018
+
+* Adapted code to work with SLSTR/CATS pairings.
+CATS ran until late October 2017, so there should be more than a year of overlap with SLSTR data. 	
+CATS is on a 5km grid, need to decide how to adapt code from the 1km CALIPSO version.
+Collocation has the full range of longitudes for latitudes between -50 and +50. 
+
+
+
+** Have 8729 pixels from August 2017 compared to a typical CALIPSO run with the same timewindow of > 100,000
+* Currently using Feature_Classification_Flags and Skycondition as truth flags. FCF has 10 measurements per reading, documentation is unclear what the numbers mean.
+
+
+* Did some simple analysis on the existing 2,000,000 pixels. PCC has been measured at ~ 0.12 when excluding high time difference pixel pairs.
 
 ### Kenza 
 

@@ -17,8 +17,8 @@ import numpy as np
 from tqdm import tqdm
 
 # create readers and open files
-scn = Scene(filenames=glob('/cloud/SLSTR/2018/08/S3A_SL_1_RBT____20180823T041605_20180823T041905_20180824T083800_0179_035_033_1620_LN2_O_NT_003.SEN3/*'), 
-           reader='nc_slstr')
+#scn = Scene(filenames=glob('/home/hep/kt2015/cloud/SLSTR/2018/08/S3A_SL_1_RBT____20180823T041605_20180823T041905_20180824T083800_0179_035_033_1620_LN2_O_NT_003.SEN3/*'), 
+#           reader='nc_slstr')
 
 def apply_mask(model, scenes):
     

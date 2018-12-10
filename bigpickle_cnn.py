@@ -146,9 +146,9 @@ accuracy= me.get_accuracy(model,validation_data,validation_truth)
 #vi.vis_inspection(model, test_set)
 
 
-scn1= Scene(filenames=glob('/cloud/SLSTR/2018/08/S3A_SL_1_RBT____20180823T041605_20180823T041905_20180824T083800_0179_035_033_1620_LN2_O_NT_003.SEN3/*'), 
+scn1= Scene(filenames=glob('/home/hep/kt2015/cloud/SLSTR/2018/08/S3A_SL_1_RBT____20180823T041605_20180823T041905_20180824T083800_0179_035_033_1620_LN2_O_NT_003.SEN3/*'), 
            reader='nc_slstr')
-scn2= Scene(filenames=glob('/cloud/SLSTR/2018/08/S3A_SL_1_RBT____20180829T200950_20180829T201250_20180831T004228_0179_035_128_1620_LN2_O_NT_003.SEN3/*'), 
+scn2= Scene(filenames=glob('/home/hep/kt2015/cloud/SLSTR/2018/08/S3A_SL_1_RBT____20180829T200950_20180829T201250_20180831T004228_0179_035_128_1620_LN2_O_NT_003.SEN3/*'), 
            reader='nc_slstr')
 
 scenes= [scn1, scn2]

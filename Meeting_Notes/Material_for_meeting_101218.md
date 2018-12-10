@@ -25,5 +25,12 @@ Things Kenza did this week:
   - 17 different surface types 
   - 1°x 1° resolution
   - Doesn't represent sea ice (-> limited use for CALIOP data) 
+  
+ 
+ ### Over the holidays:
+ * add before/after data to model
+ * add surface type data
+ 
+
 
 

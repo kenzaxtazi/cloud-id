@@ -2,12 +2,14 @@
 
 ### Tom 
 
+* Looked into the corellation btw bayes masks and CALIOP data
+
 ### Kenza 
 
 Things Kenza did this week:
 * Added ancillary data to the network ('satellite_zenith_angle', 'solar_zenith_angle', 'latitude_an', 'longitude_an', 'Feature_Classification_Flags') 
 
-* Run the code on whole images 
+* Run the code on whole images, slicing to look at accuracy as a function of time difference 
 
 * Investigated the upward slope in for the precision vs recall curve
   - Created by lack of data
@@ -23,9 +25,5 @@ Things Kenza did this week:
   - 17 different surface types 
   - 1°x 1° resolution
   - Doesn't represent sea ice (-> limited use for CALIOP data) 
-  
-* Looked into the corellation btw bayes masks and the model output 
-
-* Used slicing to look at accuracy as a function of time difference 
 
 

@@ -12,8 +12,6 @@ Things Kenza did this week:
 * Run the code on whole images, slicing to look at accuracy as a function of time difference. The images below are only 0 to 200s. 
 <img src=/Images/mask1.png width="800"> 
 <img src=/Images/mask2.png width="800"> 
-<img src=/Images/mask3.png width="800"> 
-
 
 * Investigated the upward slope in for the precision vs recall curve
   - Created by lack of data

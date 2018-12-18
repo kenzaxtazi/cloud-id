@@ -61,37 +61,38 @@ pixel_values = (pixels[['S1_an','S2_an','S3_an','S4_an','S5_an','S6_an',
 time_slices = np.linspace(0,3600,10)
 accuracies = []
 
-def prep_data(pixel_info):       
-        """ 
-        Prepares data for matched SLSTR and CALIOP pixels into training data, 
-        validation data, training truth data, validation truth data.
-        
-        """       
-        shuffle(pixel_info)     # mix real good
-        
-        conv_pixels= pixel_info.astype(float)
-        pix= np.nan_to_num(conv_pixels)
-        
-        data = pix[:,:9]
-        truth_flags = pix[:,9]
-        
-        truth_oh=[]
-        
-        for d in truth_flags:
-            i = vfm.vfm_feature_flags(int(d))
-            if i == 2:
-                truth_oh.append([1.,0.])    # cloud 
-            if i != 2:
-                truth_oh.append([0.,1.])    # not cloud 
-           
-      
-        pct = int(len(data)*.15)
-        training_data= np.array(data[:-pct])    # take all but the last 15%  
-        validation_data= np.array(data[-pct:])    # take the last 15%
-        training_truth= np.array(truth_oh[:-pct])
-        validation_truth= np.array(truth_oh[-pct:])
-        
-        return training_data, validation_data, training_truth, validation_truth
+def prep_data(pixel_info):
+    
+    """ 
+    Prepares data for matched SLSTR and CALIOP pixels into training data, 
+    validation data, training truth data, validation truth data.
+    
+    """
+    
+    # shuffle(pixel_info)     # mix real good
+    
+    conv_pixels= pixel_info.astype(float)
+    pix= np.nan_to_num(conv_pixels)
+    
+    data = pix[:,:-2]
+    truth_flags = pix[:,-2]
+    
+    truth_oh=[]
+
+    for d in truth_flags:
+        i = vfm.vfm_feature_flags(int(d))
+        if i == 2:
+            truth_oh.append([1.,0.])    # cloud 
+        if i != 2:
+            truth_oh.append([0.,1.])    # not cloud 
+    
+    pct = int(len(data)*.15)
+    training_data= np.array(data[:-pct])    # take all but the 15% last 
+    validation_data= np.array(data[-pct:])    # take the last 15% of pixels 
+    training_truth= np.array(truth_oh[:-pct])
+    validation_truth= np.array(truth_oh[-pct:])
+    
+    return training_data, validation_data, training_truth, validation_truth
                 
 
     
@@ -113,11 +114,11 @@ for t in time_slices:
     from tflearn.layers.estimator import regression
     
     
-    training_data= training_data.reshape(-1,1,9,1)
-    validation_data= validation_data.reshape(-1,1,9,1)
+    training_data= training_data.reshape(-1,1,13,1)
+    validation_data= validation_data.reshape(-1,1,13,1)
     
     # Layer 0: generates a 4D tensor
-    layer0 = input_data(shape=[None, 1, 9, 1], name='input')
+    layer0 = input_data(shape=[None, 1, 13, 1], name='input')
     
     # Layer 1
     layer1 = fully_connected(layer0, 32, activation='relu')

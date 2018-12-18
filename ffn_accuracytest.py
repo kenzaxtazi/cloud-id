@@ -37,14 +37,14 @@ scenes= [scn1, scn2, scn3, scn4, scn5]
  
 MODEL_NAME = 'bigpickle_cnn'.format(LR, 'feedforward') 
 
-pixel_info1 = pd.read_pickle("/Users/kenzatazi/Desktop/AprilP1.pkl")
-pixel_info2 = pd.read_pickle("/Users/kenzatazi/Desktop/Run2P1.pkl")
-pixel_info3 = pd.read_pickle("/Users/kenzatazi/Desktop/FebP1.pkl") 
-pixel_info4 = pd.read_pickle("/Users/kenzatazi/Desktop/MarP1.pkl")
-pixel_info5 = pd.read_pickle("/Users/kenzatazi/Desktop/JunP1.pkl")
-pixel_info6 = pd.read_pickle("/Users/kenzatazi/Desktop/JulyP1.pkl") 
-pixel_info7 = pd.read_pickle("/Users/kenzatazi/Desktop/AugP1.pkl") 
-pixel_info8 = pd.read_pickle("/Users/kenzatazi/Desktop/JanP1.pkl") 
+pixel_info1 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/AprP1.pkl")
+pixel_info2 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/Run2P1.pkl")
+pixel_info3 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/FebP1.pkl") 
+pixel_info4 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/MarP1.pkl")
+pixel_info5 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/JunP1.pkl")
+pixel_info6 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/JulP1.pkl") 
+pixel_info7 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/AugP1.pkl") 
+pixel_info8 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/JanP1.pkl")  
 
 pixel_info = pd.concat([pixel_info1,pixel_info2,pixel_info3,pixel_info4,
                         pixel_info5,pixel_info6,pixel_info7,pixel_info8])

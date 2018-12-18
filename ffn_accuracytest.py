@@ -99,6 +99,7 @@ for t in time_slices:
     
     # slices 
     p = [pix for pix in pixel_values if [t<=abs(pix[-1])<t+360]]
+    p = np.array(p)
 
     # prepares data for cnn 
     training_data, validation_data, training_truth, validation_truth = prep_data(p)

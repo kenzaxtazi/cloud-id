@@ -5,7 +5,6 @@ Created on Sun Nov 25 16:37:26 2018
 
 @author: kenzatazi
 """
-# open pickled file
 
 import pandas as pd
 import numpy as np
@@ -35,7 +34,7 @@ scn5= Scene(filenames=glob('/home/hep/kt2015/cloud/SLSTR/2018/08/S3A_SL_1_RBT___
 
 scenes= [scn1, scn2, scn3, scn4, scn5]
  
-MODEL_NAME = 'bigpickle_cnn'.format(LR, 'feedforward') 
+MODEL_NAME = 'ffn_withancillarydata'.format(LR, 'feedforward') 
 
 pixel_info1 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/AprP1.pkl")
 pixel_info2 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/Run2P1.pkl")
@@ -61,17 +60,14 @@ pixel_values = (pixels[['S1_an','S2_an','S3_an','S4_an','S5_an','S6_an',
 time_slices = np.linspace(0,3600,10)
 accuracies = []
 
-plt.figure('Time difference vs accuracy')
-plt.title('Time difference as a function of accuracy')
-plt.xlabel('Time difference (s)')
-plt.ylabel('Accuracy')
 
 
 for k in range(10):
     
     for t in time_slices:
         
-        p = pixel_values[t<=abs(pixel_values[:,10])<t+360] #get rid of matches below 300
+        # slices 
+        p = [pix for pix in pixel_values if [t<=abs(pix[:,10])<t+360] 
         
         def prep_data(pixel_info):
             
@@ -170,7 +166,10 @@ for k in range(10):
 
         reset_default_graph()
     
-
+    plt.figure('Time difference vs accuracy')
+    plt.title('Time difference as a function of accuracy')
+    plt.xlabel('Time difference (s)')
+    plt.ylabel('Accuracy')
     plt.plot(time_slices,accuracies)
 
     

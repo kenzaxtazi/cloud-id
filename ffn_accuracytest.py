@@ -46,16 +46,17 @@ pixel_info7 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/AugP1.pkl")
 pixel_info8 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/JanP1.pkl")  
 
 pixel_info = pd.concat([pixel_info1,pixel_info2,pixel_info3,pixel_info4,
-                        pixel_info5,pixel_info6,pixel_info7,pixel_info8])
+                        pixel_info5,pixel_info6,pixel_info7,pixel_info8],
+                        sort=False)
 
-pixels = sklearn.utils.shuffle(pixel_info[:-100])
+pixels = sklearn.utils.shuffle(pixel_info)
 
 pixel_values = (pixels[['S1_an','S2_an','S3_an','S4_an','S5_an','S6_an',
-                            'S7_in','S8_in','S9_in',
-                            'satellite_zenith_angle', 'solar_zenith_angle', 
-                            'latitude_an', 'longitude_an',
-                            'Feature_Classification_Flags',
-                            'TimeDiff']]).values
+                        'S7_in','S8_in','S9_in',
+                        'satellite_zenith_angle', 'solar_zenith_angle', 
+                        'latitude_an', 'longitude_an',
+                        'Feature_Classification_Flags',
+                        'TimeDiff']]).values
 
 time_slices = np.linspace(0,3600,10)
 accuracies = []
@@ -93,78 +94,78 @@ def prep_data(pixel_info):
         return training_data, validation_data, training_truth, validation_truth
                 
 
-for k in range(10):
     
-    for t in time_slices:
-        
-        # slices 
-        p = [pix for pix in pixel_values if [t<=abs(pix[:,10])<t+360]]
+for t in time_slices:
     
-        # prepares data for cnn 
-        training_data, validation_data, training_truth, validation_truth = prep_data(p)
-        
-        
-        
-        #### MACHINE LEARNING 
-        
-        import tflearn 
-        from tensorflow import reset_default_graph
-        from tflearn.layers.core import input_data, dropout, fully_connected
-        from tflearn.layers.estimator import regression
-        
-        
-        training_data= training_data.reshape(-1,1,9,1)
-        validation_data= validation_data.reshape(-1,1,9,1)
-        
-        # Layer 0: generates a 4D tensor
-        layer0 = input_data(shape=[None, 1, 9, 1], name='input')
-        
-        # Layer 1
-        layer1 = fully_connected(layer0, 32, activation='relu')
-        dropout1 = dropout(layer1,0.8) ## what is dropout?
-        
-        # Layer 2
-        layer2 = fully_connected(dropout1, 32, activation='relu')
-        dropout2 = dropout(layer2,0.8)
-        
-        # Layer 3
-        layer3 = fully_connected(dropout2, 32, activation='relu')
-        dropout3 = dropout(layer3,0.8)
-        
-        # Layer 4
-        layer4 = fully_connected(dropout3, 32, activation='relu')
-        dropout4 = dropout(layer4,0.8)
-        
-        #this layer needs to spit out the number of categories we are looking for.
-        softmax = fully_connected(dropout4, 2, activation='softmax') 
-        
-        
-        network = regression(softmax, optimizer='Adam', learning_rate=LR,
-                             loss='categorical_crossentropy', name='targets')
-        
-        model = tflearn.DNN(network, tensorboard_verbose=0)
-        
-        
-        
-        ### UNPACK SAVED DATA
-        
-        
-        model.fit(training_data, training_truth, n_epoch=2, validation_set =
-                  (validation_data, validation_truth), snapshot_step=1000, 
-                  show_metric=False, run_id=MODEL_NAME)
-        
-        acc= me.get_accuracy(model,validation_data,validation_truth)        
-        accuracies.append(acc)
+    # slices 
+    p = [pix for pix in pixel_values if [t<=abs(pix[-1])<t+360]]
 
-        app.apply_mask(model, scenes, bayesian=True)
-
-        reset_default_graph()
+    # prepares data for cnn 
+    training_data, validation_data, training_truth, validation_truth = prep_data(p)
     
-    plt.figure('Time difference vs accuracy')
-    plt.title('Time difference as a function of accuracy')
-    plt.xlabel('Time difference (s)')
-    plt.ylabel('Accuracy')
-    plt.plot(time_slices,accuracies)
+    
+    #### MACHINE LEARNING 
+    
+    import tflearn 
+    from tensorflow import reset_default_graph
+    from tflearn.layers.core import input_data, dropout, fully_connected
+    from tflearn.layers.estimator import regression
+    
+    
+    training_data= training_data.reshape(-1,1,9,1)
+    validation_data= validation_data.reshape(-1,1,9,1)
+    
+    # Layer 0: generates a 4D tensor
+    layer0 = input_data(shape=[None, 1, 9, 1], name='input')
+    
+    # Layer 1
+    layer1 = fully_connected(layer0, 32, activation='relu')
+    dropout1 = dropout(layer1,0.8) ## what is dropout?
+    
+    # Layer 2
+    layer2 = fully_connected(dropout1, 32, activation='relu')
+    dropout2 = dropout(layer2,0.8)
+    
+    # Layer 3
+    layer3 = fully_connected(dropout2, 32, activation='relu')
+    dropout3 = dropout(layer3,0.8)
+    
+    # Layer 4
+    layer4 = fully_connected(dropout3, 32, activation='relu')
+    dropout4 = dropout(layer4,0.8)
+    
+    #this layer needs to spit out the number of categories we are looking for.
+    softmax = fully_connected(dropout4, 2, activation='softmax') 
+    
+    
+    network = regression(softmax, optimizer='Adam', learning_rate=LR,
+                         loss='categorical_crossentropy', name='targets')
+    
+    model = tflearn.DNN(network, tensorboard_verbose=0)
+    
+    
+    
+    ### UNPACK SAVED DATA
+    
+    
+    model.fit(training_data, training_truth, n_epoch=2, validation_set =
+              (validation_data, validation_truth), snapshot_step=1000, 
+              show_metric=False, run_id=MODEL_NAME)
+    
+    acc= me.get_accuracy(model,validation_data,validation_truth)        
+    accuracies.append(acc)
+
+    app.apply_mask(model, scenes, bayesian=True)
+
+    reset_default_graph()
+    
+    
+    
+plt.figure('Time difference vs accuracy')
+plt.title('Time difference as a function of accuracy')
+plt.xlabel('Time difference (s)')
+plt.ylabel('Accuracy')
+plt.plot(time_slices,accuracies)
 
     
         

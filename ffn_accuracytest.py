@@ -14,7 +14,6 @@ import vfm_feature_flags2 as vfm
 import ModelEvaluation as me
 import matplotlib.pyplot as plt
 import sklearn.utils 
-import visual_inspection as vi
 import ModelApplication as app
 from satpy import Scene
 from glob import glob
@@ -167,7 +166,7 @@ for k in range(10):
         acc= me.get_accuracy(model,validation_data,validation_truth)        
         accuracies.append(acc)
 
-        app.apply_mask(model, scenes)
+        app.apply_mask(model, scenes, bayesian=True)
 
         reset_default_graph()
     

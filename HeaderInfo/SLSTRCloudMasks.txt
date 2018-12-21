@@ -26,3 +26,22 @@ Bayes_xn file
     32: spare
     64: spare
     128: spar
+
+Confidence_xn file
+    Flag masks: Flag meanings
+    1: coastline 
+    2: ocean 
+    4: tidal 
+    8: land 
+    16: inland_water 
+    32: unfilled 
+    64: spare 
+    128: spare 
+    256: cosmetic 
+    512: duplicate 
+    1024: day 
+    2048: twilight 
+    4096: sun_glint 
+    8192: snow 
+    16384: summary_cloud 
+    32768: summary_pointing

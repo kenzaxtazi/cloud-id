@@ -5,16 +5,18 @@ Created on Sat Nov 24 23:51:44 2018
 @author: tomzh
 """
 
-import DataLoader as DL
-import CalipsoReader2 as CR
-from Collocation2 import collocate
-import numpy as np
-import pandas as pd
-from tqdm import tqdm
 import itertools
 from datetime import datetime, timedelta
-from geopy.distance import geodesic
+
 import h5py
+import numpy as np
+import pandas as pd
+from geopy.distance import geodesic
+from tqdm import tqdm
+
+import CalipsoReader2 as CR
+import DataLoader as DL
+from Collocation2 import collocate
 
 
 def get_file_pairs(slstr_directory, matchesfile, failed_downloads=[], caliop_directory="", CATS_directory=""):
@@ -60,7 +62,7 @@ def process_all(Spaths, Cpaths, pkl_output_name):
     return(df)
 
 
-def make_df(Spath, Cpath):
+def make_df(Spath, Cpath, interpolate=True):
     """Make a pandas dataframe for a given SLSTR and Calipso/CATS file pair"""
     df = pd.DataFrame()
 
@@ -73,7 +75,7 @@ def make_df(Spath, Cpath):
     num_values = len(rows)
     scn = DL.scene_loader(Spath)
     SLSTR_attributes = ['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in', 'bayes_an', 'bayes_bn', 'bayes_cn',
-                        'bayes_in', 'cloud_an', 'cloud_bn', 'cloud_cn', 'cloud_in', 'satellite_zenith_angle', 'solar_zenith_angle', 'latitude_an', 'longitude_an']
+                        'bayes_in', 'cloud_an', 'cloud_bn', 'cloud_cn', 'cloud_in', 'satellite_zenith_angle', 'solar_zenith_angle', 'latitude_an', 'longitude_an', 'confidence_an']
     scn.load(SLSTR_attributes)
 
     def Smake_series(Sattribute):
@@ -142,13 +144,15 @@ def make_df(Spath, Cpath):
     if Cpath.endswith('f'):
         for attribute in Calipso_attributes:
             df = df.append(Cmake_series(attribute))
-        Sfilenameser = pd.Series([Spath[-99:]] * num_values, name='Sfilename')
-        Cfilenameser = pd.Series([Cpath[-60:]] * num_values, name='Cfilename')
+
     elif Cpath.endswith('5'):
         for attribute in CATS_attributes:
             df = df.append(Cmake_series(attribute))
-        Sfilenameser = pd.Series([Spath[-99:]] * num_values, name='Sfilename')
-        Cfilenameser = pd.Series([Cpath[-70:]] * num_values, name='Cfilename')
+
+    Sfilenameser = pd.Series([Spath.split('/')[-1]]
+                             * num_values, name='Sfilename')
+    Cfilenameser = pd.Series([Cpath.split('/')[-1]]
+                             * num_values, name='Cfilename')
 
     df = df.append(Sfilenameser)
     df = df.append(Cfilenameser)

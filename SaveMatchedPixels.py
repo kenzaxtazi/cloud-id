@@ -20,7 +20,7 @@ from Collocation2 import collocate
 
 
 def get_file_pairs(slstr_directory, matchesfile, failed_downloads=[], caliop_directory="", CATS_directory=""):
-    # Open Matches.txt and return path to pairs
+    # Open Matches.txt and return path to data files
     with open(matchesfile, 'r') as file:
         data = file.readlines()
 
@@ -64,8 +64,10 @@ def process_all(Spaths, Cpaths, pkl_output_name):
 
 def make_df(Spath, Cpath, interpolate=True):
     """Make a pandas dataframe for a given SLSTR and Calipso/CATS file pair"""
+    # Initialise output dataframe
     df = pd.DataFrame()
 
+    # Find collocated pixels
     coords = collocate(Spath, Cpath)
     if coords == None:
         return(pd.DataFrame())
@@ -73,6 +75,8 @@ def make_df(Spath, Cpath, interpolate=True):
     cols = [int(i[1]) for i in coords]
     Cindices = [int(i[2]) for i in coords]
     num_values = len(rows)
+
+    # Load SLSTR data and desired attributes
     scn = DL.scene_loader(Spath)
     SLSTR_attributes = ['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in', 'bayes_an', 'bayes_bn', 'bayes_cn',
                         'bayes_in', 'cloud_an', 'cloud_bn', 'cloud_cn', 'cloud_in', 'satellite_zenith_angle', 'solar_zenith_angle', 'latitude_an', 'longitude_an', 'confidence_an']
@@ -80,6 +84,7 @@ def make_df(Spath, Cpath, interpolate=True):
 
     def Smake_series(Sattribute):
         """Make a labelled pandas series for a given SLSTR attribute for all matched pixels in an SLSTR file"""
+        # Prepare second index system for data on 1km instead of 0.5km grid
         hrows = [int(i/2) for i in rows]
         hcols = [int(i/2) for i in cols]
         if Sattribute in ['S7_in', 'S8_in', 'S9_in', 'bayes_in', 'cloud_in', 'satellite_zenith_angle', 'solar_zenith_angle']:
@@ -88,6 +93,7 @@ def make_df(Spath, Cpath, interpolate=True):
             data = scn[Sattribute].values[rows, cols]
         return(pd.Series(data, name=Sattribute))
 
+    # Load data from Calipso/CATS and their desired attributes
     if Cpath.endswith('f'):  # Calipso file
         with CR.SDopener(Cpath) as file:
             Feature_Classification_Flags = CR.load_data(
@@ -138,17 +144,20 @@ def make_df(Spath, Cpath, interpolate=True):
 
         return(pd.Series(out, name=str(Cattribute)))
 
+
+    # Add the attributes to the output dataframe
     for attribute in SLSTR_attributes:
         df = df.append(Smake_series(attribute))
 
-    if Cpath.endswith('f'):
+    if Cpath.endswith('f'): # Calipso file
         for attribute in Calipso_attributes:
             df = df.append(Cmake_series(attribute))
 
-    elif Cpath.endswith('5'):
+    elif Cpath.endswith('5'): # CATS file
         for attribute in CATS_attributes:
             df = df.append(Cmake_series(attribute))
 
+    # Add column with the origin filename
     Sfilenameser = pd.Series([Spath.split('/')[-1]]
                              * num_values, name='Sfilename')
     Cfilenameser = pd.Series([Cpath.split('/')[-1]]
@@ -158,20 +167,23 @@ def make_df(Spath, Cpath, interpolate=True):
     df = df.append(Cfilenameser)
     df = df.transpose()
 
+    # Label the data columns
     if Cpath.endswith('f'):
         df.columns = SLSTR_attributes + \
             Calipso_attribute_names + ['Sfilename', 'Cfilename']
     elif Cpath.endswith('5'):
         df.columns = SLSTR_attributes + \
             CATS_attribute_names + ['Sfilename', 'Cfilename']
+
     return(df)
 
 
 def add_time_col(df):
+    # Prepare tqdm to work with pandas operations
     tqdm.pandas()
 
     def time_diff(row):
-        # Time between satellite measurements, +ve if Calipso before SLSTR
+        # Calculate time between satellite measurements, +ve if Calipso before SLSTR
         Stime = row['Sfilename'][16:31]
         Stimestamp = datetime.strptime(Stime, '%Y%m%dT%H%M%S')
         Stimestamp += timedelta(minutes=1.5)
@@ -189,9 +201,11 @@ def add_time_col(df):
 
 
 def add_dist_col(df):
+    # Prepare tqdm to work with pandas operations
     tqdm.pandas()
 
     def get_dist(row):
+        # Calculate distance between pixels using geodesic formula
         dist = geodesic((row['latitude_an'], row['longitude_an']),
                         (row['Latitude'], row['Longitude'])).m
         return(dist)

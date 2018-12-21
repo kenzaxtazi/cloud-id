@@ -16,7 +16,7 @@ import sklearn.utils
 import ModelApplication as app
 from satpy import Scene
 from glob import glob
-
+from PixelAnalysis import PixelLoader
 
 LR = 1e-3
 
@@ -34,20 +34,9 @@ scn5= Scene(filenames=glob('/home/hep/kt2015/cloud/SLSTR/2018/08/S3A_SL_1_RBT___
 
 scenes= [scn1, scn2, scn3, scn4, scn5]
  
-MODEL_NAME = 'ffn_withancillarydata'.format(LR, 'feedforward') 
+MODEL_NAME = 'ffn_withancillarydata'
 
-pixel_info1 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/AprP1.pkl")
-pixel_info2 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/Run2P1.pkl")
-pixel_info3 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/FebP1.pkl") 
-pixel_info4 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/MarP1.pkl")
-pixel_info5 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/JunP1.pkl")
-pixel_info6 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/JulP1.pkl") 
-pixel_info7 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/AugP1.pkl") 
-pixel_info8 = pd.read_pickle("/home/hep/trz15/Matched_Pixels/JanP1.pkl")  
-
-pixel_info = pd.concat([pixel_info1,pixel_info2,pixel_info3,pixel_info4,
-                        pixel_info5,pixel_info6,pixel_info7,pixel_info8],
-                        sort=False)
+pixel_info = PixelLoader("/home/hep/trz15/Matched_Pixels/")
 
 pixels = sklearn.utils.shuffle(pixel_info)
 

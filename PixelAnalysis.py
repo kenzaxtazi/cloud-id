@@ -78,10 +78,10 @@ def TruthMatches(df):
     return(out)
 
 
-df = PixelLoader(PickleDirectory)
-df = df[abs(df['TimeDiff']) < 200]
+# df = PixelLoader(PickleDirectory)
+# df = df[abs(df['TimeDiff']) < 200]
 
-df = make_CTruth_col(df)
+# df = make_CTruth_col(df)
 
 
 # for bit in range(1, 17):

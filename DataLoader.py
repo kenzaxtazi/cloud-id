@@ -212,4 +212,4 @@ def mask(mask, mask_name, background):
 #mask(bayes_mask,'Baseyian mask', S1)
 #mask(emp_mask,'Empirical mask', S1)
 
-plt.show()
+#plt.show()

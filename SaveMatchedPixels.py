@@ -89,7 +89,7 @@ def process_pair(Spath, Cpath, interpolate=True):
             SC = Sky_Condition_Fore_FOV[Cindices]
             Ctruth = np.where(SC > 1, True, False)
 
-        for i in range(len(Cindices)):
+        for i in range(len(Cindices) - 1):
             if Ctruth[i] == Ctruth[i+1]:
                 # Interpolate to find SLSTR pixels between the two already collocated
                 pos0 = [rows[i], cols[i]]

@@ -90,7 +90,7 @@ def process_pair(Spath, Cpath, interpolate=True):
             Ctruth = np.where(SC > 1, True, False)
 
         for i in range(len(Cindices) - 1):
-            if Ctruth[i] == Ctruth[i+1]:
+            if Ctruth[i] == Ctruth[i+1] and abs(Cindices[i+1] - Cindices[i]) == 1:
                 # Interpolate to find SLSTR pixels between the two already collocated
                 pos0 = [rows[i], cols[i]]
                 pos1 = [rows[i+1], cols[i+1]]

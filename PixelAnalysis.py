@@ -15,7 +15,8 @@ def PixelLoader(directory):
 
     out = pd.DataFrame()
     for file in PicklePaths:
-        out = out.append(pd.read_pickle(file), sort=True, ignore_index=True)
+        if file.endswith('.pkl'):
+            out = out.append(pd.read_pickle(file), sort=True, ignore_index=True)
 
     print("%s pixels loaded" % (len(out)))
     return(out)

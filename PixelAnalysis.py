@@ -5,15 +5,12 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 
-PickleDirectory = "D:/Users/tomzh/Desktop/Pixels/"
-
-
 def PixelLoader(directory):
     """Load all pixels in a directory of pickle files into a single DataFrame"""
 
     if directory.endswith('/') is False:
         directory += '/'
-    PickleFilenames = os.listdir(PickleDirectory)
+    PickleFilenames = os.listdir(directory)
     PicklePaths = [directory + i for i in PickleFilenames]
 
     out = pd.DataFrame()
@@ -77,6 +74,8 @@ def TruthMatches(df):
     out = np.mean(q)
     return(out)
 
+
+# PickleDirectory = "D:/Users/tomzh/Desktop/Pixels/"
 
 # df = PixelLoader(PickleDirectory)
 # df = df[abs(df['TimeDiff']) < 200]

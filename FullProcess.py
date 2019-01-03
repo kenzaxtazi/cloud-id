@@ -20,6 +20,7 @@ MatchesFilename = "Matches12.txt"
 pkl_output_name = "Aug17.pkl"
 timewindow = 20
 creds_path = '/home/hep/trz15/Masters_Project/credentials.txt'
+processing_label = 'P3'
 
 # Download Calipso file from NASA
 NASA_download(NASA_FTP_directory, calipso_directory, CATS_directory)
@@ -44,5 +45,27 @@ df = process_all(Spaths, Cpaths, pkl_output_name)
 df['Profile_Time'] += 725846390.0
 df = add_dist_col(df)
 df = add_time_col(df)
-processed_pkl_name = pkl_output_name[:-4] + "P1.pkl"
+processed_pkl_name = pkl_output_name[:-4] + processing_label + ".pkl"
 df.to_pickle(processed_pkl_name)
+
+# Prepare a summary to print
+with open(MatchesFilename, 'r') as file:
+    data = file.readlines()
+
+NumMatches = len(data)
+NumPixels = len(df)
+NumFailedDownloads = len(failed_downloads)
+
+# Print summary
+print()
+print()
+print('####################################################################')
+print()
+if calipso_directory != "":
+    print("Processing of " + calipso_directory + " complete")
+if CATS_directory != "":
+    print("Processing of " + CATS_directory + " complete")
+
+print("Number of Matches: " + str(NumMatches))
+print("Number of Failed Downloads: " + str(NumFailedDownloads))
+print("Number of Pixels Saved: " + str(NumPixels))

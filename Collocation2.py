@@ -177,12 +177,14 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
     # Create new output file for unique sorted data
     uniqueoutput = output
     Sfilenames = [i[1] for i in Data]
+    Cfilenames = [i[0] for i in Data]
     duplicates = []
 
     # Find files which are duplicates, i.e. they have the same Framenumber, Relative Orbit Number and Absolute Orbit Number
     for i in range(1, len(Sfilenames)):
         if Sfilenames[i-1][77:81] == Sfilenames[i][77:81] and Sfilenames[i-1][73:76] == Sfilenames[i][73:76] and Sfilenames[i-1][69:72] == Sfilenames[i][69:72]:
-            duplicates.append(i)
+            if Cfilenames[i-1] == Cfilenames[i]:
+                duplicates.append(i)
 
     # Create unique version of sorted data
     uniquedata = []

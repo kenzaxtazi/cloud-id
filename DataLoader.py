@@ -27,16 +27,19 @@ def FTPlogin(creds_path='credentials.txt'):
     ftp.cwd('neodc/sentinel3a/data/SLSTR/L1_RBT')
     return(ftp)
 
+
 def FTPdownload(ftpobj, path, destination):
     startdir = os.getcwd()
     os.chdir(destination)
     if path[:3] == "S3A":   # given path is folder name
         foldername = path
-        path = path = path[16:20] + '/' + path[20:22] + '/' + path[22:24] + '/' + path[:]
+        path = path = path[16:20] + '/' + path[20:22] + \
+            '/' + path[22:24] + '/' + path[:]
     elif path[:2] == "20":   # given path is path from /L1_RBT
         foldername = path[11:]
     try:
-        ftpobj.retrbinary("RETR " + str(path), open(str(foldername), "wb").write)
+        ftpobj.retrbinary("RETR " + str(path),
+                          open(str(foldername), "wb").write)
     except:
         print("Permission Error")
         print(foldername)
@@ -46,7 +49,8 @@ def FTPdownload(ftpobj, path, destination):
             pass
     os.chdir(startdir)
     print('Download complete')
-    
+
+
 def fixdir(list_in):
     for i in range(len(list_in)):
         list_in[i] = list_in[i].replace('\\', '/')
@@ -67,9 +71,9 @@ def scene_loader(path):
         pass
     else:
         path = path + "/*"
-    
+
     olddir = os.getcwd()
-    
+
     if platform.platform()[:10] == "Windows-10":
         string1 = "S3A_SL_1"
         index = path.find(string1)
@@ -84,21 +88,22 @@ def scene_loader(path):
     scn = Scene(filenames=filenames, reader='nc_slstr')
     os.chdir(olddir)
     return(scn)
-    
+
+
 def summary(scene, filenames=None, saveimage=False, outputpath='public'):
     # Loads positional S1_n channel data. Prints lat/lon of corner pixel
     # If saveimage is True, saves png to current directory with metadata
     scene.load(['S1_an', 'latitude', 'longitude'])
-    lat = scene['latitude'].values[0][0] # Latitude of corner pixel
-    lon = scene['longitude'].values[0][0] # Longitude of corner pixel
+    lat = scene['latitude'].values[0][0]  # Latitude of corner pixel
+    lon = scene['longitude'].values[0][0]  # Longitude of corner pixel
     if saveimage != False:
         if outputpath == 'public':
             # cd to public folder
             os.chdir(path_to_public())
         if filenames != None:
-            imagename = ('S1n_' + str(filenames[0][:31]) + '_' + 
-                         str(filenames[0][82:94]) + '-(' + str(lat) + ',' + 
-                         str (lon) +')')
+            imagename = ('S1n_' + str(filenames[0][:31]) + '_' +
+                         str(filenames[0][82:94]) + '-(' + str(lat) + ',' +
+                         str(lon) + ')')
         else:
             imagename = 'test'
         scene.save_dataset('S1_an', str(imagename) + '.png')
@@ -112,65 +117,24 @@ def makepltimage(scene, channel='S1_an'):
     data = np.nan_to_num(data)
     plt.figure()
     plt.imshow(data, cmap='gray')
-    
-    
+
+
 def makepngimage(scene, channel='S1_an', outputpath='public'):
     if outputpath == 'public':
         # cd to public folder
         os.chdir(path_to_public())
     scene.save_dataset(channel, str(time()) + '.png')
 
-# create readers and open files
-scn = Scene(filenames=glob('/Users/kenzatazi/Downloads/S3A_SL_1_RBT____20180822T000619_20180822T000919_20180822T015223_0179_035_016_3240_SVL_O_NR_003.SEN3/*'),
-            reader='nc_slstr')
-
-
-# load datasets from input files
-def load_scene(scn):
-    """ Loads the information from the netcdf files in the folder"""
-    #scn.load(scn.available_dataset_names())
-    scn.load(['S1_an','S2_an','S3_an','S4_an','S5_an','S6_an','S7_in','S8_in',
-              'S9_in','bayes_an', 'bayes_in','cloud_an', 'longitude_an', 
-              'latitude_an', 'solar_zenith_angle'])
-    
-
-load_scene(scn)
-
-S1= np.nan_to_num(scn['S1_an'].values)
-S2= np.nan_to_num(scn['S2_an'].values)
-S3= np.nan_to_num(scn['S3_an'].values)
-#S4= np.nan_to_num(scn['S4_an'].values)
-#S5= np.nan_to_num(scn['S5_an'].values)
-#S6= np.nan_to_num(scn['S6_an'].values)
-#S7= np.nan_to_num(np.array(scn['S7_in'][:-1])) 
-#S8= np.nan_to_num(np.array(scn['S8_in'][:-1]))
-#S9= np.nan_to_num(np.array(scn['S9_in'][:-1]))
-
 
 def create_mask(scn, mask_name):
     """Extracts bitmasks and combines them into an overall mask array"""
-    mask=[]
+    mask = []
     for bitmask in scn[mask_name].flag_masks[:-2]:
         data = scn[mask_name].values & bitmask
         mask.append(data)
-    mask= np.sum(mask, axis=0)
+    mask = np.sum(mask, axis=0)
     return mask
 
-
-bayes_mask= create_mask(scn, 'bayes_in')
-#emp_mask= create_mask(scn, 'cloud_an')
-
-
-# single channel images 
-
-# channel_arrays=[S1, S2, S3, S4, S5, S6, S7, S8, S9]
-
-#for i in channel_arrays:
-#    plt.figure()
-#    plt.imshow(i, 'gray')
-
-
-# false color image 
 
 def norm(band):
     """ Normalises the bands for the false color image"""
@@ -181,23 +145,23 @@ def norm(band):
 def false_color_image(band1, band2, band3, plot=True):
     """ 
     Creates a false colour image
-    
+
     Input: 
     band1 (2D array) <=> red 
     band2 (2D array) <=> green
     band3 (2D array) <=> blue
-    
+
     Output: 6D array (3*2D)
-    
+
     if: plot= True, the image is plotted
     """
-    rgb = np.dstack((norm(band1),norm(band2),norm(band3)))
+    rgb = np.dstack((norm(band1), norm(band2), norm(band3)))
 
     if plot == True:
         plt.figure()
         plt.imshow(rgb)
         plt.title('False colour image')
-    
+
     return rgb
 
 
@@ -206,15 +170,58 @@ def mask(mask, mask_name, background):
     plt.figure()
     plt.imshow(background, 'gray')
     plt.title(mask_name)
-    mask = np.repeat(np.repeat(mask,2, axis=0), 2, axis=1)
+    mask = np.repeat(np.repeat(mask, 2, axis=0), 2, axis=1)
     mask = np.ma.masked_where(mask < 1, mask)
     #X, Y = np.meshgrid(np.arange(0,3000),np.arange(0, 2400))
     #plt.contour(X, Y, mask, levels=[0., 1.0], cmap='inferno', alpha=0.3)
     plt.imshow(mask, vmin=0, vmax=1.1, cmap='inferno', alpha=0.3)
 
-        
-fc = false_color_image(S3, S2, S1, plot=True)
-mask(bayes_mask,'Baseyian mask', S1)
-#mask(emp_mask,'Empirical mask', S1)
+if __name__ == '__main__':
 
-plt.show()
+    # create readers and open files
+    scn = Scene(filenames=glob('/Users/kenzatazi/Downloads/S3A_SL_1_RBT____20180822T000619_20180822T000919_20180822T015223_0179_035_016_3240_SVL_O_NR_003.SEN3/*'),
+                reader='nc_slstr')
+
+    # load datasets from input files
+
+
+    def load_scene(scn):
+        """ Loads the information from the netcdf files in the folder"""
+        # scn.load(scn.available_dataset_names())
+        scn.load(['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in',
+                'S9_in', 'bayes_an', 'bayes_in', 'cloud_an', 'longitude_an',
+                'latitude_an', 'solar_zenith_angle'])
+
+
+    load_scene(scn)
+
+    S1 = np.nan_to_num(scn['S1_an'].values)
+    S2 = np.nan_to_num(scn['S2_an'].values)
+    S3 = np.nan_to_num(scn['S3_an'].values)
+    #S4= np.nan_to_num(scn['S4_an'].values)
+    #S5= np.nan_to_num(scn['S5_an'].values)
+    #S6= np.nan_to_num(scn['S6_an'].values)
+    #S7= np.nan_to_num(np.array(scn['S7_in'][:-1]))
+    #S8= np.nan_to_num(np.array(scn['S8_in'][:-1]))
+    #S9= np.nan_to_num(np.array(scn['S9_in'][:-1]))
+
+    bayes_mask = create_mask(scn, 'bayes_in')
+    #emp_mask= create_mask(scn, 'cloud_an')
+
+
+    # single channel images
+
+    # channel_arrays=[S1, S2, S3, S4, S5, S6, S7, S8, S9]
+
+    # for i in channel_arrays:
+    #    plt.figure()
+    #    plt.imshow(i, 'gray')
+
+
+    # false color image
+
+    fc = false_color_image(S3, S2, S1, plot=True)
+    mask(bayes_mask, 'Baseyian mask', S1)
+    #mask(emp_mask,'Empirical mask', S1)
+
+    plt.show()

@@ -13,6 +13,7 @@ from getpass import getuser
 from glob import glob
 from time import time
 
+
 import matplotlib.pyplot as plt
 import numpy as np
 from satpy import Scene
@@ -120,8 +121,8 @@ def makepngimage(scene, channel='S1_an', outputpath='public'):
     scene.save_dataset(channel, str(time()) + '.png')
 
 # create readers and open files
-# scn = Scene(filenames=glob('/Users/kenzatazi/Downloads/S3A_SL_1_RBT____20180822T000619_20180822T000919_20180822T015223_0179_035_016_3240_SVL_O_NR_003.SEN3/*'), 
-#            reader='nc_slstr')
+scn = Scene(filenames=glob('/Users/kenzatazi/Downloads/S3A_SL_1_RBT____20180822T000619_20180822T000919_20180822T015223_0179_035_016_3240_SVL_O_NR_003.SEN3/*'),
+            reader='nc_slstr')
 
 
 # load datasets from input files
@@ -133,11 +134,11 @@ def load_scene(scn):
               'latitude_an', 'solar_zenith_angle'])
     
 
-#load_scene(scn)
+load_scene(scn)
 
-#S1= np.nan_to_num(scn['S1_an'].values)
-#S2= np.nan_to_num(scn['S2_an'].values)
-#S3= np.nan_to_num(scn['S3_an'].values)
+S1= np.nan_to_num(scn['S1_an'].values)
+S2= np.nan_to_num(scn['S2_an'].values)
+S3= np.nan_to_num(scn['S3_an'].values)
 #S4= np.nan_to_num(scn['S4_an'].values)
 #S5= np.nan_to_num(scn['S5_an'].values)
 #S6= np.nan_to_num(scn['S6_an'].values)
@@ -156,7 +157,7 @@ def create_mask(scn, mask_name):
     return mask
 
 
-#bayes_mask= create_mask(scn, 'bayes_in')
+bayes_mask= create_mask(scn, 'bayes_in')
 #emp_mask= create_mask(scn, 'cloud_an')
 
 
@@ -205,11 +206,15 @@ def mask(mask, mask_name, background):
     plt.figure()
     plt.imshow(background, 'gray')
     plt.title(mask_name)
-    plt.imshow(mask, vmax=1, cmap='OrRd', alpha=0.3)
+    mask = np.repeat(np.repeat(mask,2, axis=0), 2, axis=1)
+    mask = np.ma.masked_where(mask < 1, mask)
+    #X, Y = np.meshgrid(np.arange(0,3000),np.arange(0, 2400))
+    #plt.contour(X, Y, mask, levels=[0., 1.0], cmap='inferno', alpha=0.3)
+    plt.imshow(mask, vmin=0, vmax=1.1, cmap='inferno', alpha=0.3)
 
         
-#false_color_image(S3, S2, S1, plot=True)
-#mask(bayes_mask,'Baseyian mask', S1)
+fc = false_color_image(S3, S2, S1, plot=True)
+mask(bayes_mask,'Baseyian mask', S1)
 #mask(emp_mask,'Empirical mask', S1)
 
-#plt.show()
+plt.show()

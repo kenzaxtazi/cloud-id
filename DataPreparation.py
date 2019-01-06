@@ -40,6 +40,11 @@ def prep_data(pixel_info):
     training_truth= np.array(truth_oh[:-pct])
     validation_truth= np.array(truth_oh[-pct:])
     
+    np.save('training_data.npy', training_data)
+    np.save('validation_data.npy', validation_data)
+    np.save('training_truth.npy', training_truth)
+    np.save('validation_truth.npy', validation_truth)
+    
     return training_data, validation_data, training_truth, validation_truth
 
 def surftype_processing(array):
@@ -84,37 +89,37 @@ def surftype_processing(array):
     summary_pointing = []
     
     for d in array:
-        if d[11] & 1 > 0:
+        if int(d[11]) & 1 > 0:
             coastline.append(d)
-        if d[11] & 2 > 0: 
+        if int(d[11]) & 2 > 0: 
             ocean.append(d)
-        if d[11] & 4 > 0: 
+        if int(d[11]) & 4 > 0: 
             tidal.append(d)
-        if d[11] & 8 >0:
+        if int(d[11]) & 8 >0:
             land.append(d)
-        if d[11] & 16 >0:
+        if int(d[11]) & 16 >0:
             inland_water.append(d)
-        if d[11] & 32 >0:
+        if int(d[11]) & 32 >0:
             unfilled.append(d)
-        if d[11] & 64 >0:
+        if int(d[11]) & 64 >0:
             spare1.append(d) 
-        if d[11] & 128 >0:
+        if int(d[11]) & 128 >0:
             spare2.append(d) 
-        if d[11] & 256 >0:
+        if int(d[11]) & 256 >0:
             cosmetic.append(d)
-        if d[11] & 512 >0:
+        if int(d[11]) & 512 >0:
             duplicate.append(d)
-        if d[11] & 1024 >0:
+        if int(d[11]) & 1024 >0:
             day.append(d)
-        if d[11] & 2048 >0:
+        if int(d[11]) & 2048 >0:
             twilight.append(d)
-        if d[11] & 4096 >0:
+        if int(d[11]) & 4096 >0:
             sun_glint.append(d)
-        if d[11] & 8192 >0:
+        if int(d[11]) & 8192 >0:
             snow.append(d)
-        if d[11] & 16384 >0:
+        if int(d[11]) & 16384 >0:
             summary_cloud.append(d)
-        if d[11] & 32768 >0:
+        if int(d[11]) & 32768 >0:
             summary_pointing.append(d)
 
     return [coastline, ocean, tidal, land, inland_water, unfilled, spare1, 

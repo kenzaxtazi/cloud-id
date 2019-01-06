@@ -42,12 +42,81 @@ def prep_data(pixel_info):
     
     return training_data, validation_data, training_truth, validation_truth
 
-def surftype_processing(dataframe):
+def surftype_processing(array):
     """
-    Bitwise processing of SLSTR surface data. 
+    Bitwise processing of SLSTR surface data. The different surface types are :
+    1: coastline 
+    2: ocean 
+    4: tidal 
+    8: land 
+    16: inland_water 
+    32: unfilled 
+    64: spare 
+    128: spare 
+    256: cosmetic 
+    512: duplicate 
+    1024: day 
+    2048: twilight 
+    4096: sun_glint 
+    8192: snow 
+    16384: summary_cloud 
+    32768: summary_pointing
     
-    Input: Dataframe of matched pixel information 
-    Output: Dataframe of matched pixel information 
+    Input: array of matched pixel information 
+    Output: arrays of matched pixel information for each surface type
     """
     
+    coastline = [] 
+    ocean = []
+    tidal = []
+    land = []
+    inland_water = []
+    unfilled = []
+    spare1 = [] 
+    spare2 = []
+    cosmetic = []
+    duplicate = []
+    day = []
+    twilight = []
+    sun_glint = []
+    snow = []
+    summary_cloud = []
+    summary_pointing = []
     
+    for d in array:
+        if d[11] & 1 > 0:
+            coastline.append(d)
+        if d[11] & 2 > 0: 
+            ocean.append(d)
+        if d[11] & 4 > 0: 
+            tidal.append(d)
+        if d[11] & 8 >0:
+            land.append(d)
+        if d[11] & 16 >0:
+            inland_water.append(d)
+        if d[11] & 32 >0:
+            unfilled.append(d)
+        if d[11] & 64 >0:
+            spare1.append(d) 
+        if d[11] & 128 >0:
+            spare2.append(d) 
+        if d[11] & 256 >0:
+            cosmetic.append(d)
+        if d[11] & 512 >0:
+            duplicate.append(d)
+        if d[11] & 1024 >0:
+            day.append(d)
+        if d[11] & 2048 >0:
+            twilight.append(d)
+        if d[11] & 4096 >0:
+            sun_glint.append(d)
+        if d[11] & 8192 >0:
+            snow.append(d)
+        if d[11] & 16384 >0:
+            summary_cloud.append(d)
+        if d[11] & 32768 >0:
+            summary_pointing.append(d)
+
+    return [coastline, ocean, tidal, land, inland_water, unfilled, spare1, 
+            spare2, cosmetic, duplicate, day, twilight, sun_glint, snow, 
+            summary_cloud, summary_pointing]

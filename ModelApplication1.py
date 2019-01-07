@@ -68,12 +68,15 @@ def apply_mask(model, scenes, bayesian=False, empirical=False):
                            S9, salza,
                            solza,
                            lat, lon])
+        inputs = np.swapaxes(inputs, 0, 1)
+        inputs = np.swapaxes(inputs, 1, 2)
         inputs = inputs.reshape(-1, 1, 13, 1)
+        print(inputs.shape)
         label = model.predict_label(inputs)
-        mask.append(label)
+        mask.extend(label)
 
         mask = np.array(mask)
-        mask = mask[:, :, 0].reshape(2400, 3000)
+        mask = mask[:, 0].reshape(2400, 3000)
 
         bayes_mask = []
         for bitmask in scn['bayes_in'].flag_masks[:-2]:

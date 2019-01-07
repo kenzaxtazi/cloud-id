@@ -112,7 +112,7 @@ pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
 
 time_slices = np.linspace(0, 2000, 11)
 accuracies = []
-        
+
 
 for t in time_slices:
     p = []
@@ -121,18 +121,17 @@ for t in time_slices:
         if abs(int(pix[-1])) > t:
             if abs(int(pix[-1])) < t+200:
                 p.append(pix)
-            
+
     p = np.array(p)
-    
+
     if len(p) > 0:
 
         # If dataset is not created:
 
-        # prepares data for cnn
+        # prepares data for ffn
         training_data, validation_data, training_truth, \
             validation_truth = dp.prep_data(pixel_values)
-        
-        
+
         # If dataset already created :
         '''
         training_data = np.load('training_data.npy')

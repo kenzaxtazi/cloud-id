@@ -87,7 +87,7 @@ for a in angle_slices:
     if len(p) > 0:
         # If dataset is not created:
 
-        # prepares data for cnn
+        # prepares data for ffn
         training_data, validation_data, training_truth, \
             validation_truth = dp.prep_data(pixel_values)
 

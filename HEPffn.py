@@ -23,25 +23,25 @@ from tflearn.layers.estimator import regression
 # DATA DOWNLOAD
 
 # Scenes to test on the HEP server
-scn1 = Scene(filenames=glob('/home/hep/kt2015/cloud/SLSTR/2018/08/\
+scn1 = '/home/hep/kt2015/cloud/SLSTR/2018/08/\
 S3A_SL_1_RBT____20180823T041605_20180823T041905_20180824T083800_\
-0179_035_033_1620_LN2_O_NT_003.SEN3/*'), reader='nc_slstr')
+0179_035_033_1620_LN2_O_NT_003.SEN3/'
 
-scn2 = Scene(filenames=glob('/home/hep/kt2015/cloud/SLSTR/2018/08/\
+scn2 = '/home/hep/kt2015/cloud/SLSTR/2018/08/\
 S3A_SL_1_RBT____20180829T200950_20180829T201250_20180831T004228_\
-0179_035_128_1620_LN2_O_NT_003.SEN3/*'), reader='nc_slstr')
+0179_035_128_1620_LN2_O_NT_003.SEN3/'
 
-scn3 = Scene(filenames=glob('/home/hep/kt2015/cloud/SLSTR/2018/08/\
+scn3 = '/home/hep/kt2015/cloud/SLSTR/2018/08/\
 S3A_SL_1_RBT____20180829T200950_20180829T201250_20180831T004228\
-_0179_035_128_1620_LN2_O_NT_003.SEN3/*'), reader='nc_slstr')
+_0179_035_128_1620_LN2_O_NT_003.SEN3/'
 
-scn4 = Scene(filenames=glob('/home/hep/kt2015/cloud/SLSTR/2018/08/\
+scn4 = '/home/hep/kt2015/cloud/SLSTR/2018/08/\
 S3A_SL_1_RBT____20180829T200950_20180829T201250_20180831T004228_\
-0179_035_128_1620_LN2_O_NT_003.SEN3/*'), reader='nc_slstr')
+0179_035_128_1620_LN2_O_NT_003.SEN3/'
 
-scn5 = Scene(filenames=glob('/home/hep/kt2015/cloud/SLSTR/2018/08/\
+scn5 = '/home/hep/kt2015/cloud/SLSTR/2018/08/\
 S3A_SL_1_RBT____20180829T200950_20180829T201250_20180831T004228_\
-0179_035_128_1620_LN2_O_NT_003.SEN3/*'), reader='nc_slstr')
+0179_035_128_1620_LN2_O_NT_003.SEN3/'
 
 scenes = [scn1, scn2, scn3, scn4, scn5]
 
@@ -200,4 +200,3 @@ app.apply_mask(model, scenes)
 reset_default_graph()
 
 plt.show()
-  

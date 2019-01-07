@@ -47,18 +47,10 @@ scenes = [scn1, scn2, scn3, scn4, scn5]
 '''
 
 # Scene to test on users local laptop
-scenes = [Scene(filenames=glob('/Users/kenzatazi/Desktop/S3A_SL_1_RBT____\
-                               20170531T232802_20170531T233102_20170602T032711\
-                               _0179_018_187_1619_LN2_O_NT_002.SEN3/*')),
-          Scene(filenames=glob('/Users/kenzatazi/Desktop/S3A_SL_1_RBT____\
-                               20170531T200903_20170531T201203_20170602T001711\
-                               _0179_018_185_1799_LN2_O_NT_002.SEN3/*')),
-          Scene(filenames=glob('/Users/kenzatazi/Desktop/S3A_SL_1_RBT____\
-                               20170531T214703_20170531T215003_20170602T022521\
-                               _0180_018_186_1619_LN2_O_NT_002.SEN3/*')),
-          Scene(filenames=glob('/Users/kenzatazi/Desktop/S3A_SL_1_RBT____\
-                               20170531T215003_20170531T215303_20170602T022630\
-                               _0179_018_186_1800_LN2_O_NT_002.SEN3/*'))]
+scenes = ['/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T232802_20170531T233102_20170602T032711_0179_018_187_1619_LN2_O_NT_002.SEN3',
+          '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T232802_20170531T233102_20170602T032711_0179_018_187_1619_LN2_O_NT_002.SEN3',
+          '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T214703_20170531T215003_20170602T022521_0180_018_186_1619_LN2_O_NT_002.SEN3',
+          '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T215003_20170531T215303_20170602T022630_0179_018_186_1800_LN2_O_NT_002.SEN3']
 
 
 # Training data files on HEP server
@@ -192,7 +184,8 @@ model.fit(training_data, training_truth, n_epoch=2,
 acc = me.get_accuracy(model, validation_data, validation_truth)
 
 # apply model to test images to generate masks
-app.apply_mask(model, scenes)
+for scn in scenes:
+    app.apply_mask(model, scn)
 
 # resets the tensorflow environment
 reset_default_graph()

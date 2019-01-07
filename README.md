@@ -40,19 +40,19 @@
 *SaveMatchedPixels.py*:  
 
 
-*acc_stype_test.py*: test to plot the accuracy of the model as a function of surface type.  
+*acc_stype_test.py*: script to plot the accuracy of the model as a function of surface type.  
 
 
-*acc_sza_test.py*: test to plot the accuracy of the model as a function of satellite zenith angle.  
+*acc_sza_test.py*: script to plot the accuracy of the model as a function of satellite zenith angle.  
 
 
-*acc_time_test.py*: test to plot the accuracy of the model as a function of time difference between CALIOP (truth) and SLSTR (training) data.  
+*acc_time_test.py*: script to plot the accuracy of the model as a function of time difference between CALIOP (truth) and SLSTR (training) data.  
 
 
 *ffn.py*: script creating and running a feed forward neural network (FFN).  
 
 
-*interp.py*: Added script to save pixels between adjacent measurements in agreement.  
+*interp.py*: script to save pixels between adjacent measurements in agreement.  
 
 
 *vfm_feature_flags2.py*: function to translate CALIOP feature type bitmasks to differenent surface type.  

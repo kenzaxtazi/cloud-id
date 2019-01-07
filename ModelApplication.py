@@ -102,7 +102,8 @@ def apply_mask(model, scenes, bayesian=False, empirical=False):
         '''
         plt.imshow(S1,cmap='gray')
         plt.imshow(mask, cmap='cool', vmin=1, vmax=2, alpha=0.3)
-    
+        
+        '''
         if bayesian == True:
             bayes_mask= pim.create_mask(scn, 'bayes_in')
             bayes_mask = np.ma.masked_where(bayes_mask < 1, bayes_mask)
@@ -112,5 +113,5 @@ def apply_mask(model, scenes, bayesian=False, empirical=False):
             emp_mask= pim.create_mask(scn, 'cloud_an')
             emp_mask = np.ma.masked_where(emp_mask < 1, emp_mask)
             pim.mask(emp_mask,'Empirical mask', S1)
-        
+        '''
         plt.show()

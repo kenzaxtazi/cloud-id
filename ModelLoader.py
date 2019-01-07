@@ -4,9 +4,7 @@ from tensorflow import reset_default_graph
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
 
-LR = 1e-3
-
-def model_loader(modelname='model1.tflearn', inputs=13):
+def model_loader(modelname='model1.tflearn', inputs=13, LR=1e-3):
     
     # Layer 0: generates a 4D tensor
     layer0 = input_data(shape=[None, 1, inputs, 1], name='input')

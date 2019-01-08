@@ -5,10 +5,10 @@ Created on Sun Nov 18 15:07:55 2018
 @author: tomzh
 """
 
-import io
+
 import os
 import xml.etree.ElementTree as ET
-import zipfile
+
 from datetime import datetime, timedelta
 import traceback
 import numpy as np

@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 from DataLoader import scene_loader
-
+import matplotlib.animation as animation
 
 def upscale_repeat(x, h=2, w=2):
     """
@@ -102,9 +102,24 @@ def apply_mask(model, Sfile, model_inputs=13, plot=True, bayesian=False, empiric
     #    plt.imshow(bayes_mask, cmap='OrRd', alpha=0.3)
 
     if plot is True:
-        plt.figure()
-        plt.imshow(S1, 'gray')
-        plt.imshow(mask, vmax=1, cmap='Blues', alpha=0.3)
+        fig = plt.figure()
+        # plt.figure()
+        # plt.imshow(S1, 'gray')
+        # plt.imshow(mask, vmax=1, cmap='Blues', alpha=0.3)
+        # plt.title('Composite')
+
+        # plt.figure()
+        im1 = [plt.imshow(S1, 'gray', animated=True)]
+        # plt.title('S1_an channel data')
+
+        # plt.figure()
+        im2 = [plt.imshow(mask, cmap='Blues', animated=True)]
+        # plt.title('Cloud mask output')
+        # plt.show()
+
+        ims = [im1, im2]
+        ani = animation.ArtistAnimation(fig, ims, interval=1000, blit=True, repeat_delay=0)
+
         plt.show()
 
     return(mask)

@@ -103,6 +103,7 @@ def apply_mask(model, Sfile, model_inputs=13, plot=True, bayesian=False, empiric
 
     if plot is True:
         fig = plt.figure()
+        
         # plt.figure()
         # plt.imshow(S1, 'gray')
         # plt.imshow(mask, vmax=1, cmap='Blues', alpha=0.3)
@@ -110,16 +111,24 @@ def apply_mask(model, Sfile, model_inputs=13, plot=True, bayesian=False, empiric
 
         # plt.figure()
         im1 = [plt.imshow(S1, 'gray', animated=True)]
-        # plt.title('S1_an channel data')
+        # plt.title('S1_an channel data') 
 
         # plt.figure()
         im2 = [plt.imshow(mask, cmap='Blues', animated=True)]
         # plt.title('Cloud mask output')
         # plt.show()
 
-        ims = [im1, im2]
-        ani = animation.ArtistAnimation(fig, ims, interval=1000, blit=True, repeat_delay=0)
+        # ims = [im1, im2]
+        # ani = animation.ArtistAnimation(fig, ims, interval=1000, blit=True, repeat_delay=0)
 
+        bmask = upscale_repeat(np.nan_to_num(scn['bayes_in'].values))
+        bmask = bmask.astype(int)
+        bmask = bmask & 2
+        bmask = bmask / 2
+        bmask = np.ones(bmask.shape) - bmask
+        im3 = [plt.imshow(bmask, cmap='Reds', animated=True)]
+        ims = [im1, im2, im1, im3]
+        ani = animation.ArtistAnimation(fig, ims, interval=500, blit=True, repeat_delay=0)
         plt.show()
 
     return(mask)

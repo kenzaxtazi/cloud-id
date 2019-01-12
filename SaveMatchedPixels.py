@@ -73,6 +73,29 @@ def get_file_pairs(slstr_directory, matchesfile, failed_downloads=[], caliop_dir
 
 
 def process_all(Spaths, Cpaths, pkl_output_name):
+    """
+    Perform pixel by pixel collocation for given data file pairs and save as pickle file
+
+    Spaths and Cpaths can be found by calling get_file_pairs with an appropriate matchesfile.
+    Calls process_pair for each file pair in sequence. Concatenates the dataframe for each pair
+    into a single output dataframe.
+
+    Parameters
+    ----------
+    Spaths: list
+        List containing paths to SLSTR files.
+    
+    Cpaths: list
+        List containing paths to Calipso or CATS files.
+
+    pkl_output_name: str
+        Name of pickle file to save pixels into.
+    
+    Returns
+    ----------
+    df: pandas dataframe
+        Dataframe with each pixel saved on a new row
+    """
     num_files = len(Spaths)
     df = pd.DataFrame()
     for i in tqdm(range(num_files)):
@@ -85,7 +108,26 @@ def process_all(Spaths, Cpaths, pkl_output_name):
 
 
 def process_pair(Spath, Cpath, interpolate=True):
-    """Make a pandas dataframe for a given SLSTR and Calipso/CATS file pair"""
+    """
+    Perform pixel by pixel collocation for given data file pair and return a dataframe
+
+    Parameters
+    ----------
+    Spath: str
+        Path to an SLSTR file.
+    
+    Cpath: list
+        Path to a Calipso or CATS file.
+
+    interpolate: bool
+        If True, pixels between nearest grid position matches will also be saved to the dataframe.
+        Default is True
+    
+    Returns
+    ----------
+    df: pandas dataframe
+        Dataframe with each pixel saved on a new row .
+        """
     # Find collocated pixels
     coords = collocate(Spath, Cpath)
     if coords == None:

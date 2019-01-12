@@ -85,7 +85,7 @@ def scene_loader(path):
             path = path[index:]
     filenames = glob(path)
     filenames = fixdir(filenames)
-    scn = Scene(filenames=filenames, reader='nc_slstr')
+    scn = Scene(filenames=filenames, reader='slstr_l1b')
     os.chdir(olddir)
     return(scn)
 

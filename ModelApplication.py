@@ -9,14 +9,8 @@ Created on Sun Dec  2 12:54:58 2018
 import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
-from DataLoader import scene_loader
+from DataLoader import scene_loader, upscale_repeat
 import matplotlib.animation as animation
-
-def upscale_repeat(x, h=2, w=2):
-    """
-    Upscales an array, credit to https://stackoverflow.com/questions/46215414/upscaling-a-numpy-array-and-evenly-distributing-values
-    """
-    return(x.repeat(h, axis=0).repeat(w, axis=1))
 
 
 def apply_mask(model, Sfile, model_inputs=13, plot=True, bayesian=False, empirical=False):
@@ -103,18 +97,18 @@ def apply_mask(model, Sfile, model_inputs=13, plot=True, bayesian=False, empiric
 
     if plot is True:
         fig = plt.figure()
-        
+
         # plt.figure()
         # plt.imshow(S1, 'gray')
         # plt.imshow(mask, vmax=1, cmap='Blues', alpha=0.3)
         # plt.title('Composite')
 
         # plt.figure()
-        im1 = [plt.imshow(S1, 'gray', animated=True)]
-        # plt.title('S1_an channel data') 
+        im1 = [plt.imshow(S1, 'gray')]
+        # plt.title('S1_an channel data')
 
         # plt.figure()
-        im2 = [plt.imshow(mask, cmap='Blues', animated=True)]
+        im2 = [plt.imshow(mask, cmap='Blues')]
         # plt.title('Cloud mask output')
         # plt.show()
 
@@ -126,9 +120,10 @@ def apply_mask(model, Sfile, model_inputs=13, plot=True, bayesian=False, empiric
         bmask = bmask & 2
         bmask = bmask / 2
         bmask = np.ones(bmask.shape) - bmask
-        im3 = [plt.imshow(bmask, cmap='Reds', animated=True)]
+        im3 = [plt.imshow(bmask, cmap='Reds')]
         ims = [im1, im2, im1, im3]
-        ani = animation.ArtistAnimation(fig, ims, interval=500, blit=True, repeat_delay=0)
+        ani = animation.ArtistAnimation(
+            fig, ims, interval=500, blit=True, repeat_delay=0)
         plt.show()
 
     return(mask)

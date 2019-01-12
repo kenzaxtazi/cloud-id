@@ -19,6 +19,13 @@ import numpy as np
 from satpy import Scene
 
 
+def upscale_repeat(x, h=2, w=2):
+    """
+    Upscales an array, credit to https://stackoverflow.com/questions/46215414/upscaling-a-numpy-array-and-evenly-distributing-values
+    """
+    return(x.repeat(h, axis=0).repeat(w, axis=1))
+
+
 def fixdir(list_in):
     for i in range(len(list_in)):
         list_in[i] = list_in[i].replace('\\', '/')

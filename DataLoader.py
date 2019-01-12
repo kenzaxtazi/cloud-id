@@ -139,6 +139,23 @@ def false_color_image(band1, band2, band3, plot=True):
 
     return rgb
 
+def extract_mask(Sreference, MaskFile, MaskBit):
+    if type(Sreference) == str:
+        scn = scene_loader(Sreference)
+    else:
+        scn = Sreference
+    
+    scn.load([MaskFile])
+
+    mask = np.nan_to_num(scn[MaskFile].values)
+    if MaskFile.endswith('in'):
+        mask = upscale_repeat(mask)
+    
+    mask = mask.astype(int)
+    mask = mask & MaskBit
+    mask = mask / MaskBit
+    mask = np.ones(mask.shape) - mask
+    return(mask)
 
 def mask(mask, mask_name, background):
     """Plots a semi-transparent mask over a background image"""

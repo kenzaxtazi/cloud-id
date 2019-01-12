@@ -3,10 +3,41 @@ from ftplib import FTP
 from SaveMatchedPixels import get_file_pairs, process_all, add_dist_col, add_time_col
 from tqdm import tqdm
 import os
-import DataLoader as DL
 import zipfile
 import requests
 import io
+
+
+def FTPlogin(creds_path='credentials.txt'):
+    ftp = FTP('ftp.ceda.ac.uk')
+    with open(creds_path, 'r') as file:
+        username, password = file.readlines()
+        ftp.login(username.strip(), password.strip())
+    ftp.cwd('neodc/sentinel3a/data/SLSTR/L1_RBT')
+    return(ftp)
+
+
+def FTPdownload(ftpobj, path, destination):
+    startdir = os.getcwd()
+    os.chdir(destination)
+    if path[:3] == "S3A":   # given path is folder name
+        foldername = path
+        path = path = path[16:20] + '/' + path[20:22] + \
+            '/' + path[22:24] + '/' + path[:]
+    elif path[:2] == "20":   # given path is path from /L1_RBT
+        foldername = path[11:]
+    try:
+        ftpobj.retrbinary("RETR " + str(path),
+                          open(str(foldername), "wb").write)
+    except:
+        print("Permission Error")
+        print(foldername)
+        try:
+            os.remove(foldername)
+        except:
+            pass
+    os.chdir(startdir)
+    print('Download complete')
 
 
 def NASA_download(NASA_FTP_directory, calipso_directory="", CATS_directory=""):
@@ -19,17 +50,19 @@ def NASA_download(NASA_FTP_directory, calipso_directory="", CATS_directory=""):
 
     # Select all .hdf files if Calipso
     if calipso_directory != "":
-        files_to_download = [str(i) for i in available_files if str(i)[-1] == 'f']
+        files_to_download = [str(i)
+                             for i in available_files if str(i)[-1] == 'f']
         print("Beginning download...")
         try:
             os.chdir(calipso_directory)
         except FileNotFoundError:
             os.mkdir(calipso_directory)
             os.chdir(calipso_directory)
-            
+
     # Select all .hdf5 files if CATS
     if CATS_directory != "":
-        files_to_download = [str(i) for i in available_files if str(i)[-1] == '5']
+        files_to_download = [str(i)
+                             for i in available_files if str(i)[-1] == '5']
         print("Beginning download...")
         try:
             os.chdir(CATS_directory)
@@ -54,7 +87,7 @@ def CEDA_download_matches(MatchesFilename, SLSTR_target_directory, creds_path='c
     # Get list of unique SLSTR files from Matches file
     Sfiles = [i.split(',')[1] for i in data]
 
-    ftp = DL.FTPlogin(creds_path)
+    ftp = FTPlogin(creds_path)
 
     startdir = os.getcwd()
 
@@ -63,7 +96,7 @@ def CEDA_download_matches(MatchesFilename, SLSTR_target_directory, creds_path='c
     except FileNotFoundError:
         os.mkdir(SLSTR_target_directory)
         os.chdir(SLSTR_target_directory)
-    
+
     # List of files which are already downloaded
     q = os.listdir()
 
@@ -97,7 +130,7 @@ def CEDA_download_matches(MatchesFilename, SLSTR_target_directory, creds_path='c
             os.remove(downloadedfile)
         except Exception as e:
             tqdm.write('Error downloading ' + str(targetfile))
-            tqdm.write('Error: %s' %e)
+            tqdm.write('Error: %s' % e)
             failed_downloads.append(Sfiles1[i])
             try:
                 os.remove(downloadedfile)
@@ -127,7 +160,7 @@ def ESA_download_matches(MatchesFilename, SLSTR_target_directory):
             Sdownloads1.append(Sdownloads[i])
 
     olddir = os.getcwd()
-    
+
     try:
         os.chdir(SLSTR_target_directory)
     except FileNotFoundError:
@@ -155,7 +188,7 @@ def ESA_download_matches(MatchesFilename, SLSTR_target_directory):
                 z.extractall()
             except Exception as e:
                 tqdm.write("Error extracting " + str(S_URL))
-                tqdm.write('Error: %s' %e)
+                tqdm.write('Error: %s' % e)
                 faileddownloads.append(Sfiles1[i])
 
     # Go back to previous directory

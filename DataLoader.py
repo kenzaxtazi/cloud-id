@@ -8,7 +8,7 @@ import os
 import platform
 import re
 import zipfile
-from ftplib import FTP
+
 from getpass import getuser
 from glob import glob
 from time import time
@@ -17,38 +17,6 @@ from pyhdf.SD import SD, SDC
 import matplotlib.pyplot as plt
 import numpy as np
 from satpy import Scene
-
-
-def FTPlogin(creds_path='credentials.txt'):
-    ftp = FTP('ftp.ceda.ac.uk')
-    with open(creds_path, 'r') as file:
-        username, password = file.readlines()
-        ftp.login(username.strip(), password.strip())
-    ftp.cwd('neodc/sentinel3a/data/SLSTR/L1_RBT')
-    return(ftp)
-
-
-def FTPdownload(ftpobj, path, destination):
-    startdir = os.getcwd()
-    os.chdir(destination)
-    if path[:3] == "S3A":   # given path is folder name
-        foldername = path
-        path = path = path[16:20] + '/' + path[20:22] + \
-            '/' + path[22:24] + '/' + path[:]
-    elif path[:2] == "20":   # given path is path from /L1_RBT
-        foldername = path[11:]
-    try:
-        ftpobj.retrbinary("RETR " + str(path),
-                          open(str(foldername), "wb").write)
-    except:
-        print("Permission Error")
-        print(foldername)
-        try:
-            os.remove(foldername)
-        except:
-            pass
-    os.chdir(startdir)
-    print('Download complete')
 
 
 def fixdir(list_in):
@@ -74,7 +42,7 @@ def scene_loader(path):
 
     olddir = os.getcwd()
 
-    if platform.platform()[:10] == "Windows-10":
+    if platform.platform().startswith("Windows-10"):
         string1 = "S3A_SL_1"
         index = path.find(string1)
         if index == 0:

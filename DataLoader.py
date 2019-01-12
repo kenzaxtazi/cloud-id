@@ -19,6 +19,13 @@ import numpy as np
 from satpy import Scene
 
 
+def upscale_repeat(x, h=2, w=2):
+    """
+    Upscales an array, credit to https://stackoverflow.com/questions/46215414/upscaling-a-numpy-array-and-evenly-distributing-values
+    """
+    return(x.repeat(h, axis=0).repeat(w, axis=1))
+
+
 def fixdir(list_in):
     for i in range(len(list_in)):
         list_in[i] = list_in[i].replace('\\', '/')
@@ -132,6 +139,23 @@ def false_color_image(band1, band2, band3, plot=True):
 
     return rgb
 
+def extract_mask(Sreference, MaskFile, MaskBit):
+    if type(Sreference) == str:
+        scn = scene_loader(Sreference)
+    else:
+        scn = Sreference
+    
+    scn.load([MaskFile])
+
+    mask = np.nan_to_num(scn[MaskFile].values)
+    if MaskFile.endswith('in'):
+        mask = upscale_repeat(mask)
+    
+    mask = mask.astype(int)
+    mask = mask & MaskBit
+    mask = mask / MaskBit
+    mask = np.ones(mask.shape) - mask
+    return(mask)
 
 def mask(mask, mask_name, background):
     """Plots a semi-transparent mask over a background image"""

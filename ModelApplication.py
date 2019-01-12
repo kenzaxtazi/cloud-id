@@ -9,17 +9,11 @@ Created on Sun Dec  2 12:54:58 2018
 import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
-from DataLoader import scene_loader
+from DataLoader import scene_loader, upscale_repeat
 import matplotlib.animation as animation
 
-def upscale_repeat(x, h=2, w=2):
-    """
-    Upscales an array, credit to https://stackoverflow.com/questions/46215414/upscaling-a-numpy-array-and-evenly-distributing-values
-    """
-    return(x.repeat(h, axis=0).repeat(w, axis=1))
 
-
-def apply_mask(model, Sfile, model_inputs=13, plot=True, bayesian=False, empirical=False):
+def apply_mask(model, Sfile, model_inputs=13):
     """
     Function to produce predicted mask for given model and SLSTR file. 
 
@@ -38,18 +32,6 @@ def apply_mask(model, Sfile, model_inputs=13, plot=True, bayesian=False, empiric
     model_inputs: int, optional
         Number of inputs model was trained on.
         Default is 13
-
-    plot: bool, optional
-        If True, produce plot of output mask overlayed on S1 channel. Also enable plotting of bayesian and empirical masks.
-        Default is True
-
-    bayesian: bool, optional
-        If True, produce plot of SLSTR Bayesian mask
-        Default is False
-
-    empirical: bool, optional
-        If True, produce plot of SLSTR empirical mask
-        Default is False
 
     Returns
     -------
@@ -93,42 +75,5 @@ def apply_mask(model, Sfile, model_inputs=13, plot=True, bayesian=False, empiric
 
     mask = np.array(label)
     mask = mask[:, 0].reshape(2400, 3000)
-
-    # bayes_mask = []
-    # for bitmask in scn['bayes_in'].flag_masks[:-2]:
-    #     data = scn['bayes_in'].values & bitmask
-    #     bayes_mask.append(data)
-    # bayes_mask = np.sum(bayes_mask, axis=0)
-    #    plt.imshow(bayes_mask, cmap='OrRd', alpha=0.3)
-
-    if plot is True:
-        fig = plt.figure()
-        
-        # plt.figure()
-        # plt.imshow(S1, 'gray')
-        # plt.imshow(mask, vmax=1, cmap='Blues', alpha=0.3)
-        # plt.title('Composite')
-
-        # plt.figure()
-        im1 = [plt.imshow(S1, 'gray', animated=True)]
-        # plt.title('S1_an channel data') 
-
-        # plt.figure()
-        im2 = [plt.imshow(mask, cmap='Blues', animated=True)]
-        # plt.title('Cloud mask output')
-        # plt.show()
-
-        # ims = [im1, im2]
-        # ani = animation.ArtistAnimation(fig, ims, interval=1000, blit=True, repeat_delay=0)
-
-        bmask = upscale_repeat(np.nan_to_num(scn['bayes_in'].values))
-        bmask = bmask.astype(int)
-        bmask = bmask & 2
-        bmask = bmask / 2
-        bmask = np.ones(bmask.shape) - bmask
-        im3 = [plt.imshow(bmask, cmap='Reds', animated=True)]
-        ims = [im1, im2, im1, im3]
-        ani = animation.ArtistAnimation(fig, ims, interval=500, blit=True, repeat_delay=0)
-        plt.show()
 
     return(mask)

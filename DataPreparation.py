@@ -7,7 +7,7 @@ Created on Sun Jan  6 17:29:23 2019
 """
 
 import numpy as np
-import vfm_feature_flags2 as vfm
+import DataLoader as DL
 
 
 def prep_data(pixel_info):
@@ -27,7 +27,7 @@ def prep_data(pixel_info):
     truth_oh = []
 
     for d in truth_flags:
-        i = vfm.vfm_feature_flags(int(d))
+        i = DL.vfm_feature_flags(int(d))
         if i == 2:
             truth_oh.append([1., 0.])    # cloud
         if i != 2:

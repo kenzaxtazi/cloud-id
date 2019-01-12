@@ -176,6 +176,7 @@ def mask(mask, mask_name, background):
     #plt.contour(X, Y, mask, levels=[0., 1.0], cmap='inferno', alpha=0.3)
     plt.imshow(mask, vmin=0, vmax=1.1, cmap='inferno', alpha=0.3)
 
+
 def load_hdf(filename):
     """Loads the hdf4 object into memory"""
     file = SD(filename, SDC.READ)
@@ -210,6 +211,150 @@ class SDopener():
         self.SD.__del__()
 
 
+def vfm_feature_flags(val):
+    """ Python version of the IDL code to read the bitwise flags"""
+
+    feature_type = val & 7
+    # feature_type_qa = (val >> 3) & 3
+    # ice_water_phase = (val >> 5) & 3
+    # ice_water_phase_qa = (val >> 7) & 3
+    # feature_subtype = (val >> 9) & 7
+    # cloud_aerosol_psc_type_qa = (val >> 12) & 1
+    # horizontal_averaging = (val >> 13) & 7
+
+    # if feature_type == 0:
+    #     print("Feature Type : invalid (bad or missing data)")
+
+    # if feature_type == 1:
+    #     print("Feature Type : clean air")
+
+    # if feature_type == 2:
+    #     print("Feature Type : cloud")
+    #     if feature_subtype == 0:
+    #         print("Feature Subtype : low overcast, transparent")
+    #     if feature_subtype == 1:
+    #         print("Feature Subtype : low overcast, opaque")
+    #     if feature_subtype == 2:
+    #         print("Feature Subtype : transition stratocumulus")
+    #     if feature_subtype == 3:
+    #         print("Feature Subtype : low, broken cumulus")
+    #     if feature_subtype == 4:
+    #         print("Feature Subtype : altocumulus (transparent)")
+    #     if feature_subtype == 5:
+    #         print("Feature Subtype : altostratus (opaque)")
+    #     if feature_subtype == 6:
+    #         print("Feature Subtype : cirrus (transparent)")
+    #     if feature_subtype == 7:
+    #         print("Feature Subtype : deep convective (opaque)")
+    #     else :
+    #         print("*** error getting Feature Subtype")
+
+    # if feature_type == 3:
+    #     print("Feature Type : aerosol")
+    #     if feature_subtype == 0:
+    #         print("Feature Subtype : not determined")
+    #     if feature_subtype == 1:
+    #         print("Feature Subtype : clean marine")
+    #     if feature_subtype == 2:
+    #         print("Feature Subtype : dust")
+    #     if feature_subtype == 3:
+    #         print("Feature Subtype : polluted continental")
+    #     if feature_subtype == 4:
+    #         print("Feature Subtype : clean continental")
+    #     if feature_subtype == 5:
+    #         print("Feature Subtype : polluted dust")
+    #     if feature_subtype == 6:
+    #         print("Feature Subtype : smoke")
+    #     if feature_subtype == 7:
+    #         print("Feature Subtype : other")
+    #     else :
+    #         print("*** error getting Feature Subtype")
+
+    # if feature_type == 4:
+    #     print("Feature Type : stratospheric feature--PSC or stratospheric aerosol")
+    #     if feature_subtype == 0:
+    #         print("Feature Subtype : not determined")
+    #     if feature_subtype == 1:
+    #         print("Feature Subtype : non-depolarizing PSC")
+    #     if feature_subtype == 2:
+    #         print ("Feature Subtype : depolarizing PSC")
+    #     if feature_subtype == 3:
+    #         print, "Feature Subtype : non-depolarizing aerosol"
+    #     if feature_subtype == 4:
+    #         print("Feature Subtype : depolarizing aerosol")
+    #     if feature_subtype == 5:
+    #         print("Feature Subtype : spare")
+    #     if feature_subtype == 6:
+    #         print("Feature Subtype : spare")
+    #     if feature_subtype == 7:
+    #         print("Feature Subtype : other")
+    #     else:
+    #         print("*** error getting Feature Subtype")
+
+    # if feature_type == 5:
+    #     print("Feature Type : surface")
+    # if feature_type == 6:
+    #     print("Feature Type : subsurface")
+    # if feature_type == 7:
+    #     print("Feature Type : no signal (totally attenuated)")
+    # else :
+    #     print("*** error getting Feature Type")
+
+    # if feature_type_qa == 0:
+    #     print("Feature Type QA : none")
+    # if feature_type_qa == 1:
+    #     print("Feature Type QA : low")
+    # if feature_type_qa == 2:
+    #     print("Feature Type QA : medium")
+    # if feature_type_qa == 3:
+    #     print("Feature Type QA : high")
+    # else :
+    #     print("*** error getting Feature Type QA")
+
+    # if ice_water_phase == 0:
+    #     print("Ice/Water Phase : unknown/not determined")
+    # if ice_water_phase == 1:
+    #     print("Ice/Water Phase : ice")
+    # if ice_water_phase == 2:
+    #     print("Ice/Water Phase : water")
+    # if ice_water_phase == 3:
+    #     print("Ice/Water Phase : mixed phase")
+    # else :
+    #     print("*** error getting Ice/Water Phase")
+
+    # if ice_water_phase_qa == 0:
+    #     print("Ice/Water Phase QA: none")
+    # if ice_water_phase_qa == 1:
+    #     print("Ice/Water Phase QA: low")
+    # if ice_water_phase_qa == 2:
+    #     print("Ice/Water Phase QA: medium")
+    # if ice_water_phase_qa == 3:
+    #     print("Ice/Water Phase QA: high")
+    # else :
+    #     print("*** error getting Ice/Water Phase QA")
+
+    # if cloud_aerosol_psc_type_qa == 0:
+    #     print("Cloud/Aerosol/PSC Type QA : not confident")
+    # else:
+    #     print("Cloud/Aerosol/PSC Type QA : confident")
+
+    # if horizontal_averaging == 0:
+    #     print("Horizontal averaging required for detection: not applicable")
+    # if horizontal_averaging == 1:
+    #     print("Horizontal averaging required for detection: 1/3 km")
+    # if horizontal_averaging == 2:
+    #     print("Horizontal averaging required for detection: 1 km")
+    # if horizontal_averaging == 3:
+    #     print("Horizontal averaging required for detection: 5 km")
+    # if horizontal_averaging == 4:
+    #     print("Horizontal averaging required for detection: 20 km")
+    # if horizontal_averaging == 5:
+    #     print("Horizontal averaging required for detection: 80 km")
+    # else :
+    #     print("*** error getting Horizontal averaging")
+    return(feature_type)
+
+
 if __name__ == '__main__':
 
     # create readers and open files
@@ -218,14 +363,12 @@ if __name__ == '__main__':
 
     # load datasets from input files
 
-
     def load_scene(scn):
         """ Loads the information from the netcdf files in the folder"""
         # scn.load(scn.available_dataset_names())
         scn.load(['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in',
-                'S9_in', 'bayes_an', 'bayes_in', 'cloud_an', 'longitude_an',
-                'latitude_an', 'solar_zenith_angle'])
-
+                  'S9_in', 'bayes_an', 'bayes_in', 'cloud_an', 'longitude_an',
+                  'latitude_an', 'solar_zenith_angle'])
 
     load_scene(scn)
 
@@ -242,7 +385,6 @@ if __name__ == '__main__':
     bayes_mask = create_mask(scn, 'bayes_in')
     #emp_mask= create_mask(scn, 'cloud_an')
 
-
     # single channel images
 
     # channel_arrays=[S1, S2, S3, S4, S5, S6, S7, S8, S9]
@@ -250,7 +392,6 @@ if __name__ == '__main__':
     # for i in channel_arrays:
     #    plt.figure()
     #    plt.imshow(i, 'gray')
-
 
     # false color image
 

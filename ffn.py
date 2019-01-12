@@ -18,81 +18,26 @@ import tflearn
 from tensorflow import reset_default_graph
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
+import PixelAnalysis as PA
+import os
 
-# DATA DOWNLOAD
+# Pixel Loading
 
-# Scenes to test on the HEP server
-'''
-scn1 = Scene(filenames=glob('/home/hep/kt2015/cloud/SLSTR/2018/08/\
-S3A_SL_1_RBT____20180823T041605_20180823T041905_20180824T083800_\
-0179_035_033_1620_LN2_O_NT_003.SEN3/*'), reader='nc_slstr')
+if os.path.exists('/vols/lhcb/egede/cloud'):
+    # Script is running on lx02
+    scenes = ['/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20171120T190102_20171120T190402_20171122T003854_0179_024_341_2880_LN2_O_NT_002.SEN3',
+            '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20171217T190102_20171217T190402_20171218T223735_0179_025_341_2879_LN2_O_NT_002.SEN3',
+            '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20180113T190102_20180113T190402_20180114T230219_0179_026_341_2880_LN2_O_NT_002.SEN3',
+            '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20180209T190102_20180209T190402_20180210T234449_0179_027_341_2880_LN2_O_NT_002.SEN3']
+    pixel_info = PA.PixelLoader("/home/hep/trz15/Matched_Pixels2/Calipso")
 
-scn2 = Scene(filenames=glob('/home/hep/kt2015/cloud/SLSTR/2018/08/\
-S3A_SL_1_RBT____20180829T200950_20180829T201250_20180831T004228_\
-0179_035_128_1620_LN2_O_NT_003.SEN3/*'), reader='nc_slstr')
-
-scn3 = Scene(filenames=glob('/home/hep/kt2015/cloud/SLSTR/2018/08/\
-S3A_SL_1_RBT____20180829T200950_20180829T201250_20180831T004228\
-_0179_035_128_1620_LN2_O_NT_003.SEN3/*'), reader='nc_slstr')
-
-scn4 = Scene(filenames=glob('/home/hep/kt2015/cloud/SLSTR/2018/08/\
-S3A_SL_1_RBT____20180829T200950_20180829T201250_20180831T004228_\
-0179_035_128_1620_LN2_O_NT_003.SEN3/*'), reader='nc_slstr')
-
-scn5 = Scene(filenames=glob('/home/hep/kt2015/cloud/SLSTR/2018/08/\
-S3A_SL_1_RBT____20180829T200950_20180829T201250_20180831T004228_\
-0179_035_128_1620_LN2_O_NT_003.SEN3/*'), reader='nc_slstr')
-
-scenes = [scn1, scn2, scn3, scn4, scn5]
-'''
-
-# Scene to test on users local laptop
-scenes = ['/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T232802_20170531T233102_20170602T032711_0179_018_187_1619_LN2_O_NT_002.SEN3',
-          '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T232802_20170531T233102_20170602T032711_0179_018_187_1619_LN2_O_NT_002.SEN3',
-          '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T214703_20170531T215003_20170602T022521_0180_018_186_1619_LN2_O_NT_002.SEN3',
-          '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T215003_20170531T215303_20170602T022630_0179_018_186_1800_LN2_O_NT_002.SEN3']
-
-
-# Training data files on HEP server
-'''
-pixel_info1 = pd.read_pickle("/home/hep/trz15/Matched_Pixels2/Calipso/\
-                             Apr18P3.pkl")
-pixel_info2 = pd.read_pickle("/home/hep/trz15/Matched_Pixels2/Calipso/\
-                             May18P3.pkl")
-pixel_info3 = pd.read_pickle("/home/hep/trz15/Matched_Pixels2/Calipso/\
-                             Feb18P3.pkl")
-pixel_info4 = pd.read_pickle("/home/hep/trz15/Matched_Pixels2/Calipso/\
-                             Mar18P3.pkl")
-pixel_info5 = pd.read_pickle("/home/hep/trz15/Matched_Pixels2/Calipso/\
-                             Jun18P3.pkl")
-pixel_info6 = pd.read_pickle("/home/hep/trz15/Matched_Pixels2/Calipso/\
-                             Jul18P3.pkl")
-pixel_info7 = pd.read_pickle("/home/hep/trz15/Matched_Pixels2/Calipso/\
-                             Aug18P3.pkl")
-pixel_info8 = pd.read_pickle("/home/hep/trz15/Matched_Pixels2/Calipso/\
-                             Jan18P3.pkl")
-pixel_info9 = pd.read_pickle("/home/hep/trz15/Matched_Pixels2/CATS/\
-                             Aug17P3.pkl")
-pixel_info10 = pd.read_pickle("/home/hep/trz15/Matched_Pixels2/CATS/\
-                              May17P3.pkl")
-'''
-
-# Training data files on users local laptop
-pixel_info1 = pd.read_pickle("/Users/kenzatazi/Desktop/Apr18P3.pkl")
-pixel_info2 = pd.read_pickle("/Users/kenzatazi/Desktop/May18P3.pkl")
-pixel_info3 = pd.read_pickle("/Users/kenzatazi/Desktop/Feb18P3.pkl")
-pixel_info4 = pd.read_pickle("/Users/kenzatazi/Desktop/Mar18P3.pkl")
-pixel_info5 = pd.read_pickle("/Users/kenzatazi/Desktop/Jun18P3.pkl")
-# pixel_info6 = pd.read_pickle("/Users/kenzatazi/Desktop/Jul18P3.pkl")
-pixel_info7 = pd.read_pickle("/Users/kenzatazi/Desktop/Aug18P3.pkl")
-pixel_info8 = pd.read_pickle("/Users/kenzatazi/Desktop/Jan18P3.pkl")
-pixel_info9 = pd.read_pickle("/Users/kenzatazi/Desktop/Aug17P3.pkl")
-pixel_info10 = pd.read_pickle("/Users/kenzatazi/Desktop/May17P3.pkl")
-
-
-pixel_info = pd.concat([pixel_info1, pixel_info2, pixel_info3, pixel_info4,
-                        pixel_info5, pixel_info7, pixel_info8,
-                        pixel_info9, pixel_info10], sort=False)
+if os.path.exists('/Users/kenzatazi'):
+    # Script is running on Kenza's laptop
+    scenes = ['/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T232802_20170531T233102_20170602T032711_0179_018_187_1619_LN2_O_NT_002.SEN3',
+            '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T232802_20170531T233102_20170602T032711_0179_018_187_1619_LN2_O_NT_002.SEN3',
+            '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T214703_20170531T215003_20170602T022521_0180_018_186_1619_LN2_O_NT_002.SEN3',
+            '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T215003_20170531T215303_20170602T022630_0179_018_186_1800_LN2_O_NT_002.SEN3']
+    pixel_info = PA.PixelLoader("/Users/kenzatazi/Desktop")
 
 pixels = sklearn.utils.shuffle(pixel_info)
 
@@ -126,7 +71,7 @@ validation_truth =np.load('validation_truth.npy')
 # Creating network and setting hypermarameters for model
 
 LR = 1e-3  # learning rate
-MODEL_NAME = 'ffn_withancillarydata'.format(LR, 'feedforward')
+MODEL_NAME = 'ffn_withancillarydata_' + str(LR) + '_feedforward'
 para_num = len(pixel_values[0, :-2])
 
 # reshape data to pit into network

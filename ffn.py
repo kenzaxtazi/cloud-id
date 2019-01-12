@@ -6,54 +6,51 @@ Created on Sun Nov 25 16:37:26 2018
 @author: kenzatazi
 """
 
-import pandas as pd
-import ModelEvaluation as me
-import DataPreparation as dp
-import matplotlib.pyplot as plt
-import sklearn.utils
-import ModelApplication as app
-from satpy import Scene
-from glob import glob
-import tflearn
-from tensorflow import reset_default_graph
-from tflearn.layers.core import input_data, dropout, fully_connected
-from tflearn.layers.estimator import regression
-import PixelAnalysis as PA
 import os
+from glob import glob
+
+import matplotlib.pyplot as plt
+import pandas as pd
+import sklearn.utils
+import tflearn
+from satpy import Scene
+from tensorflow import reset_default_graph
+from tflearn.layers.core import dropout, fully_connected, input_data
+from tflearn.layers.estimator import regression
+
+import DataPreparation as dp
+import ModelApplication as app
+import ModelEvaluation as me
+import PixelAnalysis as PA
 
 # Pixel Loading
 
 if os.path.exists('/vols/lhcb/egede/cloud'):
     # Script is running on lx02
     scenes = ['/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20171120T190102_20171120T190402_20171122T003854_0179_024_341_2880_LN2_O_NT_002.SEN3',
-            '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20171217T190102_20171217T190402_20171218T223735_0179_025_341_2879_LN2_O_NT_002.SEN3',
-            '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20180113T190102_20180113T190402_20180114T230219_0179_026_341_2880_LN2_O_NT_002.SEN3',
-            '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20180209T190102_20180209T190402_20180210T234449_0179_027_341_2880_LN2_O_NT_002.SEN3']
+              '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20171217T190102_20171217T190402_20171218T223735_0179_025_341_2879_LN2_O_NT_002.SEN3',
+              '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20180113T190102_20180113T190402_20180114T230219_0179_026_341_2880_LN2_O_NT_002.SEN3',
+              '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20180209T190102_20180209T190402_20180210T234449_0179_027_341_2880_LN2_O_NT_002.SEN3']
     pixel_info = PA.PixelLoader("/home/hep/trz15/Matched_Pixels2/Calipso")
 
 if os.path.exists('/Users/kenzatazi'):
     # Script is running on Kenza's laptop
     scenes = ['/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T232802_20170531T233102_20170602T032711_0179_018_187_1619_LN2_O_NT_002.SEN3',
-            '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T232802_20170531T233102_20170602T032711_0179_018_187_1619_LN2_O_NT_002.SEN3',
-            '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T214703_20170531T215003_20170602T022521_0180_018_186_1619_LN2_O_NT_002.SEN3',
-            '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T215003_20170531T215303_20170602T022630_0179_018_186_1800_LN2_O_NT_002.SEN3']
+              '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T232802_20170531T233102_20170602T032711_0179_018_187_1619_LN2_O_NT_002.SEN3',
+              '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T214703_20170531T215003_20170602T022521_0180_018_186_1619_LN2_O_NT_002.SEN3',
+              '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T215003_20170531T215303_20170602T022630_0179_018_186_1800_LN2_O_NT_002.SEN3']
     pixel_info = PA.PixelLoader("/Users/kenzatazi/Desktop")
 
 pixels = sklearn.utils.shuffle(pixel_info)
 
-pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
-                        'S7_in', 'S8_in', 'S9_in',
-                        'satellite_zenith_angle', 'solar_zenith_angle',
-                        'latitude_an', 'longitude_an',
-                        'confidence_an',
-                        'Feature_Classification_Flags',
-                        'TimeDiff']]).values
+pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in', 'satellite_zenith_angle',
+                        'solar_zenith_angle', 'latitude_an', 'longitude_an', 'confidence_an', 'Feature_Classification_Flags', 'TimeDiff']]).values
 
 # If dataset is not created:
 
 # prepares data for ffn
-training_data, validation_data, training_truth, \
-    validation_truth = dp.prep_data(pixel_values)
+training_data, validation_data, training_truth, validation_truth = dp.prep_data(
+    pixel_values)
 
 
 # If dataset already created :

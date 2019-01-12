@@ -5,7 +5,6 @@ Created on Sat Nov 24 23:51:44 2018
 @author: tomzh
 """
 
-import itertools
 from datetime import datetime, timedelta
 
 import h5py
@@ -17,11 +16,33 @@ from tqdm import tqdm
 import CalipsoReader2 as CR
 import DataLoader as DL
 from Collocation2 import collocate
-from interp import intsbetween
+
+
+def grid_interpolate(q0, q1):
+    """Find all points on a grid which lie between two points"""
+    out = []
+    row0, col0 = q0
+    row1, col1 = q1
+
+    if row0 - row1 == 0:
+        row = row0
+        for col in range(min(col0, col1) + 1, max(col0, col1)):
+            out.append([row, col])
+    elif col0 - col1 == 0:
+        col = col0
+        for row in range(min(row0, row1) + 1, max(row0, row1)):
+            out.append([row, col])
+    else:
+        for row in range(min(row0, row1), max(row0, row1) + 1):
+            for col in range(min(col0, col1), max(col0, col1) + 1):
+                truecol = col0 + ((col1 - col0)/(row1 - row0)) * (row - row0)
+                if abs(truecol - col) <= 0.5:
+                    out.append([row, col])
+    return(out[1:-1])
 
 
 def get_file_pairs(slstr_directory, matchesfile, failed_downloads=[], caliop_directory="", CATS_directory=""):
-    # Open Matches.txt and return path to data files, exclude files which were not downloaded
+    """Open matches file and return path to included data files, exclude files which were not downloaded"""
     with open(matchesfile, 'r') as file:
         data = file.readlines()
 
@@ -73,7 +94,6 @@ def process_pair(Spath, Cpath, interpolate=True):
     cols = [int(i[1]) for i in coords]
     Cindices = [int(i[2]) for i in coords]
 
-
     if interpolate is True:
         coords1 = []
         if Cpath.endswith('f'):
@@ -94,7 +114,7 @@ def process_pair(Spath, Cpath, interpolate=True):
                 # Interpolate to find SLSTR pixels between the two already collocated
                 pos0 = [rows[i], cols[i]]
                 pos1 = [rows[i+1], cols[i+1]]
-                Sindices1 = intsbetween(pos0, pos1)
+                Sindices1 = grid_interpolate(pos0, pos1)
 
                 for j in Sindices1[int(len(Sindices1)/2):]:
                     coords1.append([j[0], j[1], Cindices[i]])
@@ -251,22 +271,3 @@ def add_dist_col(df):
         return(dist)
     df['Distance'] = df.progress_apply(lambda row: get_dist(row), axis=1)
     return(df)
-
-
-if __name__ == "__main__":
-    Home_directory = "/home/hep/trz15/Masters_Project"
-    NASA_FTP_directory = "8aff26d6-6b5a-4544-ac03-bdddf25d7bbb"
-    calipso_directory = "/vols/lhcb/egede/cloud/Calipso/1km/2018/06/"
-    SLSTR_target_directory = "/vols/lhcb/egede/cloud/SLSTR/2018/061"
-    MatchesFilename = "Matches9.txt"
-    pkl_output_name = "Jun.pkl"
-    timewindow = 15
-
-    Cpaths, Spaths = get_file_pairs(
-        calipso_directory, SLSTR_target_directory, MatchesFilename)
-    df = process_all(Spaths, Cpaths, pkl_output_name)
-    df['Profile_Time'] += 725846390.0
-    df = add_dist_col(df)
-    df = add_time_col(df)
-    processed_pkl_name = pkl_output_name[:-4] + "P1.pkl"
-    df.to_pickle(processed_pkl_name)

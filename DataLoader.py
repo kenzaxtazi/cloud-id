@@ -12,7 +12,7 @@ from ftplib import FTP
 from getpass import getuser
 from glob import glob
 from time import time
-
+from pyhdf.SD import SD, SDC
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -175,6 +175,40 @@ def mask(mask, mask_name, background):
     #X, Y = np.meshgrid(np.arange(0,3000),np.arange(0, 2400))
     #plt.contour(X, Y, mask, levels=[0., 1.0], cmap='inferno', alpha=0.3)
     plt.imshow(mask, vmin=0, vmax=1.1, cmap='inferno', alpha=0.3)
+
+def load_hdf(filename):
+    """Loads the hdf4 object into memory"""
+    file = SD(filename, SDC.READ)
+    return(file)
+
+
+def get_header_names(file):
+    """Print the names of the dataset names"""
+    datasets_dic = file.datasets()
+    for idx, sds in enumerate(datasets_dic.keys()):
+        print(idx, sds)
+
+
+def load_data(file, variable):
+    """From the file, load the chosen variable. Valid options in get_header_names()"""
+    sds_obj = file.select(variable)
+    data = sds_obj.get()
+    return(data)
+
+
+class SDopener():
+    # Class to call when using context manager
+    def __init__(self, path, mode=SDC.READ):
+        self.path = path
+        self.mode = mode
+
+    def __enter__(self):
+        self.SD = SD(self.path, self.mode)
+        return(self.SD)
+
+    def __exit__(self, type, value, traceback):
+        self.SD.__del__()
+
 
 if __name__ == '__main__':
 

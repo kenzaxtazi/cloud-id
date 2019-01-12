@@ -16,7 +16,7 @@ import requests
 from tqdm import tqdm
 import h5py
 
-import CalipsoReader2 as CR
+
 import DataLoader as DL
 
 
@@ -47,10 +47,10 @@ def makeurlquery(Cfilename, timewindow=30, num=20):
     if Cfilename.endswith('f'):
         # Calipso File
         # Load parameters from hdf file
-        with CR.SDopener(Cfilename) as file:
-            lat = CR.load_data(file, 'Latitude').flatten()
-            lon = CR.load_data(file, 'Longitude').flatten()
-            time = CR.load_data(file, 'Profile_Time').flatten()
+        with DL.SDopener(Cfilename) as file:
+            lat = DL.load_data(file, 'Latitude').flatten()
+            lon = DL.load_data(file, 'Longitude').flatten()
+            time = DL.load_data(file, 'Profile_Time').flatten()
         time += 725846400.0     # Time in UNIX
         time -= 10              # Leap second correction
 
@@ -212,9 +212,9 @@ def collocate(SLSTR_filename, Cfilename, verbose=False, persistent=False):
 
     if Cfilename.endswith('f'):
         # Load Calipso coords
-        with CR.SDopener(Cfilename) as file:
-            clat = CR.load_data(file, 'Latitude')
-            clon = CR.load_data(file, 'Longitude')
+        with DL.SDopener(Cfilename) as file:
+            clat = DL.load_data(file, 'Latitude')
+            clon = DL.load_data(file, 'Longitude')
 
     elif Cfilename.endswith('5'):
         # Load CATS coords

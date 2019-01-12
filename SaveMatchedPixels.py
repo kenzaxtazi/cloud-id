@@ -13,7 +13,6 @@ import pandas as pd
 from geopy.distance import geodesic
 from tqdm import tqdm
 
-import CalipsoReader2 as CR
 import DataLoader as DL
 from Collocation2 import collocate
 
@@ -139,8 +138,8 @@ def process_pair(Spath, Cpath, interpolate=True):
     if interpolate is True:
         coords1 = []
         if Cpath.endswith('f'):
-            with CR.SDopener(Cpath) as file:
-                Feature_Classification_Flags = CR.load_data(
+            with DL.SDopener(Cpath) as file:
+                Feature_Classification_Flags = DL.load_data(
                     file, 'Feature_Classification_Flags')[:, 0].flatten()
             FCF = Feature_Classification_Flags[Cindices] & 7
             Ctruth = np.where(FCF == 2, True, False)
@@ -191,15 +190,15 @@ def process_pair(Spath, Cpath, interpolate=True):
 
         # Load data from Calipso/CATS and their desired attributes
         if Cpath.endswith('f'):  # Calipso file
-            with CR.SDopener(Cpath) as file:
-                Feature_Classification_Flags = CR.load_data(
+            with DL.SDopener(Cpath) as file:
+                Feature_Classification_Flags = DL.load_data(
                     file, 'Feature_Classification_Flags')[:, 0].flatten()
-                Latitude = CR.load_data(file, 'Latitude').flatten()
-                Longitude = CR.load_data(file, 'Longitude').flatten()
-                Profile_Time = CR.load_data(file, 'Profile_Time').flatten()
-                Solar_Zenith_Angle = CR.load_data(
+                Latitude = DL.load_data(file, 'Latitude').flatten()
+                Longitude = DL.load_data(file, 'Longitude').flatten()
+                Profile_Time = DL.load_data(file, 'Profile_Time').flatten()
+                Solar_Zenith_Angle = DL.load_data(
                     file, 'Solar_Zenith_Angle').flatten()
-                IGBP_Surface_Type = CR.load_data(
+                IGBP_Surface_Type = DL.load_data(
                     file, 'IGBP_Surface_Type').flatten()
 
             Calipso_attributes = [Feature_Classification_Flags,

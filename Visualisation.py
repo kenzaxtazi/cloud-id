@@ -73,6 +73,24 @@ def MaskComparison(Sreference, mask1, mask2, frametime=1000):
     ----------
     ani: matplotlib.animation object
     """
+    maskdiff = mask1 - mask2
+    maskdiff = np.abs(maskdiff)
+
+    matches = 1 - np.mean(maskdiff)
+    matches_percent = str(matches * 100)[:5]
+
+    mask1cov = 1 - np.mean(mask1)
+    mask1cov_percent = str(mask1cov * 100)[:5]
+
+    mask2cov = 1 - np.mean(mask2)
+    mask2cov_percent = str(mask2cov * 100)[:5]
+
+    print("##################################################")
+
+    print("Masks agree for " + matches_percent + "% of image")
+
+    print("Mask 1 image coverage: " + mask1cov_percent + "%")
+    print("Mask 2 image coverage: " + mask2cov_percent + "%")
 
     fig = plt.figure()
 

@@ -208,49 +208,52 @@ def vfm_feature_flags(val):
     feature_type = val & 7
     return(feature_type)
 
-
+"""
 if __name__ == '__main__':
 
     # create readers and open files
-    scn = Scene(filenames=glob('/Users/kenzatazi/Downloads/S3A_SL_1_RBT____20180822T000619_20180822T000919_20180822T015223_0179_035_016_3240_SVL_O_NR_003.SEN3/*'),
-                reader='nc_slstr')
+    scn = Scene(filenames=glob('/Users/kenzatazi/Downloads/S3A_SL_1_RBT____20180822T000619_20180822T000919_20180822T015223_0179_035_016_3240_SVL_O_NR_003.SEN3/*'), reader='slstr_l1b')
+"""
 
-    # load datasets from input files
 
-    def load_scene(scn):
-        """ Loads the information from the netcdf files in the folder"""
-        # scn.load(scn.available_dataset_names())
-        scn.load(['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in',
-                  'S9_in', 'bayes_an', 'bayes_in', 'cloud_an', 'longitude_an',
-                  'latitude_an', 'solar_zenith_angle'])
+def load_scene(scn):
+    """ Loads the information from the netcdf files in the folder"""
+    # scn.load(scn.available_dataset_names())
+    scn.load(['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in',
+              'S8_in', 'S9_in', 'bayes_an', 'bayes_in', 'cloud_an',
+              'longitude_an', 'latitude_an', 'solar_zenith_angle',
+              'confidence_an'])
 
-    load_scene(scn)
 
-    S1 = np.nan_to_num(scn['S1_an'].values)
-    S2 = np.nan_to_num(scn['S2_an'].values)
-    S3 = np.nan_to_num(scn['S3_an'].values)
-    #S4= np.nan_to_num(scn['S4_an'].values)
-    #S5= np.nan_to_num(scn['S5_an'].values)
-    #S6= np.nan_to_num(scn['S6_an'].values)
-    #S7= np.nan_to_num(np.array(scn['S7_in'][:-1]))
-    #S8= np.nan_to_num(np.array(scn['S8_in'][:-1]))
-    #S9= np.nan_to_num(np.array(scn['S9_in'][:-1]))
+# EXAMPLE CODE
+"""
+load_scene(scn)
 
-    bayes_mask = create_mask(scn, 'bayes_in')
-    #emp_mask= create_mask(scn, 'cloud_an')
+#S1 = np.nan_to_num(scn['S1_an'].values)
+#S2 = np.nan_to_num(scn['S2_an'].values)
+#S3 = np.nan_to_num(scn['S3_an'].values)
+#S4= np.nan_to_num(scn['S4_an'].values)
+#S5= np.nan_to_num(scn['S5_an'].values)
+#S6= np.nan_to_num(scn['S6_an'].values)
+#S7= np.nan_to_num(np.array(scn['S7_in'][:-1]))
+#S8= np.nan_to_num(np.array(scn['S8_in'][:-1]))
+#S9= np.nan_to_num(np.array(scn['S9_in'][:-1]))
 
-    # single channel images
+bayes_mask = create_mask(scn, 'bayes_in')
+emp_mask= create_mask(scn, 'cloud_an')
 
-    # channel_arrays=[S1, S2, S3, S4, S5, S6, S7, S8, S9]
+#single channel images
 
-    # for i in channel_arrays:
-    #    plt.figure()
-    #    plt.imshow(i, 'gray')
+channel_arrays=[S1, S2, S3, S4, S5, S6, S7, S8, S9]
 
-    # false color image
+# for i in channel_arrays:
+#    plt.figure()
+#    plt.imshow(i, 'gray')
 
-    fc = false_color_image(S3, S2, S1, plot=True)
-    mask(bayes_mask, 'Baseyian mask', S1)
-    #mask(emp_mask,'Empirical mask', S1)
 
-    plt.show()
+# fc = false_color_image(S3, S2, S1, plot=True)
+# mask(bayes_mask, 'Baseyian mask', S1)
+# mask(emp_mask,'Empirical mask', S1)
+
+plt.show()
+"""

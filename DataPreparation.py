@@ -10,7 +10,7 @@ import numpy as np
 import DataLoader as DL
 
 
-def prep_data(pixel_info):
+def prep_data(pixel_info, TimeDiff=False):
 
     """
     Prepares data for matched SLSTR and CALIOP pixels into training data,
@@ -21,8 +21,14 @@ def prep_data(pixel_info):
     conv_pixels = pixel_info.astype(float)
     pix = np.nan_to_num(conv_pixels)
 
-    data = pix[:, :-2]
-    truth_flags = pix[:, -2]
+    if TimeDiff is False:
+
+        data = pix[:, :-2]
+        truth_flags = pix[:, -2]
+
+    if TimeDiff is True:
+        data = np.column_stack((pix[:, :-2], pix[:, -1]))
+        truth_flags = pix[:, -2]
 
     truth_oh = []
 
@@ -90,37 +96,37 @@ def surftype_class(array):
 
     # sorting data point into surface type categories using bitwise addition
     for d in array:
-        if int(d[11]) & 1 > 0:
+        if int(d[13]) & 1 > 0:
             coastline.append(d)
-        if int(d[11]) & 2 > 0:
+        if int(d[13]) & 2 > 0:
             ocean.append(d)
-        if int(d[11]) & 4 > 0:
+        if int(d[13]) & 4 > 0:
             tidal.append(d)
-        if int(d[11]) & 8 > 0:
+        if int(d[13]) & 8 > 0:
             land.append(d)
-        if int(d[11]) & 16 > 0:
+        if int(d[13]) & 16 > 0:
             inland_water.append(d)
-        if int(d[11]) & 32 > 0:
+        if int(d[13]) & 32 > 0:
             unfilled.append(d)
-        if int(d[11]) & 64 > 0:
+        if int(d[13]) & 64 > 0:
             spare1.append(d)
-        if int(d[11]) & 128 > 0:
+        if int(d[13]) & 128 > 0:
             spare2.append(d)
-        if int(d[11]) & 256 > 0:
+        if int(d[13]) & 256 > 0:
             cosmetic.append(d)
-        if int(d[11]) & 512 > 0:
+        if int(d[13]) & 512 > 0:
             duplicate.append(d)
-        if int(d[11]) & 1024 > 0:
+        if int(d[13]) & 1024 > 0:
             day.append(d)
-        if int(d[11]) & 2048 > 0:
+        if int(d[13]) & 2048 > 0:
             twilight.append(d)
-        if int(d[11]) & 4096 > 0:
+        if int(d[13]) & 4096 > 0:
             sun_glint.append(d)
-        if int(d[11]) & 8192 > 0:
+        if int(d[13]) & 8192 > 0:
             snow.append(d)
-        if int(d[11]) & 16384 > 0:
+        if int(d[13]) & 16384 > 0:
             summary_cloud.append(d)
-        if int(d[11]) & 32768 > 0:
+        if int(d[13]) & 32768 > 0:
             summary_pointing.append(d)
 
     coastline = np.array(coastline)
@@ -168,4 +174,71 @@ def surftype_processing(array):
     Input: array of matched pixel information
     Output: array of matched pixel information with processed surface type
     """
-    # FIXME
+
+    # sorting data point into surface type categories using bitwise addition
+    
+    surftype_list=[]
+    
+    for d in array:
+
+        coastline = 0
+        ocean = 0
+        tidal = 0
+        land = 0
+        inland_water = 0
+        unfilled = 0
+        spare1 = 0
+        spare2 = 0
+        cosmetic = 0
+        duplicate = 0
+        day = 0
+        twilight = 0
+        sun_glint = 0
+        snow = 0
+        summary_cloud = 0
+        summary_pointing = 0
+
+        if int(d[13]) & 1 > 0:
+            coastline = 1
+        if int(d[13]) & 2 > 0:
+            ocean = 1
+        if int(d[13]) & 4 > 0:
+            tidal = 1
+        if int(d[13]) & 8 > 0:
+            land = 1
+        if int(d[13]) & 16 > 0:
+            inland_water = 1
+        if int(d[13]) & 32 > 0:
+            unfilled = 1
+        if int(d[13]) & 64 > 0:
+            spare1 = 1
+        if int(d[13]) & 128 > 0:
+            spare2 = 1
+        if int(d[13]) & 256 > 0:
+            cosmetic = 1
+        if int(d[13]) & 512 > 0:
+            duplicate = 1
+        if int(d[13]) & 1024 > 0:
+            day = 1
+        if int(d[13]) & 2048 > 0:
+            twilight = 1
+        if int(d[13]) & 4096 > 0:
+            sun_glint = 1
+        if int(d[13]) & 8192 > 0:
+            snow = 1
+        if int(d[13]) & 16384 > 0:
+            summary_cloud = 1
+        if int(d[13]) & 32768 > 0:
+            summary_pointing = 1
+
+        a = np.array([coastline, ocean, tidal, land, inland_water, unfilled,
+                     spare1, spare2, cosmetic, duplicate, day, twilight,
+                     sun_glint, snow, summary_cloud, summary_pointing])
+
+        surftype_list.append(a)
+
+    np.array(surftype_list)
+
+    new_array = np.column_stack((array[:, :13], surftype_list, array[:, 14:]))
+
+    return new_array

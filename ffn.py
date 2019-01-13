@@ -43,14 +43,19 @@ if os.path.exists('/Users/kenzatazi'):
 
 pixels = sklearn.utils.shuffle(pixel_info)
 
-pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in', 'satellite_zenith_angle',
-                        'solar_zenith_angle', 'latitude_an', 'longitude_an', 'confidence_an', 'Feature_Classification_Flags', 'TimeDiff']]).values
+pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
+                        'S7_in', 'S8_in', 'S9_in', 'satellite_zenith_angle',
+                        'solar_zenith_angle', 'latitude_an', 'longitude_an',
+                        'confidence_an', 'Feature_Classification_Flags',
+                        'TimeDiff']]).values
+
+pixel_values = dp.surftype_processing(pixel_values)
 
 # If dataset is not created:
 
 # prepares data for ffn
-training_data, validation_data, training_truth, validation_truth = dp.prep_data(
-    pixel_values)
+training_data, validation_data, training_truth, validation_truth\
+ = dp.prep_data(pixel_values)
 
 
 # If dataset already created :

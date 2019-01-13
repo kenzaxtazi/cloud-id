@@ -49,7 +49,7 @@ def FalseColour(Sreference, plot=True):
 
     return(rgb)
 
-def MaskComparison(Sreference, mask1, mask2, frametime=1000):
+def MaskComparison(Sreference, mask1, mask2, animate=True, frametime=1000):
     """
     Produce animation to compare the performance of two masks for a given SLSTR image
 
@@ -92,15 +92,26 @@ def MaskComparison(Sreference, mask1, mask2, frametime=1000):
     print("Mask 1 image coverage: " + mask1cov_percent + "%")
     print("Mask 2 image coverage: " + mask2cov_percent + "%")
 
-    fig = plt.figure()
+    if animate is True:
+        fig = plt.figure()
 
-    FC = [plt.imshow(FalseColour(Sreference, plot=False))]
+        FC = [plt.imshow(FalseColour(Sreference, plot=False))]
 
-    im1 = [plt.imshow(mask1, cmap='Blues')]
+        im1 = [plt.imshow(mask1, cmap='Blues')]
 
-    im2 = [plt.imshow(mask2, cmap='Reds')]
+        im2 = [plt.imshow(mask2, cmap='Reds')]
 
-    ims = [FC, im1, FC, im2]
-    ani = animation.ArtistAnimation(fig, ims, interval=1000, blit=True, repeat_delay=0)
-    plt.show()
-    return(ani)
+        ims = [FC, im1, FC, im2]
+        ani = animation.ArtistAnimation(fig, ims, interval=1000, blit=True, repeat_delay=0)
+        plt.show()
+        return(ani)
+    else:
+        plt.imshow(FalseColour(Sreference, plot=True))
+
+        plt.figure()
+        plt.imshow(mask1, cmap='Blues')
+
+        plt.figure()
+        plt.imshow(mask2, cmap='Reds')
+
+        plt.show()

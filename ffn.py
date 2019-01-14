@@ -35,10 +35,7 @@ if os.path.exists('/vols/lhcb/egede/cloud'):
 
 if os.path.exists('/Users/kenzatazi'):
     # Script is running on Kenza's laptop
-    scenes = ['/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T232802_20170531T233102_20170602T032711_0179_018_187_1619_LN2_O_NT_002.SEN3',
-              '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T232802_20170531T233102_20170602T032711_0179_018_187_1619_LN2_O_NT_002.SEN3',
-              '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T214703_20170531T215003_20170602T022521_0180_018_186_1619_LN2_O_NT_002.SEN3',
-              '/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20170531T215003_20170531T215303_20170602T022630_0179_018_186_1800_LN2_O_NT_002.SEN3']
+    scenes = ['/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20180529T113003_20180529T113303_20180530T154711_0179_031_351_1620_LN2_O_NT_003.SEN3']
     pixel_info = PA.PixelLoader("/Users/kenzatazi/Desktop")
 
 pixels = sklearn.utils.shuffle(pixel_info)
@@ -127,14 +124,15 @@ model.fit(training_data, training_truth, n_epoch=2,
           validation_set=(validation_data, validation_truth),
           snapshot_step=10000, show_metric=True, run_id=MODEL_NAME)
 
+
+# resets the tensorflow environment
+reset_default_graph()
+
 # Print accuracy
 acc = me.get_accuracy(model, validation_data, validation_truth)
 
 # apply model to test images to generate masks
 for scn in scenes:
     app.apply_mask(model, scn)
-
-# resets the tensorflow environment
-reset_default_graph()
 
 plt.show()

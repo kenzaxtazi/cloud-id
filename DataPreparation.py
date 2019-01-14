@@ -55,26 +55,12 @@ def prep_data(pixel_info, TimeDiff=False):
 
 def surftype_class(array):
     """
-    Bitwise processing of SLSTR surface data. The different surface types are :
-    1: coastline
-    2: ocean
-    4: tidal
-    8: land
-    16: inland_water
-    32: unfilled
-    64: spare
-    128: spare
-    256: cosmetic
-    512: duplicate
-    1024: day
-    2048: twilight
-    4096: sun_glint
-    8192: snow
-    16384: summary_cloud
-    32768: summary_pointing
-
     Input: array of matched pixel information
-    Output: arrays of matched pixel information for each surface typ
+    Output: arrays of matched pixel information for each surface type
+
+    Assumes that the surftype_processing has alredy been applied the matched
+    pixel information array. This function is specifically used in the
+    acc_stype_test.py script
     """
 
     coastline = []
@@ -94,7 +80,9 @@ def surftype_class(array):
     summary_cloud = []
     summary_pointing = []
 
-    # sorting data point into surface type categories using bitwise addition
+    # sorting data point into surface type categories from the one-hot encoding
+    # added in the previous step
+
     for d in array:
         if int(d[13]) == 1:
             coastline.append(d)
@@ -146,6 +134,9 @@ def surftype_class(array):
     summary_cloud = np.array(summary_cloud)
     summary_pointing = np.array(summary_pointing)
 
+    # the output is ready to be fed into a for loop to calculate model accuracy
+    # as a function of surface type
+
     return [coastline, ocean, tidal, land, inland_water, unfilled, spare1,
             spare2, cosmetic, duplicate, day, twilight, sun_glint, snow,
             summary_cloud, summary_pointing]
@@ -172,7 +163,8 @@ def surftype_processing(array):
     32768: summary_pointing
 
     Input: array of matched pixel information
-    Output: array of matched pixel information with processed surface type
+    Output: array of matched pixel information with processed surface type (one
+    hot encoded)
     """
 
     # sorting data point into surface type categories using bitwise addition
@@ -198,6 +190,9 @@ def surftype_processing(array):
         summary_cloud = 0
         summary_pointing = 0
 
+        # if the bit for coastline is turned on the value of the coastline
+        # variable is set to 1 and so on and so forth for each surface type
+        
         if int(d[13]) & 1 > 0:
             coastline = 1
         if int(d[13]) & 2 > 0:
@@ -238,7 +233,11 @@ def surftype_processing(array):
         surftype_list.append(a)
 
     np.array(surftype_list)
-
+ 
+    # the new array is created by taking the first 13 values of the array
+    # stiching the ones and zeros for the different surface types and then
+    # linking the final two values
+    
     new_array = np.column_stack((array[:, :13], surftype_list, array[:, 14:]))
 
     return new_array

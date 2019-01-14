@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import sklearn.utils
 import DataPreparation as dp
 import tflearn
+import numpy as np
 from tensorflow import reset_default_graph
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
@@ -50,13 +51,10 @@ pixel_info5 = pd.read_pickle("/Users/kenzatazi/Desktop/Jun18P3.pkl")
 # pixel_info6 = pd.read_pickle("/Users/kenzatazi/Desktop/Jul18P3.pkl")
 pixel_info7 = pd.read_pickle("/Users/kenzatazi/Desktop/Aug18P3.pkl")
 pixel_info8 = pd.read_pickle("/Users/kenzatazi/Desktop/Jan18P3.pkl")
-pixel_info9 = pd.read_pickle("/Users/kenzatazi/Desktop/Aug17P3.pkl")
-pixel_info10 = pd.read_pickle("/Users/kenzatazi/Desktop/May17P3.pkl")
 
 
 pixel_info = pd.concat([pixel_info1, pixel_info2, pixel_info3, pixel_info4,
-                        pixel_info5, pixel_info7, pixel_info8,
-                        pixel_info9, pixel_info10], sort=False)
+                        pixel_info5, pixel_info7, pixel_info8], sort=False)
 
 pixels = sklearn.utils.shuffle(pixel_info)
 
@@ -68,12 +66,15 @@ pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
                         'Feature_Classification_Flags',
                         'TimeDiff']]).values
 
+pixel_values = dp.surftype_processing(pixel_values)
 surftype_list = dp.surftype_class(pixel_values)
+
 accuracies = []
+N = []
 
 for surftype in surftype_list:
-    
-    if len(surftype)>0:
+
+    if len(surftype) > 0:
 
                 # If dataset is not created:
 
@@ -152,11 +153,11 @@ for surftype in surftype_list:
 
         # resets the tensorflow environment
         reset_default_graph()
-
-        plt.show()
+        N.append(len(validation_data))
 
     else:
         accuracies.append(0)
+        N.append(0)
 
 
 plt.figure('Accuracy vs surface type')
@@ -168,5 +169,10 @@ plt.bar(['coastline', 'ocean', 'tidal', 'land', 'inland_water', 'unfilled',
         accuracies, width=0.5, align='center', color='honeydew',
         edgecolor='palegreen')
 plt.xticks(rotation=90)
+plt.errorbar(['coastline', 'ocean', 'tidal', 'land', 'inland_water',
+              'unfilled', 'spare1', 'spare2', 'cosmetic', 'duplicate', 'day',
+              'twilight', 'sun_glint', 'snow', 'summary_cloud',
+              'summary_pointing'], accuracies,
+             yerr=(np.array(accuracies)/np.array(N))**(0.5), ls='none')
 
 plt.show()

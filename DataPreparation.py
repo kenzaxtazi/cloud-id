@@ -233,11 +233,15 @@ def surftype_processing(array):
         surftype_list.append(a)
 
     np.array(surftype_list)
- 
+
     # the new array is created by taking the first 13 values of the array
     # stiching the ones and zeros for the different surface types and then
     # linking the final two values
-    
-    new_array = np.column_stack((array[:, :13], surftype_list, array[:, 14:]))
+
+    if len(array) > 14:
+        new_array = np.column_stack((array[:, :13], surftype_list,
+                                     array[:, 14:]))
+    else:
+        new_array = np.column_stack((array[:, :13], surftype_list))
 
     return new_array

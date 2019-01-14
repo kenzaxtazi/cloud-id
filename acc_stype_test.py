@@ -76,7 +76,7 @@ for surftype in surftype_list:
 
     if len(surftype) > 0:
 
-                # If dataset is not created:
+        # If dataset is not created:
 
         # prepares data for ffn
         training_data, validation_data, training_truth, \
@@ -150,7 +150,7 @@ for surftype in surftype_list:
 
         # Print accuracy
         acc = me.get_accuracy(model, validation_data, validation_truth)
-
+        accuracies.append(acc)
         # resets the tensorflow environment
         reset_default_graph()
         N.append(len(validation_data))
@@ -173,6 +173,6 @@ plt.errorbar(['coastline', 'ocean', 'tidal', 'land', 'inland_water',
               'unfilled', 'spare1', 'spare2', 'cosmetic', 'duplicate', 'day',
               'twilight', 'sun_glint', 'snow', 'summary_cloud',
               'summary_pointing'], accuracies,
-             yerr=(np.array(accuracies)/np.array(N))**(0.5), ls='none')
+             yerr=(np.array(accuracies)/np.array(len(surftype)))**(0.5), ls='none')
 
 plt.show()

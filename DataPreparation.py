@@ -96,37 +96,37 @@ def surftype_class(array):
 
     # sorting data point into surface type categories using bitwise addition
     for d in array:
-        if int(d[13]) & 1 > 0:
+        if int(d[13]) == 1:
             coastline.append(d)
-        if int(d[13]) & 2 > 0:
+        if int(d[14]) == 1:
             ocean.append(d)
-        if int(d[13]) & 4 > 0:
+        if int(d[15]) == 1:
             tidal.append(d)
-        if int(d[13]) & 8 > 0:
+        if int(d[16]) == 1:
             land.append(d)
-        if int(d[13]) & 16 > 0:
+        if int(d[17]) == 1:
             inland_water.append(d)
-        if int(d[13]) & 32 > 0:
+        if int(d[18]) == 1:
             unfilled.append(d)
-        if int(d[13]) & 64 > 0:
+        if int(d[19]) == 1:
             spare1.append(d)
-        if int(d[13]) & 128 > 0:
+        if int(d[20]) == 1:
             spare2.append(d)
-        if int(d[13]) & 256 > 0:
+        if int(d[21]) == 1:
             cosmetic.append(d)
-        if int(d[13]) & 512 > 0:
+        if int(d[22]) == 1:
             duplicate.append(d)
-        if int(d[13]) & 1024 > 0:
+        if int(d[23]) == 1:
             day.append(d)
-        if int(d[13]) & 2048 > 0:
+        if int(d[24]) == 1:
             twilight.append(d)
-        if int(d[13]) & 4096 > 0:
+        if int(d[25]) == 1:
             sun_glint.append(d)
-        if int(d[13]) & 8192 > 0:
+        if int(d[26]) == 1:
             snow.append(d)
-        if int(d[13]) & 16384 > 0:
+        if int(d[27]) == 1:
             summary_cloud.append(d)
-        if int(d[13]) & 32768 > 0:
+        if int(d[28]) == 1:
             summary_pointing.append(d)
 
     coastline = np.array(coastline)
@@ -176,9 +176,9 @@ def surftype_processing(array):
     """
 
     # sorting data point into surface type categories using bitwise addition
-    
-    surftype_list=[]
-    
+
+    surftype_list = []
+
     for d in array:
 
         coastline = 0

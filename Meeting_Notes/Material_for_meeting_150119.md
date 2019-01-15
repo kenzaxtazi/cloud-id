@@ -4,11 +4,7 @@
 * added error bars 
 * integrated surface type data into model 
 
-![pic1](/Images/acc_stype_test.py.png)
-
-![pic2](/Images/acc_sza_test.png)
-
-![pic3](/Images/acc_time_test.png)
+![pic1](/Images/acc_stype_test.png)
 
 ### Tom’s completed actions
 * Updated to latest  satpy version

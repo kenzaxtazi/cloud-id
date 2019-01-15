@@ -221,8 +221,9 @@ def surftype_processing(array):
 
     for d in array:
         confidence = d[13]
-        bitmask = format(int(confidence), '#18b')
-        a = np.array([int(i) for i in bitmask[2:]])
+        bitmask = format(int(confidence), '#018b')
+        a = np.array([i for i in bitmask[2:]])
+        a = a.astype(int)
         surftype_list.append(a)
 
     surftype_list = np.array(surftype_list)

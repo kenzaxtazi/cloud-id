@@ -41,17 +41,19 @@ def getinputs(Sreference, num_inputs=13):
 
     if num_inputs == 13:
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                        S8, S9, salza, solza, lat, lon])
+                           S8, S9, salza, solza, lat, lon])
         inputs = np.swapaxes(inputs, 0, 2)
         inputs = inputs.reshape((-1, 1, num_inputs, 1), order='F')
         return(inputs)
 
-    if num_inputs == 14:
+    if num_inputs == 23:
         scn.load(['confidence_an'])
         confidence = np.nan_to_num(scn['confidence_an'].values)
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                        S8, S9, salza, solza, lat, lon, confidence])
-        inputs = surftype_processing(inputs)
+                           S8, S9, salza, solza, lat, lon])
+        confidence_flags = bits_from_int(confidence)
+
+        inputs = np.vstack((inputs, confidence_flags))
         inputs = np.swapaxes(inputs, 0, 2)
         inputs = inputs.reshape((-1, 1, num_inputs, 1), order='F')
 
@@ -59,7 +61,6 @@ def getinputs(Sreference, num_inputs=13):
 
 
 def prep_data(pixel_info, TimeDiff=False):
-
     """
     Prepares data for matched SLSTR and CALIOP pixels into training data,
     validation data, training truth data, validation truth data.
@@ -190,6 +191,23 @@ def surftype_class(array):
             summary_cloud, summary_pointing]
 
 
+def bits_from_int(array):
+    array = array.astype(int)
+    coastline = array & 1
+    ocean = array & 2
+    tidal = array & 4
+    land = array & 8
+    inland_water = array & 16
+    cosmetic = array & 256
+    duplicate = array & 512
+    day = array & 1024
+    twilight = array & 2048
+    snow = array & 8192
+    out = np.array([coastline, ocean, tidal, land, inland_water, cosmetic, duplicate, day, twilight, snow])
+    out = (out > 0).astype(int)
+    return(out)
+
+
 def surftype_processing(array):
     """
     Bitwise processing of SLSTR surface data. The different surface types are :
@@ -198,17 +216,17 @@ def surftype_processing(array):
     4: tidal
     8: land
     16: inland_water
-    32: unfilled
-    64: spare
-    128: spare
+    32: unfilled            -
+    64: spare               -
+    128: spare              -
     256: cosmetic
     512: duplicate
     1024: day
     2048: twilight
-    4096: sun_glint
+    4096: sun_glint         -
     8192: snow
-    16384: summary_cloud
-    32768: summary_pointing
+    16384: summary_cloud    -
+    32768: summary_pointing -
 
     Input: array of matched pixel information
     Output: array of matched pixel information with processed surface type (one
@@ -222,7 +240,8 @@ def surftype_processing(array):
     for d in array:
         confidence = d[13]
         bitmask = format(int(confidence), '#018b')
-        a = np.array([i for i in bitmask[2:]])
+        desired_bitmask = bitmask[4:5] + bitmask[6:10] + bitmask[13:]
+        a = np.array([i for i in desired_bitmask])
         a = a.astype(int)
         surftype_list.append(a)
 

@@ -39,6 +39,9 @@ if os.path.exists('/Users/kenzatazi'):
     scenes = ['/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20180529T113003_20180529T113303_20180530T154711_0179_031_351_1620_LN2_O_NT_003.SEN3']
     pixel_info = PA.PixelLoader("/Users/kenzatazi/Desktop")
 
+if os.path.exists(r"D:\SatelliteData\SLSTR"):
+    pixel_info = PA.PixelLoader(r"D:\SatelliteData\SLSTR\Pixels2")
+
 pixels = sklearn.utils.shuffle(pixel_info)
 
 pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
@@ -72,7 +75,7 @@ validation_truth =np.load('validation_truth.npy')
 
 LR = 1e-3  # learning rate
 
-timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 MODEL_NAME = 'ffn_withancillarydata_' + timestamp
 
 para_num = len(pixel_values[0, :-2])

@@ -17,6 +17,17 @@ from pyhdf.SD import SD, SDC
 import matplotlib.pyplot as plt
 import numpy as np
 from satpy import Scene
+import random as rdm
+
+def get_random_SLSTR():
+    if os.path.exists('/vols/lhcb/egede/cloud'):
+        q = os.listdir('/vols/lhcb/egede/cloud/SLSTR/2018')
+        random_month = rdm.choice(q)
+        os.chdir('/vols/lhcb/egede/cloud/SLSTR/2018/' + random_month)
+        w = os.listdir()
+        random_file = rdm.choice(w)
+    return('/vols/lhcb/egede/cloud/SLSTR/2018/' + random_month + '/' + random_file)
+
 
 
 def upscale_repeat(x, h=2, w=2):

@@ -56,7 +56,7 @@ pixel_values = dp.surftype_processing(pixel_values)
 
 # prepares data for ffn
 training_data, validation_data, training_truth, validation_truth\
- = dp.prep_data(pixel_values)
+ = dp.prep_data(pixel_values[:10000])
 
 
 # If dataset already created :
@@ -108,7 +108,7 @@ dropout4 = dropout(layer4, 0.8)
 
 # layer 5 this layer needs to spit out the number of categories
 # we are looking for.
-softmax = fully_connected(dropout4, 2, activation='softmax')
+softmax = fully_connected(dropout4, 1, activation='softmax')
 
 # gives the paramaters to optimise the network
 network = regression(softmax, optimizer='Adam', learning_rate=LR,
@@ -132,14 +132,16 @@ model.fit(training_data, training_truth, n_epoch=2,
           snapshot_step=10000, show_metric=True, run_id=MODEL_NAME)
 
 
-# resets the tensorflow environment
-reset_default_graph()
-
 # Print accuracy
 acc = me.get_accuracy(model, validation_data, validation_truth)
 
 # apply model to test images to generate masks
 for scn in scenes:
     app.apply_mask(model, scn)
+
+
+# resets the tensorflow environment
+reset_default_graph()
+
 
 plt.show()

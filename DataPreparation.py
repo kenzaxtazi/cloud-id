@@ -40,8 +40,7 @@ def getinputs(Sreference, num_inputs=13):
     lon = np.nan_to_num(scn['longitude_an'].values)
 
     if num_inputs == 13:
-        inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                           S8, S9, salza, solza, lat, lon])
+        inputs = np.array([S1, S2, S3, S4, S5, S6, S7, S8, S9, salza, solza, lat, lon])
         inputs = np.swapaxes(inputs, 0, 2)
         inputs = inputs.reshape((-1, 1, num_inputs, 1), order='F')
         return(inputs)
@@ -95,7 +94,7 @@ def prep_data(pixel_info, TimeDiff=False, bayesian=False):
         training_data = np.array(data[:-pct])    # take all but the 15% last
         validation_data = np.array(data[-pct:])   # take the last 15% of pixels
         training_truth = np.array(truth_oh[:-pct])
-        validation_truth = np.array(truth_oh[-pct])
+        validation_truth = np.array(truth_oh[-pct:])
 
         return training_data, validation_data, training_truth, validation_truth
 

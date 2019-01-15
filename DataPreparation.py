@@ -50,7 +50,7 @@ def getinputs(Sreference, num_inputs=13):
         scn.load(['confidence_an'])
         confidence = np.nan_to_num(scn['confidence_an'].values)
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                        S8, S9, salza, solza, lat, lon, confidence])
+                           S8, S9, salza, solza, lat, lon, confidence])
         inputs = surftype_processing(inputs)
         inputs = np.swapaxes(inputs, 0, 2)
         inputs = inputs.reshape((-1, 1, num_inputs, 1), order='F')
@@ -58,12 +58,12 @@ def getinputs(Sreference, num_inputs=13):
         return(inputs)
 
 
-def prep_data(pixel_info, TimeDiff=False):
+def prep_data(pixel_info, TimeDiff=False, bayesian=False):
 
     """
     Prepares data for matched SLSTR and CALIOP pixels into training data,
-    validation data, training truth data, validation truth data.
-
+    validation data, training truth data, validation truth data and bayes
+    values for the validation set only.
     """
 
     conv_pixels = pixel_info.astype(float)
@@ -88,17 +88,29 @@ def prep_data(pixel_info, TimeDiff=False):
             truth_oh.append([0., 1.])    # not cloud
 
     pct = int(len(data)*.15)
-    training_data = np.array(data[:-pct])    # take all but the 15% last
-    validation_data = np.array(data[-pct:])    # take the last 15% of pixels
-    training_truth = np.array(truth_oh[:-pct])
-    validation_truth = np.array(truth_oh[-pct:])
+
+    if bayesian is False:
+        training_data = np.array(data[:-pct])    # take all but the 15% last
+        validation_data = np.array(data[-pct:])   # take the last 15% of pixels
+        training_truth = np.array(truth_oh[:-pct])
+        validation_truth = np.array(truth_oh[-pct])
+
+        return training_data, validation_data, training_truth, validation_truth
+
+    if bayesian is True:
+        training_data = np.array(data[:-pct, :-1])  # take all but the 15% last
+        validation_data = np.array(data[-pct:, :-1])   # take the last 15%
+        training_truth = np.array(truth_oh[:-pct, :-1])
+        validation_truth = np.array(truth_oh[-pct:, :-1])
+        bayes_values = np.array(data[-pct:, -1])
+
+        return training_data, validation_data, training_truth,\
+            validation_truth, bayes_values
 
     np.save('training_data.npy', training_data)
     np.save('validation_data.npy', validation_data)
     np.save('training_truth.npy', training_truth)
     np.save('validation_truth.npy', validation_truth)
-
-    return training_data, validation_data, training_truth, validation_truth
 
 
 def surftype_class(array):

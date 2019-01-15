@@ -11,7 +11,15 @@
 ![pic3](/Images/acc_time_test.png)
 
 ### Tom’s completed actions
-
+* Updated to latest  satpy version
+  * Problems exist with yamlreader and slstr_l1b yaml files
+  * yaml file is being corrected with PR
+* Improved visualisations
+* Restructured repo 
+* Added functionality to easily save / load models
+* Made functions to characterise saved pixels
+![coastlines](/Images/Coastlines.png)
+![PixelSpots](/Images/PixelSpots.png)
 
 ### Common completed actions
 * update scripts for new satpy version 

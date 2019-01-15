@@ -6,10 +6,6 @@
 
 ![pic1](/Images/acc_stype_test.py.png)
 
-![pic2](/Images/acc_sza_test.png)
-
-![pic3](/Images/acc_time_test.png)
-
 ### Tom’s completed actions
 * Updated to latest  satpy version
   * Problems exist with yamlreader and slstr_l1b yaml files

@@ -9,6 +9,80 @@ Created on Sun Jan  6 17:29:23 2019
 import numpy as np
 import DataLoader as DL
 
+def get13inputs(Sreference):
+    """
+    For a given SLSTR file, produce a correctly formatted input array for tflearn model
+    """
+    if type(Sreference) == str:
+        scn = DL.scene_loader(Sreference)
+    else:
+        scn = Sreference
+
+    scn.load(['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in',
+              'S8_in', 'S9_in', 'bayes_an', 'bayes_in', 'cloud_an',
+              'latitude_an', 'longitude_an', 'satellite_zenith_angle',
+              'solar_zenith_angle'])
+
+    S1 = np.nan_to_num(scn['S1_an'].values)
+    S2 = np.nan_to_num(scn['S2_an'].values)
+    S3 = np.nan_to_num(scn['S3_an'].values)
+    S4 = np.nan_to_num(scn['S4_an'].values)
+    S5 = np.nan_to_num(scn['S5_an'].values)
+    S6 = np.nan_to_num(scn['S6_an'].values)
+    S7 = DL.upscale_repeat(np.nan_to_num(scn['S7_in'].values))
+    S8 = DL.upscale_repeat(np.nan_to_num(scn['S8_in'].values))
+    S9 = DL.upscale_repeat(np.nan_to_num(scn['S9_in'].values))
+    salza = DL.upscale_repeat(np.nan_to_num(
+        scn['satellite_zenith_angle'].values))
+    solza = DL.upscale_repeat(np.nan_to_num(scn['solar_zenith_angle'].values))
+    lat = np.nan_to_num(scn['latitude_an'].values)
+    lon = np.nan_to_num(scn['longitude_an'].values)
+
+    inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
+                       S8, S9, salza, solza, lat, lon])
+    inputs = np.swapaxes(inputs, 0, 2)
+    inputs = inputs.reshape((-1, 1, len(inputs), 1), order='F')
+
+    return(inputs)
+
+def get14inputs(Sreference):
+    """
+    For a given SLSTR file, produce a correctly formatted input array for tflearn model
+    """
+    if type(Sreference) == str:
+        scn = DL.scene_loader(Sreference)
+    else:
+        scn = Sreference
+
+    scn.load(['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in',
+              'S8_in', 'S9_in', 'bayes_an', 'bayes_in', 'cloud_an',
+              'latitude_an', 'longitude_an', 'satellite_zenith_angle',
+              'solar_zenith_angle', 'confidence_an'])
+
+    S1 = np.nan_to_num(scn['S1_an'].values)
+    S2 = np.nan_to_num(scn['S2_an'].values)
+    S3 = np.nan_to_num(scn['S3_an'].values)
+    S4 = np.nan_to_num(scn['S4_an'].values)
+    S5 = np.nan_to_num(scn['S5_an'].values)
+    S6 = np.nan_to_num(scn['S6_an'].values)
+    S7 = DL.upscale_repeat(np.nan_to_num(scn['S7_in'].values))
+    S8 = DL.upscale_repeat(np.nan_to_num(scn['S8_in'].values))
+    S9 = DL.upscale_repeat(np.nan_to_num(scn['S9_in'].values))
+    salza = DL.upscale_repeat(np.nan_to_num(
+        scn['satellite_zenith_angle'].values))
+    solza = DL.upscale_repeat(np.nan_to_num(scn['solar_zenith_angle'].values))
+    lat = np.nan_to_num(scn['latitude_an'].values)
+    lon = np.nan_to_num(scn['longitude_an'].values)
+    confidence = np.nan_to_num(scn['confidence_an'].values)
+
+    inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
+                       S8, S9, salza, solza, lat, lon, confidence])
+    inputs = surftype_processing(inputs)
+    inputs = np.swapaxes(inputs, 0, 2)
+    inputs = inputs.reshape((-1, 1, len(inputs), 1), order='F')
+
+    return(inputs)
+
 
 def prep_data(pixel_info, TimeDiff=False):
 
@@ -172,64 +246,9 @@ def surftype_processing(array):
     surftype_list = []
 
     for d in array:
-
-        coastline = 0
-        ocean = 0
-        tidal = 0
-        land = 0
-        inland_water = 0
-        unfilled = 0
-        spare1 = 0
-        spare2 = 0
-        cosmetic = 0
-        duplicate = 0
-        day = 0
-        twilight = 0
-        sun_glint = 0
-        snow = 0
-        summary_cloud = 0
-        summary_pointing = 0
-
-        # if the bit for coastline is turned on the value of the coastline
-        # variable is set to 1 and so on and so forth for each surface type
-        
-        if int(d[13]) & 1 > 0:
-            coastline = 1
-        if int(d[13]) & 2 > 0:
-            ocean = 1
-        if int(d[13]) & 4 > 0:
-            tidal = 1
-        if int(d[13]) & 8 > 0:
-            land = 1
-        if int(d[13]) & 16 > 0:
-            inland_water = 1
-        if int(d[13]) & 32 > 0:
-            unfilled = 1
-        if int(d[13]) & 64 > 0:
-            spare1 = 1
-        if int(d[13]) & 128 > 0:
-            spare2 = 1
-        if int(d[13]) & 256 > 0:
-            cosmetic = 1
-        if int(d[13]) & 512 > 0:
-            duplicate = 1
-        if int(d[13]) & 1024 > 0:
-            day = 1
-        if int(d[13]) & 2048 > 0:
-            twilight = 1
-        if int(d[13]) & 4096 > 0:
-            sun_glint = 1
-        if int(d[13]) & 8192 > 0:
-            snow = 1
-        if int(d[13]) & 16384 > 0:
-            summary_cloud = 1
-        if int(d[13]) & 32768 > 0:
-            summary_pointing = 1
-
-        a = np.array([coastline, ocean, tidal, land, inland_water, unfilled,
-                     spare1, spare2, cosmetic, duplicate, day, twilight,
-                     sun_glint, snow, summary_cloud, summary_pointing])
-
+        confidence = d[13]
+        bitmask = format(confidence, '#18b')
+        a = np.array([int(i) for i in bitmask[2:]])
         surftype_list.append(a)
 
     np.array(surftype_list)

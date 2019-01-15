@@ -43,7 +43,7 @@ def getinputs(Sreference, num_inputs=13):
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
                         S8, S9, salza, solza, lat, lon])
         inputs = np.swapaxes(inputs, 0, 2)
-        inputs = inputs.reshape((-1, 1, len(inputs), 1), order='F')
+        inputs = inputs.reshape((-1, 1, num_inputs, 1), order='F')
         return(inputs)
 
     if num_inputs == 14:
@@ -53,7 +53,7 @@ def getinputs(Sreference, num_inputs=13):
                         S8, S9, salza, solza, lat, lon, confidence])
         inputs = surftype_processing(inputs)
         inputs = np.swapaxes(inputs, 0, 2)
-        inputs = inputs.reshape((-1, 1, len(inputs), 1), order='F')
+        inputs = inputs.reshape((-1, 1, num_inputs, 1), order='F')
 
         return(inputs)
 

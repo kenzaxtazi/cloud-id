@@ -22,6 +22,7 @@ import DataPreparation as dp
 import ModelApplication as app
 import ModelEvaluation as me
 import PixelAnalysis as PA
+import datetime
 
 # Pixel Loading
 
@@ -70,7 +71,10 @@ validation_truth =np.load('validation_truth.npy')
 # Creating network and setting hypermarameters for model
 
 LR = 1e-3  # learning rate
-MODEL_NAME = 'ffn_withancillarydata_' + str(LR) + '_feedforward'
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+MODEL_NAME = 'ffn_withancillarydata_' + timestamp
+
 para_num = len(pixel_values[0, :-2])
 
 # reshape data to pit into network

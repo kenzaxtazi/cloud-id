@@ -16,7 +16,7 @@ import numpy as np
 from tensorflow import reset_default_graph
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
-
+import datetime
 
 # Training data files on HEP server
 '''
@@ -95,7 +95,8 @@ for surftype in surftype_list:
         # Creating network and setting hypermarameters for model
 
         LR = 1e-3  # learning rate
-        MODEL_NAME = 'ffn_withancillarydata_' + str(LR) + '_feedforward'
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+        MODEL_NAME = 'ffn_withancillarydata_' + timestamp
         para_num = len(pixel_values[0, :-2])
 
         # reshape data to pit into network

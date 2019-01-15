@@ -225,7 +225,7 @@ def surftype_processing(array):
         a = np.array([int(i) for i in bitmask[2:]])
         surftype_list.append(a)
 
-    np.array(surftype_list)
+    surftype_list = np.array(surftype_list)
 
     # the new array is created by taking the first 13 values of the array
     # stiching the ones and zeros for the different surface types and then

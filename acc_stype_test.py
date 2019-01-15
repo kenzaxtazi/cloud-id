@@ -95,7 +95,7 @@ for surftype in surftype_list:
         # Creating network and setting hypermarameters for model
 
         LR = 1e-3  # learning rate
-        MODEL_NAME = 'ffn_withancillarydata'.format(LR, 'feedforward')
+        MODEL_NAME = 'ffn_withancillarydata_' + str(LR) + '_feedforward'
         para_num = len(pixel_values[0, :-2])
 
         # reshape data to pit into network

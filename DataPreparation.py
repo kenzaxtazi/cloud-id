@@ -9,7 +9,8 @@ Created on Sun Jan  6 17:29:23 2019
 import numpy as np
 import DataLoader as DL
 
-def get13inputs(Sreference):
+
+def getinputs(Sreference, num_inputs=13):
     """
     For a given SLSTR file, produce a correctly formatted input array for tflearn model
     """
@@ -38,50 +39,23 @@ def get13inputs(Sreference):
     lat = np.nan_to_num(scn['latitude_an'].values)
     lon = np.nan_to_num(scn['longitude_an'].values)
 
-    inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                       S8, S9, salza, solza, lat, lon])
-    inputs = np.swapaxes(inputs, 0, 2)
-    inputs = inputs.reshape((-1, 1, len(inputs), 1), order='F')
+    if num_inputs == 13:
+        inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
+                        S8, S9, salza, solza, lat, lon])
+        inputs = np.swapaxes(inputs, 0, 2)
+        inputs = inputs.reshape((-1, 1, len(inputs), 1), order='F')
+        return(inputs)
 
-    return(inputs)
+    if num_inputs == 14:
+        scn.load(['confidence_an'])
+        confidence = np.nan_to_num(scn['confidence_an'].values)
+        inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
+                        S8, S9, salza, solza, lat, lon, confidence])
+        inputs = surftype_processing(inputs)
+        inputs = np.swapaxes(inputs, 0, 2)
+        inputs = inputs.reshape((-1, 1, len(inputs), 1), order='F')
 
-def get14inputs(Sreference):
-    """
-    For a given SLSTR file, produce a correctly formatted input array for tflearn model
-    """
-    if type(Sreference) == str:
-        scn = DL.scene_loader(Sreference)
-    else:
-        scn = Sreference
-
-    scn.load(['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in',
-              'S8_in', 'S9_in', 'bayes_an', 'bayes_in', 'cloud_an',
-              'latitude_an', 'longitude_an', 'satellite_zenith_angle',
-              'solar_zenith_angle', 'confidence_an'])
-
-    S1 = np.nan_to_num(scn['S1_an'].values)
-    S2 = np.nan_to_num(scn['S2_an'].values)
-    S3 = np.nan_to_num(scn['S3_an'].values)
-    S4 = np.nan_to_num(scn['S4_an'].values)
-    S5 = np.nan_to_num(scn['S5_an'].values)
-    S6 = np.nan_to_num(scn['S6_an'].values)
-    S7 = DL.upscale_repeat(np.nan_to_num(scn['S7_in'].values))
-    S8 = DL.upscale_repeat(np.nan_to_num(scn['S8_in'].values))
-    S9 = DL.upscale_repeat(np.nan_to_num(scn['S9_in'].values))
-    salza = DL.upscale_repeat(np.nan_to_num(
-        scn['satellite_zenith_angle'].values))
-    solza = DL.upscale_repeat(np.nan_to_num(scn['solar_zenith_angle'].values))
-    lat = np.nan_to_num(scn['latitude_an'].values)
-    lon = np.nan_to_num(scn['longitude_an'].values)
-    confidence = np.nan_to_num(scn['confidence_an'].values)
-
-    inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                       S8, S9, salza, solza, lat, lon, confidence])
-    inputs = surftype_processing(inputs)
-    inputs = np.swapaxes(inputs, 0, 2)
-    inputs = inputs.reshape((-1, 1, len(inputs), 1), order='F')
-
-    return(inputs)
+        return(inputs)
 
 
 def prep_data(pixel_info, TimeDiff=False):

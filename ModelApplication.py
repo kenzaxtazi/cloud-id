@@ -34,10 +34,7 @@ def apply_mask(model, Sfile, num_inputs=13):
     mask: array
         Mask predicted by model for Sfile
     """
-    if num_inputs == 13:
-        inputs = dp.get13inputs(Sfile)
-    elif num_inputs == 14:
-        inputs = dp.get14inputs(Sfile)
+    inputs = dp.getinputs(Sfile, num_inputs)
 
     label = model.predict_label(inputs)
 

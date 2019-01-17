@@ -39,24 +39,19 @@ if os.path.exists('/Users/kenzatazi'):
     scenes = ['/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20180529T113003_20180529T113303_20180530T154711_0179_031_351_1620_LN2_O_NT_003.SEN3']
     pixel_info = PA.PixelLoader("/Users/kenzatazi/Desktop")
 
-if os.path.exists(r"D:\SatelliteData\SLSTR"):
-    pixel_info = PA.PixelLoader(r"D:\SatelliteData\SLSTR\Pixels2")
-
-pixels = sklearn.utils.shuffle(pixel_info)
 
 pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
                         'S7_in', 'S8_in', 'S9_in', 'satellite_zenith_angle',
                         'solar_zenith_angle', 'latitude_an', 'longitude_an',
-                        'confidence_an', 'Feature_Classification_Flags',
-                        'TimeDiff']]).values
+                        'confidence_an', 'bayes_in',
+                        'Feature_Classification_Flags','TimeDiff']]).values
 
-pixel_values = dp.surftype_processing(pixel_values)
 
 # If dataset is not created:
 
 # prepares data for ffn
-training_data, validation_data, training_truth, validation_truth\
- = dp.prep_data(pixel_values[:10000])
+training_data, validation_data, training_truth, validation_truth,\
+ = dp.prep_data(pixel_values)
 
 
 # If dataset already created :
@@ -67,15 +62,13 @@ training_truth = np.load('training_truth.npy')
 validation_truth =np.load('validation_truth.npy')
 '''
 
-
 # MACHINE LEARNING MODEL
-
 
 # Creating network and setting hypermarameters for model
 
 LR = 1e-3  # learning rate
 
-timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 MODEL_NAME = 'ffn_withancillarydata_' + timestamp
 
 para_num = len(pixel_values[0, :-2])

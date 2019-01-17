@@ -59,59 +59,76 @@ def getinputs(Sreference, num_inputs=13):
         return(inputs)
 
 
-def prep_data(pixel_info, TimeDiff=False, bayesian=False):
+def prep_data(pixel_info, bayesian=False):
 
     """
     Prepares data for matched SLSTR and CALIOP pixels into training data,
-    validation data, training truth data, validation truth data and bayes
-    values for the validation set only.
+    validation data, training truth data, validation truth data.
+    Optionally bayes values for the validation set only.
     """
 
     conv_pixels = pixel_info.astype(float)
     pix = np.nan_to_num(conv_pixels)
 
-    if TimeDiff is False:
+    # turns surfacetype bitmask into one-hot encoding
+    pix = surftype_processing(pix)
 
-        data = pix[:, :-2]
-        truth_flags = pix[:, -2]
+    # seperate validation from training data
+    pct = int(len(pix)*.15)
+    training = pix[:-pct]   # take all but the 15% last
+    validation = pix[-pct:]   # take the last 15% of pixels
 
-    if TimeDiff is True:
-        data = np.column_stack((pix[:, :-2], pix[:, -1]))
-        truth_flags = pix[:, -2]
-
-    truth_oh = []
-
-    for d in truth_flags:
-        i = DL.vfm_feature_flags(int(d))
-        if i == 2:
-            truth_oh.append([1., 0.])    # cloud
-        if i != 2:
-            truth_oh.append([0., 1.])    # not cloud
-
-    pct = int(len(data)*.15)
+    # shuffle
+    np.random.shuffle(training)
+    np.random.shuffle(validation)
 
     if bayesian is False:
-        training_data = np.array(data[:-pct])    # take all but the 15% last
-        validation_data = np.array(data[-pct:])   # take the last 15% of pixels
-        training_truth = np.array(truth_oh[:-pct])
-        validation_truth = np.array(truth_oh[-pct:])
+        training_data = training[:, :-2]
+        training_truth_flags = training[:, -2]
+        validation_data = validation[:, :-2]
+        validation_truth_flags = validation[:, -2]
 
+    if bayesian is True:
+        training_data = training[:, :-3]
+        training_truth_flags = training[:, -2]
+        validation_data = validation[:, :-3]
+        validation_truth_flags = validation[:, -2]
+        bayes_values = validation[:, -3]
+
+    training_truth = []
+    validation_truth = []
+
+    for d in training_truth_flags:
+        i = DL.vfm_feature_flags(int(d))
+        if i == 2:
+            training_truth.append([1., 0.])    # cloud
+        if i != 2:
+            training_truth.append([0., 1.])    # not cloud
+
+    for d in validation_truth_flags:
+        i = DL.vfm_feature_flags(int(d))
+        if i == 2:
+            validation_truth.append([1., 0.])    # cloud
+        if i != 2:
+            validation_truth.append([0., 1.])    # not cloud
+
+    training_truth = np.array(training_truth)
+    validation_truth = np.array(validation_truth)
+
+    if bayesian is False:
         return training_data, validation_data, training_truth, validation_truth
 
     if bayesian is True:
-        training_data = np.array(data[:-pct, :-1])  # take all but the 15% last
-        validation_data = np.array(data[-pct:, :-1])   # take the last 15%
-        training_truth = np.array(truth_oh[:-pct, :-1])
-        validation_truth = np.array(truth_oh[-pct:, :-1])
-        bayes_values = np.array(data[-pct:, -1])
-
         return training_data, validation_data, training_truth,\
             validation_truth, bayes_values
 
-    np.save('training_data.npy', training_data)
-    np.save('validation_data.npy', validation_data)
-    np.save('training_truth.npy', training_truth)
-    np.save('validation_truth.npy', validation_truth)
+    # saving the data
+
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+    np.save('training_data' + timestamp + '.npy', training_data)
+    np.save('validation_data' + timestamp + '.npy', validation_data)
+    np.save('training_truth' + timestamp + '.npy', training_truth)
+    np.save('validation_truth' + timestamp + '.npy', validation_truth)
 
 
 def surftype_class(array):
@@ -214,8 +231,10 @@ def bits_from_int(array):
     duplicate = array & 512
     day = array & 1024
     twilight = array & 2048
+    sun_glint = array & 4096
     snow = array & 8192
-    out = np.array([coastline, ocean, tidal, land, inland_water, cosmetic, duplicate, day, twilight, snow])
+    out = np.array([coastline, ocean, tidal, land, inland_water, cosmetic,
+                    duplicate, day, twilight, sun_glint, snow])
     out = (out > 0).astype(int)
     return(out)
 
@@ -235,7 +254,7 @@ def surftype_processing(array):
     512: duplicate
     1024: day
     2048: twilight
-    4096: sun_glint         -
+    4096: sun_glint
     8192: snow
     16384: summary_cloud    -
     32768: summary_pointing -

@@ -127,7 +127,8 @@ def prep_data(pixel_info, bayesian=False, cnn=False):
         return_list.append([bayes_values])
 
     # saving the data
-    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     np.save('training_data' + timestamp + '.npy', training_data)
     np.save('validation_data' + timestamp + '.npy', validation_data)
     np.save('training_truth' + timestamp + '.npy', training_truth)

@@ -10,7 +10,7 @@ import numpy as np
 import DataPreparation as dp
 
 
-def apply_mask(model, Sfile, num_inputs=13, binary=True, probability=False):
+def apply_mask(model, Sfile, num_inputs=24, binary=True, probability=False):
     """
     Function to produce predicted mask for given model and SLSTR file.
 

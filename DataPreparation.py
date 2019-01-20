@@ -13,7 +13,8 @@ import datetime
 
 def getinputs(Sreference, num_inputs=13):
     """
-    For a given SLSTR file, produce a correctly formatted input array for tflearn model
+    For a given SLSTR file, produce a correctly formatted input array for
+    tflearn model
     """
     if type(Sreference) == str:
         scn = DL.scene_loader(Sreference)
@@ -41,12 +42,13 @@ def getinputs(Sreference, num_inputs=13):
     lon = np.nan_to_num(scn['longitude_an'].values)
 
     if num_inputs == 13:
-        inputs = np.array([S1, S2, S3, S4, S5, S6, S7, S8, S9, salza, solza, lat, lon])
+        inputs = np.array([S1, S2, S3, S4, S5, S6, S7, S8, S9, salza,
+                           solza, lat, lon])
         inputs = np.swapaxes(inputs, 0, 2)
         inputs = inputs.reshape((-1, 1, num_inputs, 1), order='F')
         return(inputs)
 
-    if num_inputs == 23:
+    if num_inputs == 24:
         scn.load(['confidence_an'])
         confidence = np.nan_to_num(scn['confidence_an'].values)
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
@@ -60,12 +62,14 @@ def getinputs(Sreference, num_inputs=13):
         return(inputs)
 
 
-def prep_data(pixel_info, bayesian=False):
+def prep_data(pixel_info, bayesian=False, cnn=False):
 
     """
     Prepares data for matched SLSTR and CALIOP pixels into training data,
     validation data, training truth data, validation truth data.
-    Optionally bayes values for the validation set only.
+    Optionally ouputs bayes values for the validation set only.
+    Optionally outputs sub-images for the CNN for the both the validation and
+    training set.
     """
 
     conv_pixels = pixel_info.astype(float)
@@ -116,12 +120,11 @@ def prep_data(pixel_info, bayesian=False):
     training_truth = np.array(training_truth)
     validation_truth = np.array(validation_truth)
 
-    if bayesian is False:
-        return training_data, validation_data, training_truth, validation_truth
+    return_list = [training_data, validation_data, training_truth,
+                   validation_truth]
 
     if bayesian is True:
-        return training_data, validation_data, training_truth,\
-            validation_truth, bayes_values
+        return_list.append([bayes_values])
 
     # saving the data
 
@@ -130,6 +133,8 @@ def prep_data(pixel_info, bayesian=False):
     np.save('validation_data' + timestamp + '.npy', validation_data)
     np.save('training_truth' + timestamp + '.npy', training_truth)
     np.save('validation_truth' + timestamp + '.npy', validation_truth)
+
+    return return_list
 
 
 def surftype_class(array):

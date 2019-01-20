@@ -14,11 +14,9 @@ import tflearn
 import numpy as np
 
 
-def get_accuracy(model, validation_data, validation_truth):
+def get_accuracy(model, validation_data, validation_truth, para_num=24):
 
     """ returns model accuracy """
-
-    para_num = len(validation_data[0])
 
     validation_data = np.concatenate(validation_data)
     validation_data = validation_data.reshape(-1, 1, para_num, 1)

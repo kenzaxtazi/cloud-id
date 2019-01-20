@@ -102,7 +102,7 @@ def MaskComparison(Sreference, mask1, mask2, animate=True, frametime=1000):
         im2 = [plt.imshow(mask2, cmap='Reds')]
 
         ims = [FC, im1, FC, im2]
-        ani = animation.ArtistAnimation(fig, ims, interval=1000, blit=True, repeat_delay=0)
+        ani = animation.ArtistAnimation(fig, ims, interval=frametime, blit=True, repeat_delay=0)
         plt.show()
         return(ani)
     else:

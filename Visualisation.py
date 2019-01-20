@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
+
 def FalseColour(Sreference, plot=True):
     """
     Produce false colour image for SLSTR file
@@ -41,7 +42,7 @@ def FalseColour(Sreference, plot=True):
     blue = norm(0.8 * green - 0.1 * red - 0.1 * IR)
 
     rgb = np.dstack((red, green, blue))
-    
+
     if plot is True:
         plt.figure()
         plt.imshow(rgb)

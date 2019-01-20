@@ -6,14 +6,12 @@ Created on Sun Nov 25 16:37:26 2018
 @author: kenzatazi
 """
 
+import datetime
 import os
-from glob import glob
 
 import matplotlib.pyplot as plt
-import pandas as pd
 import sklearn.utils
 import tflearn
-from satpy import Scene
 from tensorflow import reset_default_graph
 from tflearn.layers.core import dropout, fully_connected, input_data
 from tflearn.layers.estimator import regression
@@ -22,7 +20,6 @@ import DataPreparation as dp
 import ModelApplication as app
 import ModelEvaluation as me
 import PixelAnalysis as PA
-import datetime
 
 # Pixel Loading
 
@@ -39,19 +36,20 @@ if os.path.exists('/Users/kenzatazi'):
     scenes = ['/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20180529T113003_20180529T113303_20180530T154711_0179_031_351_1620_LN2_O_NT_003.SEN3']
     pixel_info = PA.PixelLoader("/Users/kenzatazi/Desktop")
 
+pixels = sklearn.utils.shuffle(pixel_info)
 
 pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
                         'S7_in', 'S8_in', 'S9_in', 'satellite_zenith_angle',
                         'solar_zenith_angle', 'latitude_an', 'longitude_an',
                         'confidence_an', 'bayes_in',
-                        'Feature_Classification_Flags','TimeDiff']]).values
+                        'Feature_Classification_Flags', 'TimeDiff']]).values
 
 
 # If dataset is not created:
 
 # prepares data for ffn
 training_data, validation_data, training_truth, validation_truth,\
- = dp.prep_data(pixel_values)
+    = dp.prep_data(pixel_values)
 
 
 # If dataset already created :
@@ -68,8 +66,8 @@ validation_truth =np.load('validation_truth.npy')
 
 LR = 1e-3  # learning rate
 
-timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-MODEL_NAME = 'ffn_withancillarydata_' + timestamp
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+MODEL_NAME = 'Models/ffn_withancillarydata_' + timestamp
 
 para_num = len(pixel_values[0, :-2])
 

@@ -7,11 +7,10 @@ Created on Sun Dec  2 12:54:58 2018
 """
 
 import numpy as np
-from DataLoader import scene_loader, upscale_repeat
 import DataPreparation as dp
 
 
-def apply_mask(model, Sfile, num_inputs=13):
+def apply_mask(model, Sfile, num_inputs=13, binary=True, probability=False):
     """
     Function to produce predicted mask for given model and SLSTR file.
 
@@ -35,10 +34,17 @@ def apply_mask(model, Sfile, num_inputs=13):
         Mask predicted by model for Sfile
     """
     inputs = dp.getinputs(Sfile, num_inputs)
+    returnlist = []
 
-    label = model.predict_label(inputs)
+    if binary is True:
+        label = model.predict_label(inputs)
+        lmask = np.array(label)
+        lmask = lmask[:, 0].reshape(2400, 3000)
+        returnlist.append(lmask)
+    if probability is True:
+        prob = model.predict(inputs)
+        pmask = np.array(prob)
+        pmask = pmask[:, 0].reshape(2400, 3000)
+        returnlist.append(pmask)
 
-    mask = np.array(label)
-    mask = mask[:, 0].reshape(2400, 3000)
-
-    return(mask)
+    return(returnlist)

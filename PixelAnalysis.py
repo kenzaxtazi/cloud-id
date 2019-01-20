@@ -1,7 +1,8 @@
-import pandas as pd
 import os
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 from tqdm import tqdm
 
 
@@ -16,7 +17,8 @@ def PixelLoader(directory):
     out = pd.DataFrame()
     for file in PicklePaths:
         if file.endswith('.pkl'):
-            out = out.append(pd.read_pickle(file), sort=True, ignore_index=True)
+            out = out.append(pd.read_pickle(
+                file), sort=True, ignore_index=True)
 
     print("%s pixels loaded" % (len(out)))
     return(out)
@@ -74,17 +76,3 @@ def TruthMatches(df):
     q = df['CTruth'] == df['STruth']
     out = np.mean(q)
     return(out)
-
-
-# PickleDirectory = "D:/Users/tomzh/Desktop/Pixels/"
-
-# df = PixelLoader(PickleDirectory)
-# df = df[abs(df['TimeDiff']) < 200]
-
-# df = make_CTruth_col(df)
-
-
-# for bit in range(1, 17):
-#     df = make_STruth_col(df, 'cloud_an', bit)
-#     print("Bit: %s" % (bit))
-#     print("Fraction of matches: %s" % (TruthMatches(df)))

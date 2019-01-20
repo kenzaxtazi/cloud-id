@@ -10,7 +10,7 @@ Created on Mon Nov 19 14:37:40 2018
 
 import matplotlib.pyplot as plt
 from sklearn import metrics
-import tflearn
+import tensorflow as tf
 import numpy as np
 
 
@@ -94,8 +94,8 @@ def confusion_matrix(model, validation_data, validation_truth):
     """ Returns a confusion matrix"""
 
     labels = model.predict_label(validation_data)
-    confusion_matrix = tf.confusion_matrix(validation_truth[:, 1],
+    matrix = tf.confusion_matrix(validation_truth[:, 1],
                                            labels[:, 1])
     with tf.Session().as_default() as sess:
-        m = tf.Tensor.eval(confusion_matrix, feed_dict=None, session=sess)
+        m = tf.Tensor.eval(matrix, feed_dict=None, session=sess)
     return m

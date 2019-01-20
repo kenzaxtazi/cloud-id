@@ -40,8 +40,11 @@ def grid_interpolate(q0, q1):
     return(out[1:-1])
 
 
-def get_file_pairs(slstr_directory, matchesfile, failed_downloads=[], caliop_directory="", CATS_directory=""):
+def get_file_pairs(slstr_directory, matchesfile, failed_downloads=None, caliop_directory="", CATS_directory=""):
     """Open matches file and return path to included data files, exclude files which were not downloaded"""
+    if failed_downloads is None:
+        failed_downloads = []
+
     with open(matchesfile, 'r') as file:
         data = file.readlines()
 
@@ -83,13 +86,13 @@ def process_all(Spaths, Cpaths, pkl_output_name):
     ----------
     Spaths: list
         List containing paths to SLSTR files.
-    
+
     Cpaths: list
         List containing paths to Calipso or CATS files.
 
     pkl_output_name: str
         Name of pickle file to save pixels into.
-    
+
     Returns
     ----------
     df: pandas dataframe
@@ -114,14 +117,14 @@ def process_pair(Spath, Cpath, interpolate=True):
     ----------
     Spath: str
         Path to an SLSTR file.
-    
+
     Cpath: list
         Path to a Calipso or CATS file.
 
     interpolate: bool
         If True, pixels between nearest grid position matches will also be saved to the dataframe.
         Default is True
-    
+
     Returns
     ----------
     df: pandas dataframe

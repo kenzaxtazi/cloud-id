@@ -7,15 +7,14 @@ Created on Sun Nov 18 15:07:55 2018
 
 
 import os
-import xml.etree.ElementTree as ET
-
-from datetime import datetime, timedelta
 import traceback
+import xml.etree.ElementTree as ET
+from datetime import datetime, timedelta
+
+import h5py
 import numpy as np
 import requests
 from tqdm import tqdm
-import h5py
-
 
 import DataLoader as DL
 
@@ -37,11 +36,11 @@ def SLSTR_query(url):
         return(out)
 
     else:
-        print('Response Code Error: %s' %(r.status_code))
+        print('Response Code Error: %s' % (r.status_code))
         return([])
 
 
-def makeurlquery(Cfilename, timewindow=30, num=20):
+def makeurlquery(Cfilename, timewindow=20, num=20):
     """Creates list of URLs to query SLSTR database for a given file"""
 
     if Cfilename.endswith('f'):
@@ -69,7 +68,6 @@ def makeurlquery(Cfilename, timewindow=30, num=20):
     # Set download website and product type
     base = "https://scihub.copernicus.eu/s3//search?q=%20producttype:SL_1_RBT___%20AND%20("
 
-
     def _makequeryforslice(a, b):
         "Makes a query fragment between two calipso indices"
         c = int(0.5 * (a + b))  # Mean index
@@ -81,9 +79,11 @@ def makeurlquery(Cfilename, timewindow=30, num=20):
         windowstart = timestamp - timedelta(minutes=timewindow)
         windowend = timestamp + timedelta(minutes=timewindow)
         queryfrag += "beginPosition:["
-        queryfrag += str(windowstart.strftime("%Y-%m-%dT%H:%M:%S.%f"))[:-3] + 'Z'
+        queryfrag += str(windowstart.strftime("%Y-%m-%dT%H:%M:%S.%f")
+                         )[:-3] + 'Z'
         queryfrag += "%20TO%20"
-        queryfrag += str(windowend.strftime("%Y-%m-%dT%H:%M:%S.%f"))[:-3] + 'Z' + "]"
+        queryfrag += str(windowend.strftime("%Y-%m-%dT%H:%M:%S.%f")
+                         )[:-3] + 'Z' + "]"
 
         # Set Positional query
         queryfrag += "%20AND%20(%20footprint:%22Intersects(POLYGON(("
@@ -145,7 +145,7 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
     q = os.listdir(directory)
 
     w = [i for i in q if i[-1] == 'f']
-    
+
     if len(w) == 0:
         w = [i for i in q if i[-1] == '5']
     # Query the ESA database for each file, append matches to Data and raw output file
@@ -163,8 +163,7 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
                         Data.append([w[i], Sfilenames[j], Sdownloads[j]])
         except Exception as e:
             traceback.print_exc()
-            tqdm.write("Error: %s" %e)
-            pass
+            tqdm.write("Error: %s" % e)
 
     # Sort the data
     Data.sort()
@@ -222,7 +221,7 @@ def collocate(SLSTR_filename, Cfilename, verbose=False, persistent=False):
         clat = np.array(file['geolocation']
                             ['CATS_Fore_FOV_Latitude'])[:, 1]
         clon = np.array(file['geolocation']
-                             ['CATS_Fore_FOV_Longitude'])[:, 1]
+                        ['CATS_Fore_FOV_Longitude'])[:, 1]
     # Find coord pairs which are close
     coords = []
 
@@ -337,8 +336,3 @@ def collocate(SLSTR_filename, Cfilename, verbose=False, persistent=False):
     # SLSTR_row, SLSTR_column, Calipso_index
 
     return(coords)
-
-
-if __name__ == '__main__':
-    Cfilename = "D:/SatelliteData/Calipso1km/CAL_LID_L2_01kmCLay-Standard-V4-10.2018-04-01T23-09-16ZD.hdf"
-    Sfilename = "D:/SatelliteData/SLSTR/S3A_SL_1_RBT____20180401T232333_20180401T232633_20180403T041425_0179_029_301_1800_LN2_O_NT_002.SEN3"

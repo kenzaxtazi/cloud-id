@@ -8,6 +8,7 @@ Created on Sun Jan  6 17:29:23 2019
 
 import numpy as np
 import DataLoader as DL
+import datetime
 
 
 def getinputs(Sreference, num_inputs=13):
@@ -124,7 +125,7 @@ def prep_data(pixel_info, bayesian=False):
 
     # saving the data
 
-    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     np.save('training_data' + timestamp + '.npy', training_data)
     np.save('validation_data' + timestamp + '.npy', validation_data)
     np.save('training_truth' + timestamp + '.npy', training_truth)

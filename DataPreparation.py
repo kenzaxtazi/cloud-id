@@ -71,7 +71,7 @@ def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
     training set.
     """
     if seed == None:
-        seed = np.random.randint(0, 2**32-1, dtype='uint32')
+        seed = np.random.randint(0, 2**32, dtype='uint32')
         np.random.seed(seed)
     else:
         print("Using predefined seed")

@@ -25,7 +25,7 @@ import PixelAnalysis as PA
 class FFN():
     """Object for handling TFLearn DNN models with added support for saving / loading different network configurations"""
 
-    def __init__(self, name, para_num=24, LR=1e-3, networkConfig=None):
+    def __init__(self, name, networkConfig=None, para_num=24, LR=1e-3):
         self.name = name
         self.networkConfig = networkConfig
         self.para_num = para_num
@@ -38,13 +38,13 @@ class FFN():
         else:
             # Use network function specified by networkConfig
             networkFunc = getattr(self, self.networkConfig)
-            networkFunc(self.para_num, self.LR)
+            networkFunc()
 
-    def Network0(self, para_num, LR):
+    def Network0(self):
         # Networks layers
 
         # layer 0: generates a 4D tensor
-        layer0 = input_data(shape=[None, 1, para_num, 1], name='input')
+        layer0 = input_data(shape=[None, self.para_num], name='input')
 
         # layer 1
         layer1 = fully_connected(layer0, 32, activation='relu')
@@ -67,15 +67,15 @@ class FFN():
         softmax = fully_connected(dropout4, 1, activation='softmax')
 
         # gives the paramaters to optimise the network
-        self.network = regression(softmax, optimizer='Adam', learning_rate=LR,
+        self.network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
                                   loss='categorical_crossentropy', name='targets')
         self.networkConfig = 'Network0'
 
-    def Network1(self, para_num, LR):
+    def Network1(self):
         # Network layers
 
         # layer 0: generates a 4D tensor
-        layer0 = input_data(shape=[None, para_num], name='input')
+        layer0 = input_data(shape=[None, self.para_num], name='input')
 
         # layer 1
         layer1 = fully_connected(layer0, 32, activation='leakyrelu')
@@ -98,7 +98,7 @@ class FFN():
         softmax = fully_connected(dropout4, 2, activation='softmax')
 
         # gives the paramaters to optimise the network
-        self.network = regression(softmax, optimizer='Adam', learning_rate=LR,
+        self.network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
                                   loss='categorical_crossentropy', name='targets')
         self.networkConfig = 'Network1'
 
@@ -181,7 +181,7 @@ if __name__ == '__main__':
     training_data = training_data.reshape(-1, para_num)
     validation_data = validation_data.reshape(-1, para_num)
 
-    model = FFN('Test1', 'Network1')
+    model = FFN('Net1FFN', 'Network1')
     model.networkSetup()
     model.Setup()
     model.Train(training_data, training_truth,

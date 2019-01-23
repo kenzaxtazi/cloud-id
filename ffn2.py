@@ -115,13 +115,13 @@ class FFN():
         with open("Models/" + self.name + '.txt', 'w') as file:
             file.write(self.networkConfig)
 
-    def Load(self, Mfilename):
-        self.name = Mfilename
-        with open('Models/' + Mfilename + '.txt', 'r') as file:
+    def Load(self):
+        with open('Models/' + self.name + '.txt', 'r') as file:
             self.networkConfig = file.read()
+            print(self.networkConfig)
         self.networkSetup()
         self.Setup()
-        self.model.load(Mfilename)
+        self.model.load('Models/' + self.name)
 
 
 if __name__ == '__main__':

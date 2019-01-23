@@ -100,7 +100,7 @@ def inputs_from_df(df, num_inputs=24):
 
         inputs = np.vstack((inputs, confidence_flags))
         inputs = np.swapaxes(inputs, 0, 2)
-        inputs = inputs.reshape((-1, 1, num_inputs, 1), order='F')
+        inputs = inputs.reshape((-1, num_inputs), order='F')
 
         return(inputs)
     else:

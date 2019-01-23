@@ -36,6 +36,10 @@ if os.path.exists('/Users/kenzatazi'):
     scenes = ['/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20180529T113003_20180529T113303_20180530T154711_0179_031_351_1620_LN2_O_NT_003.SEN3']
     pixel_info = PA.PixelLoader("/Users/kenzatazi/Desktop")
 
+if os.path.exists('D:'):
+    scenes = []
+    pixel_info = PA.PixelLoader(r"D:\SatelliteData\SLSTR\Pixels2")
+
 pixels = sklearn.utils.shuffle(pixel_info)
 
 pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
@@ -69,17 +73,17 @@ LR = 1e-3  # learning rate
 timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 MODEL_NAME = 'Models/ffn_withancillarydata_' + timestamp
 
-para_num = len(pixel_values[0, :-2])
+para_num = training_data.shape[-1]
 
 # reshape data to pit into network
-training_data = training_data.reshape(-1, 1, para_num, 1)
-validation_data = validation_data.reshape(-1, 1, para_num, 1)
+training_data = training_data.reshape(-1, para_num)
+validation_data = validation_data.reshape(-1, para_num)
 
 
 # Networks layers
 
 # layer 0: generates a 4D tensor
-layer0 = input_data(shape=[None, 1, para_num, 1], name='input')
+layer0 = input_data(shape=[None, para_num], name='input')
 
 # layer 1
 layer1 = fully_connected(layer0, 32, activation='relu')
@@ -106,7 +110,6 @@ network = regression(softmax, optimizer='Adam', learning_rate=LR,
                      loss='categorical_crossentropy', name='targets')
 # creates the model
 model = tflearn.DNN(network, tensorboard_verbose=0)
-model.save(MODEL_NAME)
 
 # If model is already created
 """
@@ -122,6 +125,8 @@ model.fit(training_data, training_truth, n_epoch=2,
           validation_set=(validation_data, validation_truth),
           snapshot_step=10000, show_metric=True, run_id=MODEL_NAME)
 
+
+model.save(MODEL_NAME)
 
 # Print accuracy
 acc = me.get_accuracy(model, validation_data, validation_truth)

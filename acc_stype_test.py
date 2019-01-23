@@ -97,16 +97,16 @@ for surftype in surftype_list:
         LR = 1e-3  # learning rate
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
         MODEL_NAME = 'ffn_withancillarydata_' + timestamp
-        para_num = len(pixel_values[0, :-2])
+        para_num = training_data.shape[-1]
 
         # reshape data to pit into network
-        training_data = training_data.reshape(-1, 1, para_num, 1)
-        validation_data = validation_data.reshape(-1, 1, para_num, 1)
+        training_data = training_data.reshape(-1, para_num)
+        validation_data = validation_data.reshape(-1, para_num)
 
         # Networks layers
 
         # layer 0: generates a 4D tensor
-        layer0 = input_data(shape=[None, 1, para_num, 1], name='input')
+        layer0 = input_data(shape=[None, para_num], name='input')
 
         # layer 1
         layer1 = fully_connected(layer0, 32, activation='relu')

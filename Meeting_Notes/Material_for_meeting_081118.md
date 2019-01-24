@@ -25,7 +25,7 @@ The number of layers found in this column; cloud data products report (only) the
 
 Its distribution is shown in Image [pic2].
 
-![pic2](https://imperiallondon-my.sharepoint.com/personal/kt2015_ic_ac_uk/Documents/Forms/All.aspx?slrid=ad28b99e%2D2021%2D7000%2D8f31%2Da649b2b7038f&RootFolder=%2Fpersonal%2Fkt2015%5Fic%5Fac%5Fuk%2FDocuments%2FImages&FolderCTID=0x0120008872E2E669FB2044B088F3F3E5CCF65B#slrid=ad28b99e%2D2021%2D7000%2D8f31%2Da649b2b7038f&FolderCTID=0x0120008872E2E669FB2044B088F3F3E5CCF65B&id=%2Fpersonal%2Fkt2015%5Fic%5Fac%5Fuk%2FDocuments%2FImages%2FNumLayers%2Epng&parent=%2Fpersonal%2Fkt2015%5Fic%5Fac%5Fuk%2FDocuments%2FImages)
+![pic2](https://imperiallondon-my.sharepoint.com/personal/kt2015_ic_ac_uk/Documents/Images/NumLayers.png)
 
 Currently using a dedicated program to read the files https://portal.hdfgroup.org/display/support/HDF+4.2.14 . Variables are referenced by their index and loaded as a string into python. The string format changes between products and variables. The string is then manipulated to form numpy arrays. In the second product type, the string implies that the data is in an (n, 3) shaped array. However, if this array is flattened, the time (Given in IAT), latitude and longitude are monotically increasing which implies that it is actually an (n, 1) shaped array.
 
@@ -33,4 +33,4 @@ Started to use CIS http://cistools.net/ to perform collocation. It uses python p
 
 CIS does not directly support the four products above, only CAL_LID_L2_05kmAPro. However the code can probably be adapted to accept the relevent ones. For initial testing, a few of the supported products were downloaded. CIS was used to produce basic plots on a map. Attempts were made at using the collocation function. The collocation function was run using default settings, however it failed to return anything after more than an hour of running.
 
-![pic1](https://imperiallondon-my.sharepoint.com/personal/kt2015_ic_ac_uk/Documents/Forms/All.aspx?slrid=ad28b99e%2D2021%2D7000%2D8f31%2Da649b2b7038f&RootFolder=%2Fpersonal%2Fkt2015%5Fic%5Fac%5Fuk%2FDocuments%2FImages&FolderCTID=0x0120008872E2E669FB2044B088F3F3E5CCF65B#slrid=ad28b99e%2D2021%2D7000%2D8f31%2Da649b2b7038f&FolderCTID=0x0120008872E2E669FB2044B088F3F3E5CCF65B&id=%2Fpersonal%2Fkt2015%5Fic%5Fac%5Fuk%2FDocuments%2FImages%2FCISOUT1%2Epng&parent=%2Fpersonal%2Fkt2015%5Fic%5Fac%5Fuk%2FDocuments%2FImages)
+![pic1](https://imperiallondon-my.sharepoint.com/personal/kt2015_ic_ac_uk/Documents/Images/CISOUT1.png)

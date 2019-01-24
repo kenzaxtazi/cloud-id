@@ -156,7 +156,7 @@ softmax = fully_connected(dropout4, 2, activation='softmax')
 
 # gives the paramaters to optimise the network
 network = regression(softmax, optimizer='Adam', learning_rate=LR,
-                     loss='categorical_crossentropy', name='targets')
+                     loss='categorical_crossentropy', name='targets', session=)
 # creates the model
 model = tflearn.DNN(network, tensorboard_verbose=0)
 model.save(MODEL_NAME)

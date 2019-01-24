@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import sklearn.utils
 import tflearn
-from satpy import Scene
+
 from tensorflow import reset_default_graph
 from tflearn.layers.core import dropout, fully_connected, input_data
 from tflearn.layers.estimator import regression
@@ -23,6 +23,7 @@ import ModelApplication as app
 import ModelEvaluation as me
 import PixelAnalysis as PA
 import datetime
+import Visualisation as vis
 
 # Pixel Loading
 
@@ -40,11 +41,12 @@ if os.path.exists('/Users/kenzatazi'):
     pixel_info = PA.PixelLoader("/Users/kenzatazi/Desktop")
 
 
-pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
-                        'S7_in', 'S8_in', 'S9_in', 'satellite_zenith_angle',
-                        'solar_zenith_angle', 'latitude_an', 'longitude_an',
-                        'confidence_an', 'bayes_in',
-                        'Feature_Classification_Flags','TimeDiff']]).values
+pixel_values = (pixel_info[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an',
+                            'S6_an', 'S7_in', 'S8_in', 'S9_in',
+                            'satellite_zenith_angle', 'solar_zenith_angle',
+                            'latitude_an', 'longitude_an', 'confidence_an',
+                            'bayes_in', 'Feature_Classification_Flags',
+                            'TimeDiff']]).values
 
 
 # If dataset is not created:
@@ -71,7 +73,7 @@ LR = 1e-3  # learning rate
 timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 MODEL_NAME = 'ffn_withancillarydata_' + timestamp
 
-para_num = len(pixel_values[0, :-2])
+para_num = 24
 
 # reshape data to pit into network
 training_data = training_data.reshape(-1, 1, para_num, 1)
@@ -101,7 +103,7 @@ dropout4 = dropout(layer4, 0.8)
 
 # layer 5 this layer needs to spit out the number of categories
 # we are looking for.
-softmax = fully_connected(dropout4, 1, activation='softmax')
+softmax = fully_connected(dropout4, 2, activation='softmax')
 
 # gives the paramaters to optimise the network
 network = regression(softmax, optimizer='Adam', learning_rate=LR,
@@ -130,11 +132,10 @@ acc = me.get_accuracy(model, validation_data, validation_truth)
 
 # apply model to test images to generate masks
 for scn in scenes:
-    app.apply_mask(model, scn)
-
+    pmask, lmask = app.apply_mask(model, scn, binary=True, probability=True)
+    vis.MaskComparison(scn, pmask, lmask, animate=False)
 
 # resets the tensorflow environment
 reset_default_graph()
-
 
 plt.show()

@@ -158,9 +158,9 @@ def surftype_class(array):
     tidal = []
     land = []
     inland_water = []
-    unfilled = []
-    spare1 = []
-    spare2 = []
+    #unfilled = []
+    #spare1 = []
+    #spare2 = []
     cosmetic = []
     duplicate = []
     day = []
@@ -184,12 +184,14 @@ def surftype_class(array):
             land.append(d)
         if int(d[17]) == 1:
             inland_water.append(d)
+        '''
         if int(d[18]) == 1:
             unfilled.append(d)
         if int(d[19]) == 1:
             spare1.append(d)
         if int(d[20]) == 1:
             spare2.append(d)
+        '''
         if int(d[21]) == 1:
             cosmetic.append(d)
         if int(d[22]) == 1:
@@ -212,9 +214,11 @@ def surftype_class(array):
     tidal = np.array(tidal)
     land = np.array(land)
     inland_water = np.array(inland_water)
+    '''
     unfilled = np.array(unfilled)
     spare1 = np.array(spare1)
     spare2 = np.array(spare2)
+    '''
     cosmetic = np.array(cosmetic)
     duplicate = np.array(duplicate)
     day = np.array(day)
@@ -227,8 +231,7 @@ def surftype_class(array):
     # the output is ready to be fed into a for loop to calculate model accuracy
     # as a function of surface type
 
-    return [coastline, ocean, tidal, land, inland_water, unfilled, spare1,
-            spare2, cosmetic, duplicate, day, twilight, sun_glint, snow,
+    return [coastline, ocean, tidal, land, inland_water, cosmetic, duplicate, day, twilight, sun_glint, snow,
             summary_cloud, summary_pointing]
 
 

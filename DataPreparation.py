@@ -133,17 +133,16 @@ def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
     else:
         return_list.append([None])
 
-
     # saving the data
-
+    '''
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     with open('Temp/NumpySeeds.txt', 'a') as file:
         file.write(timestamp + ': ' + str(seed) + '\n')
-
+    '''
     return return_list
 
 
-def surftype_class(array):
+def surftype_class(validation_data, validation_truth, bayesian=None):
     """
     Input: array of matched pixel information
     Output: arrays of matched pixel information for each surface type
@@ -170,69 +169,78 @@ def surftype_class(array):
     summary_cloud = []
     summary_pointing = []
 
+
     # sorting data point into surface type categories from the one-hot encoding
     # added in the previous step
+    if bayesian is not None:
+        for i in range(len(validation_data)):
+            if int(validation_data[i,13]) == 1:
+                coastline.append(
+                    [validation_data[i], validation_truth[i], bayesian[i]])
+            if int(validation_data[i,14]) == 1:
+                ocean.append([validation_data[i], validation_truth[i], bayesian[i]])
+            if int(validation_data[i,15]) == 1:
+                tidal.append([validation_data[i], validation_truth[i], bayesian[i]])
+            if int(validation_data[i,16]) == 1:
+                land.append([validation_data[i], validation_truth[i], bayesian[i]])
+            if int(validation_data[i,17]) == 1:
+                inland_water.append([validation_data[i], validation_truth[i], bayesian[i]])
+            if int(validation_data[i,18]) == 1:
+                cosmetic.append([validation_data[i], validation_truth[i], bayesian[i]])
+            if int(validation_data[i,19]) == 1:
+                duplicate.append([validation_data[i], validation_truth[i], bayesian[i]])
+            if int(validation_data[i,20]) == 1:
+                day.append([validation_data[i], validation_truth[i], bayesian[i]])
+            if int(validation_data[i,21]) == 1:
+                twilight.append([validation_data[i], validation_truth[i], bayesian[i]])
+            if int(validation_data[i,22]) == 1:
+                sun_glint.append(
+                    [validation_data[i], validation_truth[i], bayesian[i]])
+            if int(validation_data[i,23]) == 1:
+                snow.append([validation_data[i], validation_truth[i], bayesian[i]])
 
-    for d in array:
-        if int(d[13]) == 1:
-            coastline.append(d)
-        if int(d[14]) == 1:
-            ocean.append(d)
-        if int(d[15]) == 1:
-            tidal.append(d)
-        if int(d[16]) == 1:
-            land.append(d)
-        if int(d[17]) == 1:
-            inland_water.append(d)
-        '''
-        if int(d[18]) == 1:
-            unfilled.append(d)
-        if int(d[19]) == 1:
-            spare1.append(d)
-        if int(d[20]) == 1:
-            spare2.append(d)
-        '''
-        if int(d[21]) == 1:
-            cosmetic.append(d)
-        if int(d[22]) == 1:
-            duplicate.append(d)
-        if int(d[23]) == 1:
-            day.append(d)
-        if int(d[24]) == 1:
-            twilight.append(d)
-        if int(d[25]) == 1:
-            sun_glint.append(d)
-        if int(d[26]) == 1:
-            snow.append(d)
-        if int(d[27]) == 1:
-            summary_cloud.append(d)
-        if int(d[28]) == 1:
-            summary_pointing.append(d)
+    if bayesian is None:
+        for i in range(len(validation_data)):
+            if int(validation_data[i,13]) == 1:
+                coastline.append([validation_data[i], validation_truth[i]])
+            if int(validation_data[i,14]) == 1:
+                ocean.append([validation_data[i], validation_truth[i]])
+            if int(validation_data[i,15]) == 1:
+                tidal.append([validation_data[i], validation_truth[i]])
+            if int(validation_data[i,16]) == 1:
+                land.append([validation_data[i], validation_truth[i]])
+            if int(validation_data[i,17]) == 1:
+                inland_water.append([validation_data[i], validation_truth[i]])
+            if int(validation_data[i,18]) == 1:
+                cosmetic.append([validation_data[i], validation_truth[i]])
+            if int(validation_data[i,19]) == 1:
+                duplicate.append([validation_data[i], validation_truth[i]])
+            if int(validation_data[i,20]) == 1:
+                day.append([validation_data[i], validation_truth[i]])
+            if int(validation_data[i,21]) == 1:
+                twilight.append([validation_data[i], validation_truth[i]])
+            if int(validation_data[i,22]) == 1:
+                sun_glint.append([validation_data[i], validation_truth[i]])
+            if int(validation_data[i,23]) == 1:
+                snow.append([validation_data[i], validation_truth[i]])
 
-    coastline = np.array(coastline)
-    ocean = np.array(ocean)
-    tidal = np.array(tidal)
-    land = np.array(land)
-    inland_water = np.array(inland_water)
-    '''
-    unfilled = np.array(unfilled)
-    spare1 = np.array(spare1)
-    spare2 = np.array(spare2)
-    '''
-    cosmetic = np.array(cosmetic)
-    duplicate = np.array(duplicate)
-    day = np.array(day)
-    twilight = np.array(twilight)
-    sun_glint = np.array(sun_glint)
-    snow = np.array(snow)
-    summary_cloud = np.array(summary_cloud)
-    summary_pointing = np.array(summary_pointing)
+        coastline = np.array(coastline)
+        ocean = np.array(ocean)
+        tidal = np.array(tidal)
+        land = np.array(land)
+        inland_water = np.array(inland_water)
+        cosmetic = np.array(cosmetic)
+        duplicate = np.array(duplicate)
+        day = np.array(day)
+        twilight = np.array(twilight)
+        sun_glint = np.array(sun_glint)
+        snow = np.array(snow)
+        
+        # the output is ready to be fed into a for loop to calculate model accuracy
+        # as a function of surface type
 
-    # the output is ready to be fed into a for loop to calculate model accuracy
-    # as a function of surface type
-
-    return [coastline, ocean, tidal, land, inland_water, cosmetic, duplicate, day, twilight, sun_glint, snow,
-            summary_cloud, summary_pointing]
+    return [coastline, ocean, tidal, land, inland_water, cosmetic, 
+            duplicate, day, twilight, sun_glint, snow]
 
 
 def bits_from_int(array):

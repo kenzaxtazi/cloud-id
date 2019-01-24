@@ -6,14 +6,12 @@ Created on Sun Nov 25 16:37:26 2018
 @author: kenzatazi
 """
 
+import datetime
 import os
-from glob import glob
 
 import matplotlib.pyplot as plt
-import pandas as pd
 import sklearn.utils
 import tflearn
-
 from tensorflow import reset_default_graph
 from tflearn.layers.core import dropout, fully_connected, input_data
 from tflearn.layers.estimator import regression
@@ -22,8 +20,6 @@ import DataPreparation as dp
 import ModelApplication as app
 import ModelEvaluation as me
 import PixelAnalysis as PA
-import datetime
-import Visualisation as vis
 
 # Pixel Loading
 
@@ -40,20 +36,24 @@ if os.path.exists('/Users/kenzatazi'):
     scenes = ['/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20180529T113003_20180529T113303_20180530T154711_0179_031_351_1620_LN2_O_NT_003.SEN3']
     pixel_info = PA.PixelLoader("/Users/kenzatazi/Desktop")
 
+if os.path.exists('D:'):
+    scenes = []
+    pixel_info = PA.PixelLoader(r"D:\SatelliteData\SLSTR\Pixels2")
 
-pixel_values = (pixel_info[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an',
-                            'S6_an', 'S7_in', 'S8_in', 'S9_in',
-                            'satellite_zenith_angle', 'solar_zenith_angle',
-                            'latitude_an', 'longitude_an', 'confidence_an',
-                            'bayes_in', 'Feature_Classification_Flags',
-                            'TimeDiff']]).values
+pixels = sklearn.utils.shuffle(pixel_info)
+
+pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
+                        'S7_in', 'S8_in', 'S9_in', 'satellite_zenith_angle',
+                        'solar_zenith_angle', 'latitude_an', 'longitude_an',
+                        'confidence_an', 'bayes_in',
+                        'Feature_Classification_Flags', 'TimeDiff']]).values
 
 
 # If dataset is not created:
 
 # prepares data for ffn
 training_data, validation_data, training_truth, validation_truth,\
- = dp.prep_data(pixel_values)
+    = dp.prep_data(pixel_values)
 
 
 # If dataset already created :
@@ -70,20 +70,20 @@ validation_truth =np.load('validation_truth.npy')
 
 LR = 1e-3  # learning rate
 
-timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-MODEL_NAME = 'ffn_withancillarydata_' + timestamp
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+MODEL_NAME = 'Models/ffn_withancillarydata_' + timestamp
 
-para_num = 24
+para_num = training_data.shape[-1]
 
 # reshape data to pit into network
-training_data = training_data.reshape(-1, 1, para_num, 1)
-validation_data = validation_data.reshape(-1, 1, para_num, 1)
+training_data = training_data.reshape(-1, para_num)
+validation_data = validation_data.reshape(-1, para_num)
 
 
 # Networks layers
 
 # layer 0: generates a 4D tensor
-layer0 = input_data(shape=[None, 1, para_num, 1], name='input')
+layer0 = input_data(shape=[None, para_num], name='input')
 
 # layer 1
 layer1 = fully_connected(layer0, 32, activation='relu')
@@ -110,7 +110,6 @@ network = regression(softmax, optimizer='Adam', learning_rate=LR,
                      loss='categorical_crossentropy', name='targets')
 # creates the model
 model = tflearn.DNN(network, tensorboard_verbose=0)
-model.save(MODEL_NAME)
 
 # If model is already created
 """
@@ -126,6 +125,8 @@ model.fit(training_data, training_truth, n_epoch=2,
           validation_set=(validation_data, validation_truth),
           snapshot_step=10000, show_metric=True, run_id=MODEL_NAME)
 
+
+model.save(MODEL_NAME)
 
 # Print accuracy
 acc = me.get_accuracy(model, validation_data, validation_truth)

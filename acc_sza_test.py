@@ -92,17 +92,16 @@ validation_truth =np.load('validation_truth.npy')
 
 LR = 1e-3  # learning rate
 MODEL_NAME = 'ffn_withancillarydata'.format(LR, 'feedforward')
-para_num = 29 #len(pixel_values[0, :-2])
+para_num = training_data.shape[-1]
 
 # reshape data to pit into network
-training_data = training_data.reshape(-1, 1, para_num, 1)
-validation_data = validation_data.reshape(-1, 1, para_num, 1)
+training_data = training_data.reshape(-1, para_num)
 
 """
     # Networks layers
 
-    # layer 0: generates a 4D tensor
-    layer0 = input_data(shape=[None, 1, para_num, 1], name='input')
+# layer 0: generates a 4D tensor
+layer0 = input_data(shape=[None, para_num], name='input')
 
     # layer 1
     layer1 = fully_connected(layer0, 32, activation='relu')
@@ -173,8 +172,7 @@ for a in angle_slices:
 
     if len(new_validation_data) > 0:
 
-        new_validation_data = new_validation_data.reshape(-1, 1, para_num, 1)
-        new_validation_data = new_validation_data.reshape(-1, 1, para_num, 1)
+        new_validation_data = new_validation_data.reshape(-1, para_num)
 
             # Print accuracy
         acc = me.get_accuracy(model, new_validation_data,

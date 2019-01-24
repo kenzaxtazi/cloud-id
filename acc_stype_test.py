@@ -120,21 +120,21 @@ layer0 = input_data(shape=[None, 1, para_num, 1], name='input')
 layer1 = fully_connected(layer0, 32, activation='relu')
 dropout1 = dropout(layer1, 0.8)
 
-# layer 2
-layer2 = fully_connected(dropout1, 32, activation='relu')
-dropout2 = dropout(layer2, 0.8)
+        LR = 1e-3  # learning rate
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+        MODEL_NAME = 'ffn_withancillarydata_' + timestamp
+        para_num = training_data.shape[-1]
 
-# layer 3
-layer3 = fully_connected(dropout2, 32, activation='relu')
-dropout3 = dropout(layer3, 0.8)
+        # reshape data to pit into network
+        training_data = training_data.reshape(-1, para_num)
+        validation_data = validation_data.reshape(-1, para_num)
 
 # layer 4
 layer4 = fully_connected(dropout3, 32, activation='relu')
 dropout4 = dropout(layer4, 0.8)
 
-# layer 5 this layer needs to spit out the number of categories
-# we are looking for.
-softmax = fully_connected(dropout4, 2, activation='softmax')
+        # layer 0: generates a 4D tensor
+        layer0 = input_data(shape=[None, para_num], name='input')
 
 # gives the paramaters to optimise the network
 network = regression(softmax, optimizer='Adam', learning_rate=LR,

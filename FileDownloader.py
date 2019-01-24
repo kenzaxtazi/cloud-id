@@ -1,11 +1,10 @@
-from Collocation2 import match_directory
-from ftplib import FTP
-from SaveMatchedPixels import get_file_pairs, process_all, add_dist_col, add_time_col
-from tqdm import tqdm
+import io
 import os
 import zipfile
+from ftplib import FTP
+
 import requests
-import io
+from tqdm import tqdm
 
 
 def FTPlogin(creds_path='credentials.txt'):

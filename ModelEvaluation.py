@@ -10,7 +10,7 @@ Created on Mon Nov 19 14:37:40 2018
 
 import matplotlib.pyplot as plt
 from sklearn import metrics
-import tflearn
+import tensorflow as tf
 import numpy as np
 
 
@@ -19,7 +19,7 @@ def get_accuracy(model, validation_data, validation_truth, para_num=24):
     """ returns model accuracy """
 
     validation_data = np.concatenate(validation_data)
-    validation_data = validation_data.reshape(-1, 1, para_num, 1)
+    validation_data = validation_data.reshape(-1, para_num)
 
     validation_truth = np.concatenate(validation_truth)
     validation_truth = validation_truth.reshape(-1, 2)
@@ -36,7 +36,7 @@ def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
 
     para_num = len(validation_data[0])
     validation_data = np.concatenate(validation_data)
-    validation_data = validation_data.reshape(-1, 1, para_num, 1)
+    validation_data = validation_data.reshape(-1, para_num)
     validation_truth = np.concatenate(validation_truth)
     validation_truth = validation_truth.reshape(-1, 2)
 
@@ -94,8 +94,8 @@ def confusion_matrix(model, validation_data, validation_truth):
     """ Returns a confusion matrix"""
 
     labels = model.predict_label(validation_data)
-    confusion_matrix = tf.confusion_matrix(validation_truth[:, 1],
+    matrix = tf.confusion_matrix(validation_truth[:, 1],
                                            labels[:, 1])
     with tf.Session().as_default() as sess:
-        m = tf.Tensor.eval(confusion_matrix, feed_dict=None, session=sess)
+        m = tf.Tensor.eval(matrix, feed_dict=None, session=sess)
     return m

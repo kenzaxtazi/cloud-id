@@ -45,7 +45,7 @@ def getinputs(Sreference, num_inputs=13):
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7, S8, S9, salza,
                            solza, lat, lon])
         inputs = np.swapaxes(inputs, 0, 2)
-        inputs = inputs.reshape((-1, 1, num_inputs, 1), order='F')
+        inputs = inputs.reshape((-1, num_inputs), order='F')
         return(inputs)
 
     if num_inputs == 24:
@@ -57,13 +57,12 @@ def getinputs(Sreference, num_inputs=13):
 
         inputs = np.vstack((inputs, confidence_flags))
         inputs = np.swapaxes(inputs, 0, 2)
-        inputs = inputs.reshape((-1, 1, num_inputs, 1), order='F')
+        inputs = inputs.reshape((-1, num_inputs), order='F')
 
         return(inputs)
 
 
-def prep_data(pixel_info, bayesian=False, cnn=False):
-
+def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
     """
     Prepares data for matched SLSTR and CALIOP pixels into training data,
     validation data, training truth data, validation truth data.
@@ -71,6 +70,12 @@ def prep_data(pixel_info, bayesian=False, cnn=False):
     Optionally outputs sub-images for the CNN for the both the validation and
     training set.
     """
+    if seed == None:
+        seed = np.random.randint(0, 2**32, dtype='uint32')
+        np.random.seed(seed)
+    else:
+        print("Using predefined seed")
+        np.random.seed(seed)
 
     conv_pixels = pixel_info.astype(float)
     pix = np.nan_to_num(conv_pixels)
@@ -129,10 +134,8 @@ def prep_data(pixel_info, bayesian=False, cnn=False):
     # saving the data
 
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    np.save('training_data' + timestamp + '.npy', training_data)
-    np.save('validation_data' + timestamp + '.npy', validation_data)
-    np.save('training_truth' + timestamp + '.npy', training_truth)
-    np.save('validation_truth' + timestamp + '.npy', validation_truth)
+    with open('Temp/NumpySeeds.txt', 'a') as file:
+        file.write(timestamp + ': ' + str(seed) + '\n')
 
     return return_list
 

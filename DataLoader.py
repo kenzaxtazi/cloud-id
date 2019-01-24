@@ -6,18 +6,15 @@ Created on Sun Oct 21 15:46:43 2018
 """
 import os
 import platform
-import re
-import zipfile
-
+import random as rdm
 from getpass import getuser
 from glob import glob
 from time import time
-from pyhdf.SD import SD, SDC
 
 import matplotlib.pyplot as plt
 import numpy as np
+from pyhdf.SD import SD, SDC
 from satpy import Scene
-import random as rdm
 
 
 def get_random_SLSTR():
@@ -185,12 +182,12 @@ class SDopener():
     def __init__(self, path, mode=SDC.READ):
         self.path = path
         self.mode = mode
+        self.SD = SD(self.path, self.mode)
 
     def __enter__(self):
-        self.SD = SD(self.path, self.mode)
         return(self.SD)
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, exc_value, exc_traceback):
         self.SD.__del__()
 
 

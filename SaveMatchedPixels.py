@@ -40,8 +40,11 @@ def grid_interpolate(q0, q1):
     return(out[1:-1])
 
 
-def get_file_pairs(slstr_directory, matchesfile, failed_downloads=[], caliop_directory="", CATS_directory=""):
+def get_file_pairs(slstr_directory, matchesfile, failed_downloads=None, caliop_directory="", CATS_directory=""):
     """Open matches file and return path to included data files, exclude files which were not downloaded"""
+    if failed_downloads is None:
+        failed_downloads = []
+
     with open(matchesfile, 'r') as file:
         data = file.readlines()
 

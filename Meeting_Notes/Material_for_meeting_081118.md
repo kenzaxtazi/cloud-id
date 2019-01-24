@@ -33,4 +33,4 @@ Started to use CIS http://cistools.net/ to perform collocation. It uses python p
 
 CIS does not directly support the four products above, only CAL_LID_L2_05kmAPro. However the code can probably be adapted to accept the relevent ones. For initial testing, a few of the supported products were downloaded. CIS was used to produce basic plots on a map. Attempts were made at using the collocation function. The collocation function was run using default settings, however it failed to return anything after more than an hour of running.
 
-![pic1](https://imperiallondon-my.sharepoint.com/personal/kt2015_ic_ac_uk/Documents/Images/CISOUT1.png)
+![pic1](https://drive.google.com/file/d/1PFyVdLtjgq7hBbfii-Q1P354ezFnipee/)

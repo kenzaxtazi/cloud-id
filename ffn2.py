@@ -102,6 +102,37 @@ class FFN():
                                   loss='categorical_crossentropy', name='targets')
         self.networkConfig = 'Network1'
 
+    def Network2(self):
+        # Network layers
+
+        # layer 0: generates a 4D tensor
+        layer0 = input_data(shape=[None, self.para_num], name='input')
+
+        # layer 1
+        layer1 = fully_connected(layer0, 32, activation='linear')
+        # dropout1 = dropout(layer1, 0.8)
+
+        # layer 2
+        layer2 = fully_connected(layer1, 32, activation='relu')
+        dropout2 = dropout(layer2, 0.8)
+
+        # layer 3
+        layer3 = fully_connected(dropout2, 32, activation='relu')
+        dropout3 = dropout(layer3, 0.8)
+
+        # layer 4
+        layer4 = fully_connected(dropout3, 32, activation='relu')
+        dropout4 = dropout(layer4, 0.8)
+
+        # layer 5 this layer needs to spit out the number of categories
+        # we are looking for.
+        softmax = fully_connected(dropout4, 2, activation='softmax')
+
+        # gives the paramaters to optimise the network
+        self.network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
+                                  loss='categorical_crossentropy', name='targets')
+        self.networkConfig = 'Network2'
+
     def Setup(self):
         self.model = tflearn.DNN(self.network, tensorboard_verbose=0)
 
@@ -181,9 +212,18 @@ if __name__ == '__main__':
     training_data = training_data.reshape(-1, para_num)
     validation_data = validation_data.reshape(-1, para_num)
 
-    model = FFN('Net1FFN', 'Network1')
+    model = FFN('Net2_S_FFN', 'Network2')
     model.networkSetup()
     model.Setup()
     model.Train(training_data, training_truth,
                 validation_data, validation_truth)
     model.Save()
+
+    Sfile = r"D:\SatelliteData\SLSTR\Dataset1\S3A_SL_1_RBT____20180822T000619_20180822T000919_20180822T015223_0179_035_016_3240_SVL_O_NR_003.SEN3"
+
+    mask1 = app.apply_mask(model.model, Sfile)[0]
+
+    # bmask = DL.extract_mask(Sfile, 'cloud_an', 64)
+    bmask = DL.extract_mask(Sfile, 'bayes_in', 2)
+
+    Vis.MaskComparison(Sfile, mask1, bmask, True, 1000)

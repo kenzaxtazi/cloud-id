@@ -83,13 +83,13 @@ def process_all(Spaths, Cpaths, pkl_output_name):
     ----------
     Spaths: list
         List containing paths to SLSTR files.
-    
+
     Cpaths: list
         List containing paths to Calipso or CATS files.
 
     pkl_output_name: str
         Name of pickle file to save pixels into.
-    
+
     Returns
     ----------
     df: pandas dataframe
@@ -114,14 +114,14 @@ def process_pair(Spath, Cpath, interpolate=True):
     ----------
     Spath: str
         Path to an SLSTR file.
-    
+
     Cpath: list
         Path to a Calipso or CATS file.
 
     interpolate: bool
         If True, pixels between nearest grid position matches will also be saved to the dataframe.
         Default is True
-    
+
     Returns
     ----------
     df: pandas dataframe
@@ -173,12 +173,19 @@ def process_pair(Spath, Cpath, interpolate=True):
         df = pd.DataFrame()
         # Load SLSTR data and desired attributes
         scn = DL.scene_loader(Spath)
-        SLSTR_attributes = ['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in', 'bayes_an', 'bayes_bn', 'bayes_cn',
-                            'bayes_in', 'cloud_an', 'cloud_bn', 'cloud_cn', 'cloud_in', 'satellite_zenith_angle', 'solar_zenith_angle', 'latitude_an', 'longitude_an', 'confidence_an']
+        SLSTR_attributes = ['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an',
+                            'S6_an', 'S7_in', 'S8_in', 'S9_in', 'bayes_an',
+                            'bayes_bn', 'bayes_cn','bayes_in', 'cloud_an',
+                            'cloud_bn', 'cloud_cn', 'cloud_in',
+                            'satellite_zenith_angle', 'solar_zenith_angle',
+                            'latitude_an', 'longitude_an', 'confidence_an']
         scn.load(SLSTR_attributes)
 
         def Smake_series(Sattribute):
-            """Make a labelled pandas series for a given SLSTR attribute for all matched pixels in an SLSTR file"""
+            """
+            Make a labelled pandas series for a given SLSTR attribute for all
+            matched pixels in an SLSTR file
+            """
             # Prepare second index system for data on 1km instead of 0.5km grid
             hrows = [int(i/2) for i in rows]
             hcols = [int(i/2) for i in cols]
@@ -202,9 +209,11 @@ def process_pair(Spath, Cpath, interpolate=True):
                     file, 'IGBP_Surface_Type').flatten()
 
             Calipso_attributes = [Feature_Classification_Flags,
-                                  Latitude, Longitude, Profile_Time, Solar_Zenith_Angle, IGBP_Surface_Type]
+                                  Latitude, Longitude, Profile_Time,
+                                  Solar_Zenith_Angle, IGBP_Surface_Type]
             Calipso_attribute_names = ['Feature_Classification_Flags',
-                                       'Latitude', 'Longitude', 'Profile_Time', 'Solar_Zenith_Angle', 'IGBP_Surface_Type']
+                                       'Latitude', 'Longitude', 'Profile_Time',
+                                       'Solar_Zenith_Angle', 'IGBP_Surface_Type']
 
         elif Cpath.endswith('5'):    # CATS file
             file = h5py.File(Cpath)

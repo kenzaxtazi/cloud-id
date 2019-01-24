@@ -43,32 +43,20 @@ def make_attrib_hist(df, column='Latitude'):
 
 
 def make_CTruth_col(df):
-    tqdm.pandas()
-
-    def flagtruths(row):
-        val = row['Feature_Classification_Flags']
-        val = np.nan_to_num(val)
-        val = int(val) & 7
-        if val == 2:
-            return(True)
-        else:
-            return(False)
-    df['CTruth'] = df.progress_apply(lambda row: flagtruths(row), axis=1)
+    FCF = df['Feature_Classification_Flags']
+    val = FCF.astype(int)
+    val = val & 7
+    CTruth = val == 2
+    df['CTruth'] = pd.Series(CTruth, index=df.index)
     return(df)
 
 
 def make_STruth_col(df, cloudmask='cloud_an', bit=1):
-    tqdm.pandas()
-
-    def flagtruths(row):
-        val = row[cloudmask]
-        val = np.nan_to_num(val)
-        val = int(val) & bit
-        if val == bit:
-            return(True)
-        else:
-            return(False)
-    df['STruth'] = df.progress_apply(lambda row: flagtruths(row), axis=1)
+    bitfield = df[cloudmask]
+    val = bitfield.astype(int)
+    val = val & bit
+    STruth = val == bit
+    df['STruth'] = pd.Series(STruth, index=df.index)
     return(df)
 
 
@@ -85,11 +73,11 @@ def inputs_from_df(df, num_inputs=24):
     S4 = np.nan_to_num(df['S4_an'].values)
     S5 = np.nan_to_num(df['S5_an'].values)
     S6 = np.nan_to_num(df['S6_an'].values)
-    S7 = (np.nan_to_num(df['S7_in'].values))
-    S8 = (np.nan_to_num(df['S8_in'].values))
-    S9 = (np.nan_to_num(df['S9_in'].values))
-    salza = (np.nan_to_num(df['satellite_zenith_angle'].values))
-    solza = (np.nan_to_num(df['solar_zenith_angle'].values))
+    S7 = np.nan_to_num(df['S7_in'].values)
+    S8 = np.nan_to_num(df['S8_in'].values)
+    S9 = np.nan_to_num(df['S9_in'].values)
+    salza = np.nan_to_num(df['satellite_zenith_angle'].values)
+    solza = np.nan_to_num(df['solar_zenith_angle'].values)
     lat = np.nan_to_num(df['latitude_an'].values)
     lon = np.nan_to_num(df['longitude_an'].values)
     if num_inputs == 24:
@@ -99,7 +87,6 @@ def inputs_from_df(df, num_inputs=24):
         confidence_flags = bits_from_int(confidence)
 
         inputs = np.vstack((inputs, confidence_flags))
-        inputs = np.swapaxes(inputs, 0, 2)
         inputs = inputs.reshape((-1, num_inputs), order='F')
 
         return(inputs)

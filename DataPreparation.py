@@ -79,6 +79,7 @@ def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
 
     conv_pixels = pixel_info.astype(float)
     pix = np.nan_to_num(conv_pixels)
+    print('pix', pix.shape)
 
     # turns surfacetype bitmask into one-hot encoding
     pix = surftype_processing(pix)
@@ -87,6 +88,8 @@ def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
     pct = int(len(pix)*.15)
     training = pix[:-pct]   # take all but the 15% last
     validation = pix[-pct:]   # take the last 15% of pixels
+
+    print(validation.shape)
 
     # shuffle
     np.random.shuffle(training)
@@ -104,6 +107,8 @@ def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
         validation_data = validation[:, :-3]
         validation_truth_flags = validation[:, -2]
         bayes_values = validation[:, -3]
+
+   
 
     training_truth = []
     validation_truth = []
@@ -124,6 +129,8 @@ def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
 
     training_truth = np.array(training_truth)
     validation_truth = np.array(validation_truth)
+
+    
 
     return_list = [training_data, validation_data, training_truth,
                    validation_truth]
@@ -151,23 +158,17 @@ def surftype_class(validation_data, validation_truth, bayesian=None):
     pixel information array. This function is specifically used in the
     acc_stype_test.py script
     """
-
     coastline = []
     ocean = []
     tidal = []
     land = []
     inland_water = []
-    #unfilled = []
-    #spare1 = []
-    #spare2 = []
     cosmetic = []
     duplicate = []
     day = []
     twilight = []
     sun_glint = []
     snow = []
-    summary_cloud = []
-    summary_pointing = []
 
 
     # sorting data point into surface type categories from the one-hot encoding
@@ -288,7 +289,7 @@ def surftype_processing(array):
     """
 
     # sorting data point into surface type categories using bitwise addition
-
+    print('entry', array.shape)
     surftype_list = []
 
     for d in array:
@@ -305,10 +306,13 @@ def surftype_processing(array):
     # stiching the ones and zeros for the different surface types and then
     # linking the final two values
 
-    if len(array) > 14:
+    print('stype', surftype_list.shape)
+
+    if len(array[0]) > 14:
         new_array = np.column_stack((array[:, :13], surftype_list,
                                      array[:, 14:]))
     else:
         new_array = np.column_stack((array[:, :13], surftype_list))
 
+    print('exit', new_array.shape)
     return new_array

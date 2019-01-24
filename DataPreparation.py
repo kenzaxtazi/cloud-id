@@ -130,6 +130,9 @@ def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
 
     if bayesian is True:
         return_list.append([bayes_values])
+    else:
+        return_list.append([None])
+
 
     # saving the data
 

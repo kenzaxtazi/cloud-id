@@ -168,35 +168,45 @@ def surftype_class(validation_data, validation_truth, bayesian=None):
     sun_glint = []
     snow = []
 
+    coastline = np.array(coastline)
+    ocean = np.array(ocean)
+    tidal = np.array(tidal)
+    land = np.array(land)
+    inland_water = np.array(inland_water)
+    cosmetic = np.array(cosmetic)
+    duplicate = np.array(duplicate)
+    day = np.array(day)
+    twilight = np.array(twilight)
+    sun_glint = np.array(sun_glint)
+    snow = np.array(snow)
+
 
     # sorting data point into surface type categories from the one-hot encoding
     # added in the previous step
     if bayesian is not None:
         for i in range(len(validation_data)):
             if int(validation_data[i,13]) == 1:
-                coastline.append(
-                    [validation_data[i], validation_truth[i], bayesian[i]])
+                np.append(coastline, [validation_data[i], validation_truth[i], bayesian[i]])
             if int(validation_data[i,14]) == 1:
-                ocean.append([validation_data[i], validation_truth[i], bayesian[i]])
+                np.append(ocean, [validation_data[i], validation_truth[i], bayesian[i]])
             if int(validation_data[i,15]) == 1:
-                tidal.append([validation_data[i], validation_truth[i], bayesian[i]])
+                np.append(tidal, [validation_data[i], validation_truth[i], bayesian[i]])
             if int(validation_data[i,16]) == 1:
-                land.append([validation_data[i], validation_truth[i], bayesian[i]])
+                np.append(land, [validation_data[i], validation_truth[i], bayesian[i]])
             if int(validation_data[i,17]) == 1:
-                inland_water.append([validation_data[i], validation_truth[i], bayesian[i]])
+                np.append(inland_water, validation_data[i], validation_truth[i], bayesian[i]])
             if int(validation_data[i,18]) == 1:
-                cosmetic.append([validation_data[i], validation_truth[i], bayesian[i]])
+                np.append(cosmetic, [validation_data[i], validation_truth[i], bayesian[i]])
             if int(validation_data[i,19]) == 1:
-                duplicate.append([validation_data[i], validation_truth[i], bayesian[i]])
+                np.append(duplicate,[validation_data[i], validation_truth[i], bayesian[i]])
             if int(validation_data[i,20]) == 1:
-                day.append([validation_data[i], validation_truth[i], bayesian[i]])
+                np.append(day, [validation_data[i], validation_truth[i], bayesian[i]])
             if int(validation_data[i,21]) == 1:
-                twilight.append([validation_data[i], validation_truth[i], bayesian[i]])
+                np.append(twilight, [validation_data[i], validation_truth[i], bayesian[i]])
             if int(validation_data[i,22]) == 1:
-                sun_glint.append(
-                    [validation_data[i], validation_truth[i], bayesian[i]])
+                np.append(sun_glint, [validation,_data[i], validation_truth[i], bayesian[i]])
             if int(validation_data[i,23]) == 1:
-                snow.append([validation_data[i], validation_truth[i], bayesian[i]])
+                np.append(snow, [validation_data[i], validation_truth[i], bayesian[i]])
 
     if bayesian is None:
         for i in range(len(validation_data)):
@@ -223,17 +233,7 @@ def surftype_class(validation_data, validation_truth, bayesian=None):
             if int(validation_data[i,23]) == 1:
                 snow.append([validation_data[i], validation_truth[i]])
 
-        coastline = np.array(coastline)
-        ocean = np.array(ocean)
-        tidal = np.array(tidal)
-        land = np.array(land)
-        inland_water = np.array(inland_water)
-        cosmetic = np.array(cosmetic)
-        duplicate = np.array(duplicate)
-        day = np.array(day)
-        twilight = np.array(twilight)
-        sun_glint = np.array(sun_glint)
-        snow = np.array(snow)
+
         
         # the output is ready to be fed into a for loop to calculate model accuracy
         # as a function of surface type

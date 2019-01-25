@@ -124,7 +124,7 @@ for i in range(len(surftype_list)):
         b = a.reshape(-1,3)      
         # Print accuracy
         acc = me.get_accuracy(model.model, b[:,0],b[:,1])
-        me.ROC_curve(model, b[:,0], b[:,1], bayes_mask=b[:,2], name=names[i])
+        me.ROC_curve(model.model, b[:,0], b[:,1], bayes_mask=b[:,2], name=names[i])
         accuracies.append(acc)
         N.append(len(surftype_list[i]))
 
@@ -146,4 +146,3 @@ plt.show()
 
 # resets the tensorflow environment
 reset_default_graph()
-'''

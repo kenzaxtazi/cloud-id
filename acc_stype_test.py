@@ -110,7 +110,7 @@ model.Setup()
 model.Train(training_data, training_truth, validation_data, 
             validation_truth)
 
-
+'''
 accuracies = []
 N = []
 
@@ -122,7 +122,7 @@ for i in range(len(surftype_list)):
     if len(surftype_list[i]) > 0:
 
         # Print accuracy
-        acc = me.get_accuracy(model, (surftype_list[i])[0][:][0],(surftype_list[i])[:][0])
+        acc = me.get_accuracy(model, (surftype_list[i])[:][0],(surftype_list[i])[:][0])
         me.ROC_curve(model, (surftype_list[i])[:] [0], (surftype_list[i])[:][1],
                      bayes_mask=(surftype_list[i])[:][2], name=names[i])
         accuracies.append(acc)
@@ -146,3 +146,4 @@ plt.show()
 
 # resets the tensorflow environment
 reset_default_graph()
+'''

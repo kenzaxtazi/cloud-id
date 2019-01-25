@@ -4,7 +4,8 @@ import numpy as np
 
 import DataLoader as DL
 
-
+import cartopy
+import cartopy.crs as ccrs
 
 def FalseColour(Sreference, plot=True):
     """
@@ -120,3 +121,24 @@ def MaskComparison(Sreference, mask1, mask2, animate=True, frametime=1000):
         plt.imshow(mask2, cmap='Reds')
 
         plt.show()
+
+def plot_poles(latitude, longitude, data):
+
+    plt.figure()    
+    axN = plt.axes(projection=ccrs.Orthographic(-0, 90))
+    axN.add_feature(cartopy.feature.OCEAN, zorder=0)
+    axN.add_feature(cartopy.feature.LAND, zorder=0, edgecolor='black')
+    axN.set_global()
+    axN.gridlines()
+    axN.scatter(latitude, longitude, 3, data, transform=ccrs.Geodetic())
+
+    plt.figure()
+    axS = plt.axes(projection=ccrs.Orthographic(-0, -90))
+    axS.add_feature(cartopy.feature.OCEAN, zorder=0)
+    axS.add_feature(cartopy.feature.LAND, zorder=0, edgecolor='black')
+    axS.set_global()
+    axS.gridlines()
+    axS.scatter(latitude, longitude, 3, data, transform=ccrs.Geodetic())
+    
+    plt.show()
+    

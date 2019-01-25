@@ -95,7 +95,9 @@ validation_truth =np.load('validation_truth.npy')
 '''
 
 # MACHINE LEARNING MODEL
-
+LR = 1e-3  # learning rate
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+MODEL_NAME = 'Models/ffn_withancillarydata_' + timestamp
 para_num = 24
 
 # reshape data to pit into network

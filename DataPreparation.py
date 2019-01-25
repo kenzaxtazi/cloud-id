@@ -173,7 +173,6 @@ def surftype_class(validation_data, validation_truth, bayesian=None):
     # added in the previous step
     if bayesian is not None:
         for i in range(len(validation_data)):
-            print(i)
             if int(validation_data[i,13]) == 1:
                 coastline.append(
                     [validation_data[i], validation_truth[i], bayesian[i]])

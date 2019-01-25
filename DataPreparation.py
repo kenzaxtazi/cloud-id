@@ -194,7 +194,7 @@ def surftype_class(validation_data, validation_truth, bayesian=None):
             if int(validation_data[i,16]) == 1:
                 np.append(land, [validation_data[i], validation_truth[i], bayesian[i]])
             if int(validation_data[i,17]) == 1:
-                np.append(inland_water, validation_data[i], validation_truth[i], bayesian[i]])
+                np.append(inland_water, [validation_data[i], validation_truth[i], bayesian[i]])
             if int(validation_data[i,18]) == 1:
                 np.append(cosmetic, [validation_data[i], validation_truth[i], bayesian[i]])
             if int(validation_data[i,19]) == 1:

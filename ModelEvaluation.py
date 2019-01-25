@@ -58,7 +58,7 @@ def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
 
     if bayes_mask is not None:
         false_positive_rate2, true_positive_rate2, thresholds2\
-            = metrics.roc_curve(validation_truth[:, 1],
+            = metrics.roc_curve(validation_truth[:, 0],
                                 bayes_mask, pos_label=1)
         plt.scatter(false_positive_rate2, true_positive_rate2)
 

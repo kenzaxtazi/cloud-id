@@ -110,7 +110,7 @@ model.Setup()
 model.Train(training_data, training_truth, validation_data, 
             validation_truth)
 
-'''
+
 accuracies = []
 N = []
 
@@ -120,11 +120,11 @@ names = ['coastline', 'ocean', 'tidal', 'land', 'inland_water', 'cosmetic',
 for i in range(len(surftype_list)):
 
     if len(surftype_list[i]) > 0:
-
+        a = np.concatenate(surftype_list[i]) 
+        b = a.reshape(-1,3)      
         # Print accuracy
-        acc = me.get_accuracy(model, (surftype_list[i])[:][0],(surftype_list[i])[:][0])
-        me.ROC_curve(model, (surftype_list[i])[:] [0], (surftype_list[i])[:][1],
-                     bayes_mask=(surftype_list[i])[:][2], name=names[i])
+        acc = me.get_accuracy(model.model, b[:,0],b[:,1])
+        me.ROC_curve(model, b[:,0], b[:,1], bayes_mask=b[:,2], name=names[i])
         accuracies.append(acc)
         N.append(len(surftype_list[i]))
 

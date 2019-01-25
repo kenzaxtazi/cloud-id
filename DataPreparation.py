@@ -180,7 +180,7 @@ def surftype_class(validation_data, validation_truth, bayesian=None):
             if int(validation_data[i,15]) == 1:
                 tidal.append(np.array([validation_data[i], validation_truth[i], bayesian[i]]))
             if int(validation_data[i,16]) == 1:
-                land.append([np.array(validation_data[i], validation_truth[i], bayesian[i]]))
+                land.append(np.array([validation_data[i], validation_truth[i], bayesian[i]]))
             if int(validation_data[i,17]) == 1:
                 inland_water.append(np.array([validation_data[i], validation_truth[i], bayesian[i]]))
             if int(validation_data[i,18]) == 1:

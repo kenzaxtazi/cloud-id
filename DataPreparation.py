@@ -131,14 +131,13 @@ def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
     
 
     return_list = [training_data, validation_data, training_truth,
-                   validation_truth]
+                   validation_truth, None]
 
     if bayesian is True:
         bayes_values[bayes_values > 1] = 1
         bayes_values.astype(int)
-        return_list.extend([bayes_values])
-    else:
-        return_list.extend([None])
+        return_list[-1] = (bayes_values)
+
 
     # saving the data
     '''

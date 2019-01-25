@@ -20,6 +20,8 @@ import DataPreparation as dp
 import ModelApplication as app
 import ModelEvaluation as me
 import PixelAnalysis as PA
+import DataLoader as DL
+import Visualisation as Vis
 
 
 class FFN():
@@ -137,6 +139,8 @@ class FFN():
         self.model = tflearn.DNN(self.network, tensorboard_verbose=0)
 
     def Train(self, training_data, training_truth, validation_data, validation_truth):
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        MODEL_NAME = 'Models/ffn_withancillarydata_' + timestamp
         self.model.fit(training_data, training_truth, n_epoch=2,
                        validation_set=(validation_data, validation_truth),
                        snapshot_step=10000, show_metric=True, run_id=MODEL_NAME)

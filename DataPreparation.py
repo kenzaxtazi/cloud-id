@@ -204,7 +204,7 @@ def surftype_class(validation_data, validation_truth, bayesian=None):
             if int(validation_data[i,21]) == 1:
                 np.append(twilight, [validation_data[i], validation_truth[i], bayesian[i]])
             if int(validation_data[i,22]) == 1:
-                np.append(sun_glint, [validation,_data[i], validation_truth[i], bayesian[i]])
+                np.append(sun_glint, [validation_data[i], validation_truth[i], bayesian[i]])
             if int(validation_data[i,23]) == 1:
                 np.append(snow, [validation_data[i], validation_truth[i], bayesian[i]])
 

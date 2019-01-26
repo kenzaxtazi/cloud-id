@@ -114,15 +114,14 @@ model.Train(training_data, training_truth, validation_data,
 accuracies = []
 N = []
 
-names = ['snow',  'sun_glint', 'twilight', 'day', 'duplicate', 'cosmetic', 
-         'inland_water', 'land', 'tidal', 'ocean', 'coastline'] 
+names = ['Snow',  'Sun glint', 'Twilight', 'Day', 'Duplicate', 'Cosmetic', 
+         'Inland water', 'Land', 'Tidal', 'Ocean', 'Coastline'] 
 
 for i in range(len(surftype_list)):
 
     if len(surftype_list[i]) > 0:
         a = np.concatenate(surftype_list[i]) 
-        b = a.reshape(-1,3)      
-        # Print accuracy
+        b = a.reshape(-1,3)
         acc = me.get_accuracy(model.model, b[:,0],b[:,1])
         me.ROC_curve(model.model, b[:,0], b[:,1], bayes_mask=b[:,2], name=names[i])
         accuracies.append(acc)

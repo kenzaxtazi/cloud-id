@@ -27,7 +27,7 @@ def FalseColour(Sreference, plot=True):
     else:
         scn = Sreference
 
-    scn.load(['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an'])
+    scn.load(['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'latitude_an', 'longitude_an'])
     S1 = np.nan_to_num(scn['S1_an'].values)
     S2 = np.nan_to_num(scn['S2_an'].values)
     S3 = np.nan_to_num(scn['S3_an'].values)
@@ -47,10 +47,13 @@ def FalseColour(Sreference, plot=True):
 
     rgb = np.dstack((red, green, blue))
 
+    LatPos = str(round(scn['latitude_an'].values[0, 0], 6))
+    LonPos = str(round(scn['longitude_an'].values[0, 0], 6))
+
     if plot is True:
         plt.figure()
         plt.imshow(rgb)
-        plt.title('False colour image')
+        plt.title('False colour image\n' + '(' + LatPos + ', ' + LonPos + ')')
 
     return(rgb)
 

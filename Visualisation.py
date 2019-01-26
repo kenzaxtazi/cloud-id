@@ -7,6 +7,7 @@ import DataLoader as DL
 import cartopy
 import cartopy.crs as ccrs
 
+
 def FalseColour(Sreference, plot=True):
     """
     Produce false colour image for SLSTR file
@@ -122,23 +123,53 @@ def MaskComparison(Sreference, mask1, mask2, animate=True, frametime=1000):
 
         plt.show()
 
-def plot_poles(latitude, longitude, data):
 
-    plt.figure()    
-    axN = plt.axes(projection=ccrs.Orthographic(-0, 90))
+def plot_poles(latitude, longitude, data):
+    """
+    Plot data on two polar views of the globe
+
+    Parameters
+    ----------
+    latitude: array
+        Array of latitudes to plot.
+
+    longitude: array
+        Array of longitudes to plot.
+
+    data: array
+        Array of data values to plot. Represented by the colour of plotted data points.
+    """
+    Nlatitude, Nlongitude, Ndata = [], [], []
+    Slatitude, Slongitude, Sdata = [], [], []
+    datamin, datamax = min(data), max(data)
+    for i in range(len(latitude)):
+        if latitude[i] > 0:  # Northern hemisphere
+            Nlatitude.append(latitude[i])
+            Nlongitude.append(longitude[i])
+            Ndata.append(data[i])
+        else:   # Southern hemisphere
+            Slatitude.append(latitude[i])
+            Slongitude.append(longitude[i])
+            Sdata.append(data[i])
+
+    plt.figure()
+    axN = plt.axes(projection=ccrs.Orthographic(0, 90))
     axN.add_feature(cartopy.feature.OCEAN, zorder=0)
     axN.add_feature(cartopy.feature.LAND, zorder=0, edgecolor='black')
     axN.set_global()
     axN.gridlines()
-    axN.scatter(latitude, longitude, 3, data, transform=ccrs.Geodetic())
+    NorthPlot = axN.scatter(Nlongitude, Nlatitude, 3,
+                            Ndata, transform=ccrs.Geodetic(), vmin=datamin, vmax=datamax)
+    plt.colorbar(NorthPlot)
 
     plt.figure()
-    axS = plt.axes(projection=ccrs.Orthographic(-0, -90))
+    axS = plt.axes(projection=ccrs.Orthographic(0, -90))
     axS.add_feature(cartopy.feature.OCEAN, zorder=0)
     axS.add_feature(cartopy.feature.LAND, zorder=0, edgecolor='black')
     axS.set_global()
     axS.gridlines()
-    axS.scatter(latitude, longitude, 3, data, transform=ccrs.Geodetic())
-    
+    SouthPlot = axS.scatter(Slongitude, Slatitude, 3,
+                            Sdata, transform=ccrs.Geodetic(), vmin=datamin, vmax=datamax)
+    plt.colorbar(SouthPlot)
+
     plt.show()
-    

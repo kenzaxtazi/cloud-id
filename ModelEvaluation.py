@@ -48,11 +48,11 @@ def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
             validation_truth[:, 0], predictions[:, 0], pos_label=1)
 
     if name is None:
-        plt.figure('ROC curve')
-        plt.title('ROC curve')
+        plt.figure('ROC')
+        plt.title('ROC')
     else:
-        plt.figure(name + ' ' + 'ROC curve')
-        plt.title(name + ' ' + 'ROC curve')
+        plt.figure(name + ' ' + 'ROC')
+        plt.title(name + ' ' + 'ROC')
     plt.plot(false_positive_rate, true_positive_rate)
     plt.xlabel('False positive rate')
     plt.ylabel('True positive rate')

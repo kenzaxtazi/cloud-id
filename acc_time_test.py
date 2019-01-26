@@ -78,14 +78,14 @@ pixel_info10 = pd.read_pickle("/home/hep/trz15/Matched_Pixels2/CATS/\
 '''
 
 # Training data files on users local laptop
-pixel_info1 = pd.read_pickle("/Users/kenzatazi/Desktop/Apr18P3.pkl")
-pixel_info2 = pd.read_pickle("/Users/kenzatazi/Desktop/May18P3.pkl")
-pixel_info3 = pd.read_pickle("/Users/kenzatazi/Desktop/Feb18P3.pkl")
-pixel_info4 = pd.read_pickle("/Users/kenzatazi/Desktop/Mar18P3.pkl")
-pixel_info5 = pd.read_pickle("/Users/kenzatazi/Desktop/Jun18P3.pkl")
-# pixel_info6 = pd.read_pickle("/Users/kenzatazi/Desktop/Jul18P3.pkl")
-pixel_info7 = pd.read_pickle("/Users/kenzatazi/Desktop/Aug18P3.pkl")
-pixel_info8 = pd.read_pickle("/Users/kenzatazi/Desktop/Jan18P3.pkl")
+pixel_info1 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/Apr18P3.pkl")
+pixel_info2 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/May18P3.pkl")
+pixel_info3 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/Feb18P3.pkl")
+pixel_info4 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/Mar18P3.pkl")
+pixel_info5 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/Jun18P3.pkl")
+pixel_info6 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/Jul18P3.pkl")
+pixel_info7 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/Aug18P3.pkl")
+pixel_info8 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/Jan18P3.pkl")
 
 
 pixel_info = pd.concat([pixel_info1, pixel_info2, pixel_info3, pixel_info4,
@@ -156,11 +156,10 @@ softmax = fully_connected(dropout4, 2, activation='softmax')
 
 # gives the paramaters to optimise the network
 network = regression(softmax, optimizer='Adam', learning_rate=LR,
-                     loss='categorical_crossentropy', name='targets', session=)
+                     loss='categorical_crossentropy', name='targets')
 # creates the model
 model = tflearn.DNN(network, tensorboard_verbose=0)
 model.save(MODEL_NAME)
-
 
 # If model is already created
 """
@@ -171,6 +170,10 @@ Year 4/Msci Project/{}.meta'.format(MODEL_NAME)):
     print('model loaded!')
 """
 
+ # Model training
+model.fit(training_data, training_truth, n_epoch=2, 
+          validation_set=(new_validation_data, new_validation_truth),
+          snapshot_step=10000, show_metric=True, run_id=MODEL_NAME)
 
 # TRAINING
 
@@ -196,12 +199,6 @@ for t in time_slices:
     if len(new_validation_data) > 0:
 
         new_validation_data = new_validation_data.reshape(-1, para_num)
-
-        # Model training
-        model.fit(training_data, training_truth, n_epoch=2,
-                  validation_set=(new_validation_data, new_validation_truth),
-                  snapshot_step=10000, show_metric=True, run_id=MODEL_NAME)
-
         # Print accuracy
         acc = me.get_accuracy(model, new_validation_data, new_validation_truth)
         accuracies.append(acc)

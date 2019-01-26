@@ -114,8 +114,8 @@ model.Train(training_data, training_truth, validation_data,
 accuracies = []
 N = []
 
-names = ['coastline', 'ocean', 'tidal', 'land', 'inland_water', 'cosmetic',
-         'duplicate', 'day', 'twilight', 'sun_glint', 'snow']
+names = ['snow',  'sun_glint', 'twilight', 'day', 'duplicate', 'cosmetic', 
+         'inland_water', 'land', 'tidal', 'tidal', 'coastline'] 
 
 for i in range(len(surftype_list)):
 

@@ -57,12 +57,8 @@ def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
     plt.plot([0, 1], [0, 1], label="random classifier")
 
     if bayes_mask is not None:
-        matrix = tf.confusion_matrix(validation_truth[:, 0], bayes_mask)
-        with tf.Session().as_default() as sess:
-            m = tf.Tensor.eval(matrix, feed_dict=None, session=sess)
-        false_positive_rate2 = float(m[1,0])/float((m[1,0])+m([1,1]))
-        true_positive_rate2 = float(m[0,0])/float((m[0,0])+m([0,1]))
-        plt.scatter(false_positive_rate2, true_positive_rate2)
+        tn, fp, fn, tp = metrics.confusion_matrix(validation_truth[:, 0], bayes_mask).ravel()
+        plt.scatter(fp, tp)
 
 
 def AUC(model, validation_data, validation_truth):

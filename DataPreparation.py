@@ -151,7 +151,7 @@ def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
     validation_truth = np.array(validation_truth)
 
     return_list = [training_data, validation_data, training_truth,
-                   validation_truth, None]
+                   validation_truth]
 
     if bayesian is True:
         return_list.extend([bayes_values])

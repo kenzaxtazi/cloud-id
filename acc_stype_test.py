@@ -115,7 +115,7 @@ accuracies = []
 N = []
 
 names = ['snow',  'sun_glint', 'twilight', 'day', 'duplicate', 'cosmetic', 
-         'inland_water', 'land', 'tidal', 'tidal', 'coastline'] 
+         'inland_water', 'land', 'tidal', 'ocean', 'coastline'] 
 
 for i in range(len(surftype_list)):
 

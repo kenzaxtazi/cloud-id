@@ -50,12 +50,13 @@ def FalseColour(Sreference, plot=True):
     LatPos = str(round(scn['latitude_an'].values[0, 0], 6))
     LonPos = str(round(scn['longitude_an'].values[0, 0], 6))
 
+    PosString = '(' + LatPos + ', ' + LonPos + ')'
     if plot is True:
         plt.figure()
         plt.imshow(rgb)
-        plt.title('False colour image\n' + '(' + LatPos + ', ' + LonPos + ')')
+        plt.title('False colour image\n' + PosString)
 
-    return(rgb)
+    return(rgb, PosString)
 
 
 def MaskComparison(Sreference, mask1, mask2, animate=True, frametime=1000):
@@ -101,10 +102,13 @@ def MaskComparison(Sreference, mask1, mask2, animate=True, frametime=1000):
     print("Mask 1 image coverage: " + mask1cov_percent + "%")
     print("Mask 2 image coverage: " + mask2cov_percent + "%")
 
+    rgb, PosString = FalseColour(Sreference, plot=False)
+
     if animate is True:
         fig = plt.figure()
-
-        FC = [plt.imshow(FalseColour(Sreference, plot=False))]
+        plt.title(PosString)
+        
+        FC = [plt.imshow(rgb)]
 
         im1 = [plt.imshow(mask1, cmap='Blues')]
 
@@ -116,12 +120,16 @@ def MaskComparison(Sreference, mask1, mask2, animate=True, frametime=1000):
         plt.show()
         return(ani)
     else:
-        plt.imshow(FalseColour(Sreference, plot=True))
+        plt.figure()
+        plt.title(PosString)
+        plt.imshow(rgb)
 
         plt.figure()
+        plt.title(PosString)
         plt.imshow(mask1, cmap='Blues')
 
         plt.figure()
+        plt.title(PosString)
         plt.imshow(mask2, cmap='Reds')
 
         plt.show()

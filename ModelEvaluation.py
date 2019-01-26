@@ -39,6 +39,8 @@ def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
     validation_data = validation_data.reshape(-1, para_num)
     validation_truth = np.concatenate(validation_truth)
     validation_truth = validation_truth.reshape(-1, 2)
+    
+    bayes_mask[bayes_mask > 1.0] = 1.0
 
     predictions = model.predict(validation_data)
 
@@ -57,7 +59,7 @@ def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
     plt.plot([0, 1], [0, 1], label="random classifier")
 
     if bayes_mask is not None:
-        tn, fp, fn, tp = metrics.confusion_matrix(validation_truth[:, 0], bayes_mask).ravel()
+        tn, fp, fn, tp = (metrics.confusion_matrix(validation_truth[:, 0], bayes_mask)).ravel()
         plt.scatter(fp, tp)
 
 

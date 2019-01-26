@@ -134,8 +134,6 @@ def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
                    validation_truth]
 
     if bayesian is True:
-        bayes_values[bayes_values > 1] = 1
-        bayes_values = bayes_values.astype(int)
         return_list.extend([bayes_values])
     else:
         return_list.extend([None])

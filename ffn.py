@@ -19,7 +19,6 @@ from tflearn.layers.estimator import regression
 import DataPreparation as dp
 import ModelApplication as app
 import ModelEvaluation as me
-import PixelAnalysis as PA
 
 # Pixel Loading
 
@@ -29,16 +28,16 @@ if os.path.exists('/vols/lhcb/egede/cloud'):
               '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20171217T190102_20171217T190402_20171218T223735_0179_025_341_2879_LN2_O_NT_002.SEN3',
               '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20180113T190102_20180113T190402_20180114T230219_0179_026_341_2880_LN2_O_NT_002.SEN3',
               '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20180209T190102_20180209T190402_20180210T234449_0179_027_341_2880_LN2_O_NT_002.SEN3']
-    pixel_info = PA.PixelLoader("/home/hep/trz15/Matched_Pixels2/Calipso")
+    pixel_info = dp.PixelLoader("/home/hep/trz15/Matched_Pixels2/Calipso")
 
 if os.path.exists('/Users/kenzatazi'):
     # Script is running on Kenza's laptop
     scenes = ['/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20180529T113003_20180529T113303_20180530T154711_0179_031_351_1620_LN2_O_NT_003.SEN3']
-    pixel_info = PA.PixelLoader("/Users/kenzatazi/Desktop")
+    pixel_info = dp.PixelLoader("/Users/kenzatazi/Desktop")
 
 if os.path.exists('D:'):
     scenes = []
-    pixel_info = PA.PixelLoader(r"D:\SatelliteData\SLSTR\Pixels2")
+    pixel_info = dp.PixelLoader(r"D:\SatelliteData\SLSTR\Pixels2")
 
 pixels = sklearn.utils.shuffle(pixel_info)
 

@@ -1,5 +1,4 @@
 from ModelApplication import apply_mask
-from ModelLoader import model_loader
 import DataLoader as DL
 import Visualisation as Vis
 from ffn2 import FFN

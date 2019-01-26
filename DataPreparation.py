@@ -6,9 +6,33 @@ Created on Sun Jan  6 17:29:23 2019
 @author: kenzatazi
 """
 
-import numpy as np
-import DataLoader as DL
 import datetime
+import os
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
+
+import DataLoader as DL
+
+
+def PixelLoader(directory):
+    """Load all pixels in a directory of pickle files into a single DataFrame"""
+
+    if directory.endswith('/') is False:
+        directory += '/'
+    PickleFilenames = os.listdir(directory)
+    PicklePaths = [directory + i for i in PickleFilenames]
+
+    out = pd.DataFrame()
+    for file in PicklePaths:
+        if file.endswith('.pkl'):
+            out = out.append(pd.read_pickle(
+                file), sort=True, ignore_index=True)
+
+    print("%s pixels loaded" % (len(out)))
+    return(out)
 
 
 def getinputs(Sreference, num_inputs=13):
@@ -70,6 +94,7 @@ def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
     Optionally outputs sub-images for the CNN for the both the validation and
     training set.
     """
+    # Prepare random number for shuffling, save seed to file
     if seed == None:
         seed = np.random.randint(0, 2**32, dtype='uint32')
         np.random.seed(seed)
@@ -88,7 +113,6 @@ def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
     training = pix[:-pct]   # take all but the 15% last
     validation = pix[-pct:]   # take the last 15% of pixels
 
-
     # shuffle
     np.random.shuffle(training)
     np.random.shuffle(validation)
@@ -105,8 +129,6 @@ def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
         validation_data = validation[:, :-3]
         validation_truth_flags = validation[:, -2]
         bayes_values = validation[:, -3]
-
-   
 
     training_truth = []
     validation_truth = []
@@ -128,10 +150,8 @@ def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
     training_truth = np.array(training_truth)
     validation_truth = np.array(validation_truth)
 
-    
-
     return_list = [training_data, validation_data, training_truth,
-                   validation_truth]
+                   validation_truth, None]
 
     if bayesian is True:
         return_list.extend([bayes_values])
@@ -168,58 +188,67 @@ def surftype_class(validation_data, validation_truth, bayesian=None):
     sun_glint = []
     snow = []
 
-
     # sorting data point into surface type categories from the one-hot encoding
     # added in the previous step
     if bayesian is not None:
         for i in range(len(validation_data)):
-            if int(validation_data[i,13]) == 1:
-                coastline.append(np.array([validation_data[i], validation_truth[i], bayesian[i]]))
-            if int(validation_data[i,14]) == 1:
-                ocean.append(np.array([validation_data[i], validation_truth[i], bayesian[i]]))
-            if int(validation_data[i,15]) == 1:
-                tidal.append(np.array([validation_data[i], validation_truth[i], bayesian[i]]))
-            if int(validation_data[i,16]) == 1:
-                land.append(np.array([validation_data[i], validation_truth[i], bayesian[i]]))
-            if int(validation_data[i,17]) == 1:
-                inland_water.append(np.array([validation_data[i], validation_truth[i], bayesian[i]]))
-            if int(validation_data[i,18]) == 1:
-                cosmetic.append(np.array([validation_data[i], validation_truth[i], bayesian[i]]))
-            if int(validation_data[i,19]) == 1:
-                duplicate.append(np.array([validation_data[i], validation_truth[i], bayesian[i]]))
-            if int(validation_data[i,20]) == 1:
-                day.append(np.array([validation_data[i], validation_truth[i], bayesian[i]]))
-            if int(validation_data[i,21]) == 1:
-                twilight.append(np.array([validation_data[i], validation_truth[i], bayesian[i]]))
-            if int(validation_data[i,22]) == 1:
+            if int(validation_data[i, 13]) == 1:
+                coastline.append(
+                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+            if int(validation_data[i, 14]) == 1:
+                ocean.append(
+                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+            if int(validation_data[i, 15]) == 1:
+                tidal.append(
+                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+            if int(validation_data[i, 16]) == 1:
+                land.append(
+                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+            if int(validation_data[i, 17]) == 1:
+                inland_water.append(
+                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+            if int(validation_data[i, 18]) == 1:
+                cosmetic.append(
+                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+            if int(validation_data[i, 19]) == 1:
+                duplicate.append(
+                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+            if int(validation_data[i, 20]) == 1:
+                day.append(
+                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+            if int(validation_data[i, 21]) == 1:
+                twilight.append(
+                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+            if int(validation_data[i, 22]) == 1:
                 sun_glint.append(np.array(
                     [validation_data[i], validation_truth[i], bayesian[i]]))
-            if int(validation_data[i,23]) == 1:
-                snow.append(np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+            if int(validation_data[i, 23]) == 1:
+                snow.append(
+                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
 
     if bayesian is None:
         for i in range(len(validation_data)):
-            if int(validation_data[i,13]) == 1:
+            if int(validation_data[i, 13]) == 1:
                 coastline.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i,14]) == 1:
+            if int(validation_data[i, 14]) == 1:
                 ocean.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i,15]) == 1:
+            if int(validation_data[i, 15]) == 1:
                 tidal.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i,16]) == 1:
+            if int(validation_data[i, 16]) == 1:
                 land.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i,17]) == 1:
+            if int(validation_data[i, 17]) == 1:
                 inland_water.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i,18]) == 1:
+            if int(validation_data[i, 18]) == 1:
                 cosmetic.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i,19]) == 1:
+            if int(validation_data[i, 19]) == 1:
                 duplicate.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i,20]) == 1:
+            if int(validation_data[i, 20]) == 1:
                 day.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i,21]) == 1:
+            if int(validation_data[i, 21]) == 1:
                 twilight.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i,22]) == 1:
+            if int(validation_data[i, 22]) == 1:
                 sun_glint.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i,23]) == 1:
+            if int(validation_data[i, 23]) == 1:
                 snow.append([validation_data[i], validation_truth[i]])
 
         coastline = np.array(coastline)
@@ -233,11 +262,11 @@ def surftype_class(validation_data, validation_truth, bayesian=None):
         twilight = np.array(twilight)
         sun_glint = np.array(sun_glint)
         snow = np.array(snow)
-        
+
         # the output is ready to be fed into a for loop to calculate model accuracy
         # as a function of surface type
 
-    return [coastline, ocean, tidal, land, inland_water, cosmetic, 
+    return [coastline, ocean, tidal, land, inland_water, cosmetic,
             duplicate, day, twilight, sun_glint, snow]
 
 
@@ -308,3 +337,74 @@ def surftype_processing(array):
         new_array = np.column_stack((array[:, :13], surftype_list))
 
     return new_array
+
+
+def inputs_from_df(df, num_inputs=24):
+    """Load values from dataframe into input array for tflearn model"""
+    S1 = np.nan_to_num(df['S1_an'].values)
+    S2 = np.nan_to_num(df['S2_an'].values)
+    S3 = np.nan_to_num(df['S3_an'].values)
+    S4 = np.nan_to_num(df['S4_an'].values)
+    S5 = np.nan_to_num(df['S5_an'].values)
+    S6 = np.nan_to_num(df['S6_an'].values)
+    S7 = np.nan_to_num(df['S7_in'].values)
+    S8 = np.nan_to_num(df['S8_in'].values)
+    S9 = np.nan_to_num(df['S9_in'].values)
+    salza = np.nan_to_num(df['satellite_zenith_angle'].values)
+    solza = np.nan_to_num(df['solar_zenith_angle'].values)
+    lat = np.nan_to_num(df['latitude_an'].values)
+    lon = np.nan_to_num(df['longitude_an'].values)
+    if num_inputs == 24:
+        confidence = np.nan_to_num(df['confidence_an'].values)
+        inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
+                           S8, S9, salza, solza, lat, lon])
+        confidence_flags = bits_from_int(confidence)
+
+        inputs = np.vstack((inputs, confidence_flags))
+        inputs = inputs.reshape((-1, num_inputs), order='F')
+
+        return(inputs)
+    else:
+        print("Invalid number of inputs")
+
+
+def truth_from_bitmask(row):
+    val = row['Feature_Classification_Flags']
+    val = np.nan_to_num(val)
+    val = int(val) & 7
+    if val == 2:
+        return(True)
+    else:
+        return(False)
+
+
+def make_attrib_hist(df, column='Latitude'):
+    out = df[column]
+    frq, edges = np.histogram(out, 100)
+    plt.title(column + ' histogram')
+    plt.bar(edges[:-1], frq, width=np.diff(edges), ec='k', align='edge')
+    plt.show()
+
+
+def make_CTruth_col(df):
+    FCF = df['Feature_Classification_Flags']
+    val = FCF.astype(int)
+    val = val & 7
+    CTruth = val == 2
+    df['CTruth'] = pd.Series(CTruth, index=df.index)
+    return(df)
+
+
+def make_STruth_col(df, cloudmask='cloud_an', bit=1):
+    bitfield = df[cloudmask]
+    val = bitfield.astype(int)
+    val = val & bit
+    STruth = val == bit
+    df['STruth'] = pd.Series(STruth, index=df.index)
+    return(df)
+
+
+def TruthMatches(df):
+    q = df['CTruth'] == df['STruth']
+    out = np.mean(q)
+    return(out)

@@ -190,7 +190,7 @@ if __name__ == '__main__':
 
     # prepares data for ffn
     training_data, validation_data, training_truth, validation_truth, _ = dp.prep_data(
-        pixel_values)
+        pixel_values, True)
 
     # If dataset already created :
     '''

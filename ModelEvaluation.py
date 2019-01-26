@@ -15,7 +15,6 @@ import numpy as np
 
 
 def get_accuracy(model, validation_data, validation_truth, para_num=24):
-
     """ returns model accuracy """
 
     validation_data = np.concatenate(validation_data)
@@ -31,7 +30,6 @@ def get_accuracy(model, validation_data, validation_truth, para_num=24):
 
 def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
               name=None):
-
     """Plots Receiver Operating Characteristic (ROC) curve"""
 
     para_num = len(validation_data[0])
@@ -45,7 +43,7 @@ def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
     predictions = model.predict(validation_data)
 
     false_positive_rate, true_positive_rate, thresholds = metrics.roc_curve(
-            validation_truth[:, 0], predictions[:, 0], pos_label=1)
+        validation_truth[:, 0], predictions[:, 0], pos_label=1)
 
     if name is None:
         plt.figure('ROC')
@@ -61,12 +59,12 @@ def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
     if bayes_mask is not None:
         validation_truth = validation_truth.astype(int)
         bayes_mask = bayes_mask.astype(int)
-        tn, fp, fn, tp = (metrics.confusion_matrix(validation_truth[:, 0], bayes_mask, labels=(0,1))).ravel()
+        tn, fp, fn, tp = (metrics.confusion_matrix(
+            validation_truth[:, 0], bayes_mask, labels=(0, 1))).ravel()
         plt.scatter(float(fp)/float(tn+fp), float(tp)/float(fn+tp))
 
 
 def AUC(model, validation_data, validation_truth):
-
     """Returs area under Receiver Operating Characteristic (ROC) curve"""
 
     predictions = model.predict(validation_data)
@@ -76,13 +74,12 @@ def AUC(model, validation_data, validation_truth):
 
 
 def precision_vs_recall(model, validation_data, validation_truth):
-
     """Plots precision vs recall curve"""
 
     predictions = np.nan_to_num(model.predict(validation_data))
 
     precision, recall, thresholds = metrics.precision_recall_curve(
-            validation_truth[:, 0], predictions[:, 0], pos_label=1)
+        validation_truth[:, 0], predictions[:, 0], pos_label=1)
 
     plt.figure('Precision vs recall curve')
     plt.title('Precision vs recall curve')
@@ -92,12 +89,11 @@ def precision_vs_recall(model, validation_data, validation_truth):
 
 
 def confusion_matrix(model, validation_data, validation_truth):
-
     """ Returns a confusion matrix"""
 
     labels = model.predict_label(validation_data)
     matrix = tf.confusion_matrix(validation_truth[:, 0],
-                                           labels[:, 0])
+                                 labels[:, 0])
     with tf.Session().as_default() as sess:
         m = tf.Tensor.eval(matrix, feed_dict=None, session=sess)
     return m

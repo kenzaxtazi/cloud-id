@@ -6,9 +6,15 @@ Created on Sun Jan  6 17:29:23 2019
 @author: kenzatazi
 """
 
-import numpy as np
-import DataLoader as DL
 import datetime
+import os
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
+
+import DataLoader as DL
 
 
 def PixelLoader(directory):

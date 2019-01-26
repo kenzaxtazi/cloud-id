@@ -27,7 +27,8 @@ def FalseColour(Sreference, plot=True):
     else:
         scn = Sreference
 
-    scn.load(['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'latitude_an', 'longitude_an'])
+    scn.load(['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an',
+              'S6_an', 'latitude_an', 'longitude_an'])
     S1 = np.nan_to_num(scn['S1_an'].values)
     S2 = np.nan_to_num(scn['S2_an'].values)
     S3 = np.nan_to_num(scn['S3_an'].values)
@@ -107,7 +108,7 @@ def MaskComparison(Sreference, mask1, mask2, animate=True, frametime=1000):
     if animate is True:
         fig = plt.figure()
         plt.title(PosString)
-        
+
         FC = [plt.imshow(rgb)]
 
         im1 = [plt.imshow(mask1, cmap='Blues')]
@@ -184,3 +185,50 @@ def plot_poles(latitude, longitude, data):
     plt.colorbar(SouthPlot)
 
     plt.show()
+
+
+def probability_mask(pmask, S1):
+    """ 
+    Creates plot for the probability mask 
+
+    Parameters
+    ----------
+    pmask: 2D array
+        Array of probabilities to plot.
+
+    S1: 2D array 
+        Array of radiances to plot.
+    """
+    plt.imshow(S1, 'gray')
+    plt.imshow(pmask, alpha=0.2)
+    plt.colorbar()
+
+
+def false_color_image(band1, band2, band3, plot=True):
+    """ 
+    Creates a false colour image
+
+    Parameters
+    ----------
+
+    band1: 2D array
+        Channel to be plotted as red
+    band2: 2D array
+        Channel to be plotted as green
+    band3: 2D array
+        Channel to be plotted as blue
+    plot: boolean
+        if: plot= True, the image is plotted
+
+    Returns
+    ----------
+    6D array (3*2D)
+    """
+    rgb = np.dstack((norm(band1), norm(band2), norm(band3)))
+
+    if plot == True:
+        plt.figure()
+        plt.imshow(rgb)
+        plt.title('False colour image')
+
+    return rgb

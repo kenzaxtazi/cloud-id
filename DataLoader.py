@@ -115,29 +115,6 @@ def norm(band):
     return ((band - band_min)/(band_max - band_min))
 
 
-def false_color_image(band1, band2, band3, plot=True):
-    """ 
-    Creates a false colour image
-
-    Input: 
-    band1 (2D array) <=> red 
-    band2 (2D array) <=> green
-    band3 (2D array) <=> blue
-
-    Output: 6D array (3*2D)
-
-    if: plot= True, the image is plotted
-    """
-    rgb = np.dstack((norm(band1), norm(band2), norm(band3)))
-
-    if plot == True:
-        plt.figure()
-        plt.imshow(rgb)
-        plt.title('False colour image')
-
-    return rgb
-
-
 def extract_mask(Sreference, MaskFile, MaskBit):
     if type(Sreference) == str:
         scn = scene_loader(Sreference)

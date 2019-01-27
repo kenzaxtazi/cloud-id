@@ -87,7 +87,7 @@ def getinputs(Sreference, num_inputs=13):
         return(inputs)
 
 
-def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None):
+def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None, MaxDist=500, MaxTime=1200):
     """Prepares a set of data for training the FFN"""
     # Record RNG seed to file, or set custom seed.
     if seed == None:
@@ -104,7 +104,10 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None):
     # Load collocated pixels from dataframe
     df = PixelLoader(directory)
 
-    # TODO Remove high timediff / distance pixels ...
+    # Remove high timediff / distance pixels ...
+    df = df[df['Distance'] < MaxDist]
+    df = df[abs(df['TimeDiff']) < MaxTime]
+    
     pixels = sklearn.utils.shuffle(df, random_state=seed)
 
     confidence_int = pixels['confidence_an'].values
@@ -126,7 +129,6 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None):
     pix = np.column_stack((pix, pixel_indices))
 
     pix = pix.astype(float)
-    np.random.shuffle(pix)
 
     pct = int(len(pix)*validation_frac)
     training = pix[:-pct, :]   # take all but the 15% last

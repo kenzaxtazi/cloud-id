@@ -69,9 +69,8 @@ def getinputs(Sreference, num_inputs=13):
     if num_inputs == 13:
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7, S8, S9, salza,
                            solza, lat, lon])
-        inputs = np.swapaxes(inputs, 0, 2)
-        inputs = inputs.reshape((-1, num_inputs), order='F')
-        return(inputs)
+        inputs = np.reshape(num_inputs, 7200000)
+        return(inputs.T)
 
     if num_inputs == 24:
         scn.load(['confidence_an'])
@@ -81,10 +80,8 @@ def getinputs(Sreference, num_inputs=13):
         confidence_flags = bits_from_int(confidence)
 
         inputs = np.vstack((inputs, confidence_flags))
-        inputs = np.swapaxes(inputs, 0, 2)
-        inputs = inputs.reshape((-1, num_inputs), order='F')
-
-        return(inputs)
+        inputs = np.reshape(num_inputs, 7200000)
+        return(inputs.T)
 
 
 def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None, MaxDist=500, MaxTime=1200):

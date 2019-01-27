@@ -167,53 +167,22 @@ if __name__ == '__main__':
                   '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20171217T190102_20171217T190402_20171218T223735_0179_025_341_2879_LN2_O_NT_002.SEN3',
                   '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20180113T190102_20180113T190402_20180114T230219_0179_026_341_2880_LN2_O_NT_002.SEN3',
                   '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20180209T190102_20180209T190402_20180210T234449_0179_027_341_2880_LN2_O_NT_002.SEN3']
-        pixel_info = dp.PixelLoader("/home/hep/trz15/Matched_Pixels2/Calipso")
 
     if os.path.exists('/Users/kenzatazi'):
         # Script is running on Kenza's laptop
         scenes = ['/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20180529T113003_20180529T113303_20180530T154711_0179_031_351_1620_LN2_O_NT_003.SEN3']
-        pixel_info = dp.PixelLoader("/Users/kenzatazi/Desktop")
 
     if os.path.exists('D:'):
         scenes = []
-        pixel_info = dp.PixelLoader(r"D:\SatelliteData\SLSTR\Pixels2")
 
-    pixels = sklearn.utils.shuffle(pixel_info)
-
-    pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
-                            'S7_in', 'S8_in', 'S9_in', 'satellite_zenith_angle',
-                            'solar_zenith_angle', 'latitude_an', 'longitude_an',
-                            'confidence_an', 'bayes_in',
-                            'Feature_Classification_Flags', 'TimeDiff']]).values
-
-    # If dataset is not created:
-
-    # prepares data for ffn
-    training_data, validation_data, training_truth, validation_truth, _ = dp.prep_data(
-        pixel_values)
-
-    # If dataset already created :
-    '''
-    training_data = np.load('training_data.npy')
-    validation_data = np.load('validation_data.npy')
-    training_truth = np.load('training_truth.npy')
-    validation_truth =np.load('validation_truth.npy')
-    '''
-
+    training_data, validation_data, training_truth, validation_truth, _ = dp.pkl_prep_data(
+        r'D:\SatelliteData\SLSTR\Pixels2', validation_frac=0.15, seed=None)
     # MACHINE LEARNING MODEL
 
     # Creating network and setting hypermarameters for model
 
-    LR = 1e-3  # learning rate
-
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     MODEL_NAME = 'Models/ffn_withancillarydata_' + timestamp
-
-    para_num = training_data.shape[-1]
-
-    # reshape data to pit into network
-    training_data = training_data.reshape(-1, para_num)
-    validation_data = validation_data.reshape(-1, para_num)
 
     model = FFN('Net2_S_FFN', 'Network2')
     model.networkSetup()

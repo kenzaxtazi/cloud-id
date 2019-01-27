@@ -44,15 +44,24 @@ pixel_info10 = pd.read_pickle("/home/hep/trz15/Matched_Pixels2/CATS/\
 '''
 
 # Training data files on users local laptop
-pixel_info1 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/Apr18P3.pkl")
-pixel_info2 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/May18P3.pkl")
-pixel_info3 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/Feb18P3.pkl")
-pixel_info4 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/Mar18P3.pkl")
-pixel_info5 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/Jun18P3.pkl")
-pixel_info6 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/Jul18P3.pkl")
-pixel_info7 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/Aug18P3.pkl")
-pixel_info8 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/Jan18P3.pkl")
-pixel_info9 = pd.read_pickle("/Users/kenzatazi/Desktop/SatelliteData/Nov18P3.pkl")
+pixel_info1 = pd.read_pickle(
+    "/Users/kenzatazi/Desktop/SatelliteData/Apr18P3.pkl")
+pixel_info2 = pd.read_pickle(
+    "/Users/kenzatazi/Desktop/SatelliteData/May18P3.pkl")
+pixel_info3 = pd.read_pickle(
+    "/Users/kenzatazi/Desktop/SatelliteData/Feb18P3.pkl")
+pixel_info4 = pd.read_pickle(
+    "/Users/kenzatazi/Desktop/SatelliteData/Mar18P3.pkl")
+pixel_info5 = pd.read_pickle(
+    "/Users/kenzatazi/Desktop/SatelliteData/Jun18P3.pkl")
+pixel_info6 = pd.read_pickle(
+    "/Users/kenzatazi/Desktop/SatelliteData/Jul18P3.pkl")
+pixel_info7 = pd.read_pickle(
+    "/Users/kenzatazi/Desktop/SatelliteData/Aug18P3.pkl")
+pixel_info8 = pd.read_pickle(
+    "/Users/kenzatazi/Desktop/SatelliteData/Jan18P3.pkl")
+pixel_info9 = pd.read_pickle(
+    "/Users/kenzatazi/Desktop/SatelliteData/Nov18P3.pkl")
 
 
 pixel_info = pd.concat([pixel_info1, pixel_info2, pixel_info3, pixel_info4,
@@ -82,9 +91,11 @@ pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
 # If dataset is not created:
 
 # prepares data for ffn
-training_data, validation_data, training_truth, validation_truth, bayes_values = dp.prep_data(pixel_values, bayesian=True)
+training_data, validation_data, training_truth, validation_truth, bayes_values = dp.prep_data(
+    pixel_values, bayesian=True)
 
-surftype_list = dp.surftype_class(validation_data, validation_truth, bayes_values)
+surftype_list = dp.surftype_class(
+    validation_data, validation_truth, bayes_values)
 
 # If dataset already created :
 '''
@@ -107,23 +118,24 @@ validation_data = validation_data.reshape(-1, para_num)
 model = FFN('Net1_S_FFN', 'Network1')
 model.networkSetup()
 model.Setup()
-model.Train(training_data, training_truth, validation_data, 
+model.Train(training_data, training_truth, validation_data,
             validation_truth)
 
 
 accuracies = []
 N = []
 
-names = ['Snow',  'Sun glint', 'Twilight', 'Day', 'Duplicate', 'Cosmetic', 
-         'Inland water', 'Land', 'Tidal', 'Ocean', 'Coastline'] 
+names = ['Snow',  'Sun glint', 'Twilight', 'Day', 'Duplicate', 'Cosmetic',
+         'Inland water', 'Land', 'Tidal', 'Ocean', 'Coastline']
 
 for i in range(len(surftype_list)):
 
     if len(surftype_list[i]) > 0:
-        a = np.concatenate(surftype_list[i]) 
-        b = a.reshape(-1,3)
-        acc = me.get_accuracy(model.model, b[:,0],b[:,1])
-        me.ROC_curve(model.model, b[:,0], b[:,1], bayes_mask=b[:,2], name=names[i])
+        a = np.concatenate(surftype_list[i])
+        b = a.reshape(-1, 3)
+        acc = me.get_accuracy(model.model, b[:, 0], b[:, 1])
+        me.ROC_curve(model.model, b[:, 0], b[:, 1],
+                     bayes_mask=b[:, 2], name=names[i])
         accuracies.append(acc)
         N.append(len(surftype_list[i]))
 

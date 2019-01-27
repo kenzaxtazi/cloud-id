@@ -142,25 +142,15 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None):
     else:
         bayes_values = None
 
-    training_truth = []
-    validation_truth = []
+    training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
+    reverse_training_cloudtruth = 1 - training_cloudtruth
+    training_truth = np.vstack(
+        (training_cloudtruth, reverse_training_cloudtruth)).T
 
-    for d in training_truth_flags:
-        i = DL.vfm_feature_flags(int(d))
-        if i == 2:
-            training_truth.append([1., 0.])    # cloud
-        if i != 2:
-            training_truth.append([0., 1.])    # not cloud
-
-    for d in validation_truth_flags:
-        i = DL.vfm_feature_flags(int(d))
-        if i == 2:
-            validation_truth.append([1., 0.])    # cloud
-        if i != 2:
-            validation_truth.append([0., 1.])    # not cloud
-
-    training_truth = np.array(training_truth)
-    validation_truth = np.array(validation_truth)
+    validation_cloudtruth = (validation_truth_flags.astype(int) & 2) / 2
+    reverse_validation_cloudtruth = 1 - validation_cloudtruth
+    validation_truth = np.vstack(
+        (validation_cloudtruth, reverse_validation_cloudtruth)).T
 
     return_list = [training_data, validation_data, training_truth,
                    validation_truth, bayes_values]

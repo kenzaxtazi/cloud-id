@@ -69,9 +69,8 @@ def getinputs(Sreference, num_inputs=13):
     if num_inputs == 13:
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7, S8, S9, salza,
                            solza, lat, lon])
-        inputs = np.swapaxes(inputs, 0, 2)
-        inputs = inputs.reshape((-1, num_inputs), order='F')
-        return(inputs)
+        inputs = np.reshape(inputs, (num_inputs, 7200000))
+        return(inputs.T)
 
     if num_inputs == 24:
         scn.load(['confidence_an'])
@@ -81,13 +80,11 @@ def getinputs(Sreference, num_inputs=13):
         confidence_flags = bits_from_int(confidence)
 
         inputs = np.vstack((inputs, confidence_flags))
-        inputs = np.swapaxes(inputs, 0, 2)
-        inputs = inputs.reshape((-1, num_inputs), order='F')
-
-        return(inputs)
+        inputs = np.reshape(inputs, (num_inputs, 7200000))
+        return(inputs.T)
 
 
-def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None):
+def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None, MaxDist=500, MaxTime=1200):
     """Prepares a set of data for training the FFN"""
     # Record RNG seed to file, or set custom seed.
     if seed == None:
@@ -104,7 +101,10 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None):
     # Load collocated pixels from dataframe
     df = PixelLoader(directory)
 
-    # TODO Remove high timediff / distance pixels ...
+    # Remove high timediff / distance pixels ...
+    df = df[df['Distance'] < MaxDist]
+    df = df[abs(df['TimeDiff']) < MaxTime]
+    
     pixels = sklearn.utils.shuffle(df, random_state=seed)
 
     confidence_int = pixels['confidence_an'].values
@@ -126,7 +126,6 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None):
     pix = np.column_stack((pix, pixel_indices))
 
     pix = pix.astype(float)
-    np.random.shuffle(pix)
 
     pct = int(len(pix)*validation_frac)
     training = pix[:-pct, :]   # take all but the 15% last
@@ -142,25 +141,15 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None):
     else:
         bayes_values = None
 
-    training_truth = []
-    validation_truth = []
+    training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
+    reverse_training_cloudtruth = 1 - training_cloudtruth
+    training_truth = np.vstack(
+        (training_cloudtruth, reverse_training_cloudtruth)).T
 
-    for d in training_truth_flags:
-        i = DL.vfm_feature_flags(int(d))
-        if i == 2:
-            training_truth.append([1., 0.])    # cloud
-        if i != 2:
-            training_truth.append([0., 1.])    # not cloud
-
-    for d in validation_truth_flags:
-        i = DL.vfm_feature_flags(int(d))
-        if i == 2:
-            validation_truth.append([1., 0.])    # cloud
-        if i != 2:
-            validation_truth.append([0., 1.])    # not cloud
-
-    training_truth = np.array(training_truth)
-    validation_truth = np.array(validation_truth)
+    validation_cloudtruth = (validation_truth_flags.astype(int) & 2) / 2
+    reverse_validation_cloudtruth = 1 - validation_cloudtruth
+    validation_truth = np.vstack(
+        (validation_cloudtruth, reverse_validation_cloudtruth)).T
 
     return_list = [training_data, validation_data, training_truth,
                    validation_truth, bayes_values]

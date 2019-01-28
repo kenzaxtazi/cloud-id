@@ -431,9 +431,8 @@ def inputs_from_df(df, num_inputs=24):
         confidence_flags = bits_from_int(confidence)
 
         inputs = np.vstack((inputs, confidence_flags))
-        inputs = inputs.reshape((-1, num_inputs), order='F')
 
-        return(inputs)
+        return(inputs.T)
     else:
         print("Invalid number of inputs")
 

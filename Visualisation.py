@@ -49,8 +49,8 @@ def FalseColour(Sreference, plot=True):
 
     rgb = np.dstack((red, green, blue))
 
-    LatPos = str(round(np.array(scn['latitude_an'].values[0, 0], 6)))
-    LonPos = str(round(np.array(scn['longitude_an'].values[0, 0], 6)))
+    LatPos = str(round(np.array(scn['latitude_an'].values)[0, 0], 6))
+    LonPos = str(round(np.array(scn['longitude_an'].values)[0, 0], 6))
 
     PosString = '(' + LatPos + ', ' + LonPos + ')'
     if plot is True:

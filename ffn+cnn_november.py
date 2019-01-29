@@ -115,7 +115,7 @@ convnet = fully_connected(convnet, 1024, activation='relu')
 convnet = dropout(convnet, keep_prob=0.8)
 
 # Layer 7
-convnet = fully_connected(convnet, n_units=3, activation='softmax')
+convnet = fully_connected(convnet, n_units=1, activation='softmax')
 
 
 # Merge output from CNN with input for FFN
@@ -149,7 +149,7 @@ dropout5 = dropout(layer5, 0.8)
 
 # layer 6 this layer needs to spit out the number of categories
 # we are looking for.
-softmax = fully_connected(dropout5, 1, activation='softmax')
+softmax = fully_connected(dropout5, 2, activation='softmax')
 
 # gives the paramaters to optimise the network
 network = regression(softmax, optimizer='Adam', learning_rate=LR,

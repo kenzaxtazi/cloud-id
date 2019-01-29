@@ -8,6 +8,12 @@ import cartopy
 import cartopy.crs as ccrs
 
 
+def norm(band):
+    """ Normalises the bands for the false color image"""
+    band_min, band_max = band.min(), band.max()
+    return ((band - band_min)/(band_max - band_min))
+
+
 def FalseColour(Sreference, plot=True):
     """
     Produce false colour image for SLSTR file
@@ -36,11 +42,6 @@ def FalseColour(Sreference, plot=True):
     S5 = np.nan_to_num(scn['S5_an'].values)
     S6 = np.nan_to_num(scn['S6_an'].values)
 
-    def norm(band):
-        """ Normalises the bands for the false color image"""
-        band_min, band_max = band.min(), band.max()
-        return ((band - band_min)/(band_max - band_min))
-
     green = norm(S1)
     red = norm(S2)
     IR = norm(S3 + S4 + S5 + S6)
@@ -48,8 +49,8 @@ def FalseColour(Sreference, plot=True):
 
     rgb = np.dstack((red, green, blue))
 
-    LatPos = str(round(scn['latitude_an'].values[0, 0], 6))
-    LonPos = str(round(scn['longitude_an'].values[0, 0], 6))
+    LatPos = str(round(np.array(scn['latitude_an'].values[0, 0], 6)))
+    LonPos = str(round(np.array(scn['longitude_an'].values[0, 0], 6)))
 
     PosString = '(' + LatPos + ', ' + LonPos + ')'
     if plot is True:

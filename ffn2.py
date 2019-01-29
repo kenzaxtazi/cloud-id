@@ -135,7 +135,7 @@ class FFN():
         self.networkConfig = 'Network2'
 
     def Setup(self):
-        self.model = tflearn.DNN(self.network, tensorboard_verbose=0)
+        self.model = tflearn.DNN(self.network, tensorboard_verbose=0, tensorboard_dir='./Temp/tflearn_logs')
 
     def Train(self, training_data, training_truth, validation_data, validation_truth):
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')

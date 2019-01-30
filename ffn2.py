@@ -170,13 +170,13 @@ if __name__ == '__main__':
 
     if os.path.exists('/Users/kenzatazi'):
         # Script is running on Kenza's laptop
-        scenes = ['/Users/kenzatazi/Desktop/S3A_SL_1_RBT____20180529T113003_20180529T113303_20180530T154711_0179_031_351_1620_LN2_O_NT_003.SEN3']
+        scenes = ['/Users/kenzatazi/Desktop/SatelliteData/S3A_SL_1_RBT____20180529T113003_20180529T113303_20180530T154711_0179_031_351_1620_LN2_O_NT_003.SEN3']
 
     if os.path.exists('D:'):
         scenes = []
 
     training_data, validation_data, training_truth, validation_truth, _ = dp.pkl_prep_data(
-        r'D:\SatelliteData\SLSTR\Pixels2', validation_frac=0.15, seed=None)
+        '/Users/kenzatazi/Desktop/SatelliteData', validation_frac=0.15, seed=None)
     # MACHINE LEARNING MODEL
 
     # Creating network and setting hypermarameters for model

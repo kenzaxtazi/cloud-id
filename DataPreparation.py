@@ -85,7 +85,30 @@ def getinputs(Sreference, num_inputs=13):
 
 
 def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None, MaxDist=500, MaxTime=1200):
-    """Prepares a set of data for training the FFN"""
+    """
+    Prepares a set of data for training the FFN
+    
+    Parameters
+    -----------
+    directory: string
+        path to dowload pickle files from.
+    validation_frac: float btw 0 and 1
+        The fraction of the complete dataset that is taken as validation data.
+    bayesian: boolean 
+        If True, outputs bayesian mask values.
+    seed: int 
+        Random generator seed to shuffle data.  
+    MaxDist: int or float,
+        Maximum collocation distance.
+    MaxTime: int or float,
+        Maximum collocation time.
+    
+    Returns
+    ---------
+    return_list: list
+        List of 5 elements including the training data, validation data, training truth,
+        validation truth and bayesian mask values or None. 
+    """
     # Record RNG seed to file, or set custom seed.
     if seed == None:
         seed = np.random.randint(0, 2**32, dtype='uint32')
@@ -156,15 +179,52 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None, Ma
     return return_list
 
 
-def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
+def SMprep_data(directory, validation_frac=0.15, bayesian=False, empirical=False, seed=None, MaxDist=500, MaxTime=1200):
     """
     Prepares data for matched SLSTR and CALIOP pixels into training data,
-    validation data, training truth data, validation truth data.
+    validation data, training truth data, validation truth data for the supermodel.
     Optionally ouputs bayes values for the validation set only.
-    Optionally outputs sub-images for the CNN for the both the validation and
-    training set.
+    
+    Parameters
+    -----------
+    directory: string
+        path to dowload pickle files from.
+    validation_frac: float btw 0 and 1
+        The fraction of the complete dataset that is taken as validation data.
+    bayesian: boolean 
+        If True, outputs bayesian mask values.
+    empirical: boolean 
+        If True, outputs bayesian mask values.
+    seed: int 
+        Random generator seed to shuffle data.  
+    MaxDist: int or float,
+        Maximum collocation distance.
+    MaxTime: int or float,
+        Maximum collocation time.
+    
+    Returns
+    ---------
+    return_list: list
+        List of 8 elements including ftd, fvd, ctd, cvd, tt, vt, bayes_values, emp_values. 
+
+    ftd: array 
+        Training data for FFN1 of the supermodel
+    fvd: array
+        Validation data for FFN1 of the supermodel
+    ctd: array
+        Contextual training data for CNN 
+    cvd:
+        Contextual training data for CNN 
+    tt:
+        Array of training truths (one hot encoded)
+    vt:
+        Array of validation truths (one hot encoded)
+    bayes_values:
+        Array of bayesian mask values to compare the model with
+    emp_values: 
+        Array of emperical mask values to compare the model with
     """
-    # Prepare random number for shuffling, save seed to file
+   # Record RNG seed to file, or set custom seed.
     if seed == None:
         seed = np.random.randint(0, 2**32, dtype='uint32')
         np.random.seed(seed)
@@ -172,68 +232,67 @@ def prep_data(pixel_info, bayesian=False, cnn=False, seed=None):
         print("Using predefined seed")
         np.random.seed(seed)
 
-    conv_pixels = pixel_info.astype(float)
-    pix = np.nan_to_num(conv_pixels)
-
-    # turns surfacetype bitmask into one-hot encoding
-    pix = surftype_processing(pix)
-
-    # seperate validation from training data
-    pct = int(len(pix)*.15)
-    training = pix[:-pct]   # take all but the 15% last
-    validation = pix[-pct:]   # take the last 15% of pixels
-
-    # shuffle
-    np.random.shuffle(training)
-    np.random.shuffle(validation)
-
-    if bayesian is False:
-        training_data = training[:, :-2]
-        training_truth_flags = training[:, -2]
-        validation_data = validation[:, :-2]
-        validation_truth_flags = validation[:, -2]
-
-    if bayesian is True:
-        training_data = training[:, :-3]
-        training_truth_flags = training[:, -2]
-        validation_data = validation[:, :-3]
-        validation_truth_flags = validation[:, -2]
-        bayes_values = validation[:, -3]
-
-    training_truth = []
-    validation_truth = []
-
-    for d in training_truth_flags:
-        i = DL.vfm_feature_flags(int(d))
-        if i == 2:
-            training_truth.append([1., 0.])    # cloud
-        if i != 2:
-            training_truth.append([0., 1.])    # not cloud
-
-    for d in validation_truth_flags:
-        i = DL.vfm_feature_flags(int(d))
-        if i == 2:
-            validation_truth.append([1., 0.])    # cloud
-        if i != 2:
-            validation_truth.append([0., 1.])    # not cloud
-
-    training_truth = np.array(training_truth)
-    validation_truth = np.array(validation_truth)
-
-    return_list = [training_data, validation_data, training_truth,
-                   validation_truth]
-
-    if bayesian is True:
-        return_list.extend([bayes_values])
-    else:
-        return_list.extend([None])
-
-    # saving the data
-    '''
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     with open('Temp/NumpySeeds.txt', 'a') as file:
         file.write(timestamp + ': ' + str(seed) + '\n')
-    '''
+
+    # Load collocated pixels from dataframe
+    df = PixelLoader(directory)
+
+    # Remove high timediff / distance pixels ...
+    df = df[df['Distance'] < MaxDist]
+    df = df[abs(df['TimeDiff']) < MaxTime]
+    
+    pixels = sklearn.utils.shuffle(df, random_state=seed)
+
+    confidence_int = pixels['confidence_an'].values
+    confidence_flags = bits_from_int(confidence_int)
+    confidence_flags = confidence_flags.T
+
+    pixel_indices = pixels.index.values
+
+    pixel_channels = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
+                              'S7_in', 'S8_in', 'S9_in', 'satellite_zenith_angle',
+                              'solar_zenith_angle', 'latitude_an', 'longitude_an']].values).astype(float)
+    pixel_channels = np.nan_to_num(pixel_channels)
+
+    pixel_inputs = np.column_stack((pixel_channels, confidence_flags))
+
+    pixel_outputs = pixels[['Feature_Classification_Flags', 'bayes_in', 'cloud_an']].values
+
+    pix = np.column_stack((pixel_inputs, pixel_outputs))
+    pix = np.column_stack((pix, pixel_indices))
+
+    pix = pix.astype(float)
+
+    pct = int(len(pix)*validation_frac)
+    training = pix[:-pct, :]   # take all but the 15% last
+    validation = pix[-pct:, :]   # take the last 15% of pixels
+
+    ftd = training[:, :24]
+    training_truth_flags = training[:, 24]
+    fvd = validation[:, :24]
+    validation_truth_flags = validation[:, 24]
+
+    if bayesian is True:
+        bayes_values = validation[:, 25]
+    else:
+        bayes_values = None
+
+    if empirical is True:
+        bayes_values = validation[:, 26]
+    else:
+        bayes_values = None
+
+    training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
+    reverse_training_cloudtruth = 1 - training_cloudtruth
+    tt = np.vstack((training_cloudtruth, reverse_training_cloudtruth)).T
+
+    validation_cloudtruth = (validation_truth_flags.astype(int) & 2) / 2
+    reverse_validation_cloudtruth = 1 - validation_cloudtruth
+    vt = np.vstack((validation_cloudtruth, reverse_validation_cloudtruth)).T
+
+    return_list = [ftd, fvd, ctd, cvd, tt, vt, bayes_values, emp_values]
     return return_list
 
 

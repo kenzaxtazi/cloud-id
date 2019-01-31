@@ -84,7 +84,7 @@ def getinputs(Sreference, num_inputs=13):
         return(inputs.T)
 
 
-def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None, MaxDist=500, MaxTime=1200):
+def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=False, seed=None, MaxDist=500, MaxTime=1200):
     """
     Prepares a set of data for training the FFN
     
@@ -143,7 +143,7 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None, Ma
 
     pixel_inputs = np.column_stack((pixel_channels, confidence_flags))
 
-    pixel_outputs = pixels[['Feature_Classification_Flags', 'bayes_in']].values
+    pixel_outputs = pixels[['Feature_Classification_Flags', 'bayes_in', 'cloud_an']].values
 
     pix = np.column_stack((pixel_inputs, pixel_outputs))
     pix = np.column_stack((pix, pixel_indices))
@@ -163,6 +163,11 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None, Ma
         bayes_values = validation[:, 25]
     else:
         bayes_values = None
+    
+    if empirical is True:
+        empircal_values = validation[:, 26]
+    else:
+        empirical_values = None
 
     training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
     reverse_training_cloudtruth = 1 - training_cloudtruth
@@ -175,7 +180,7 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, seed=None, Ma
         (validation_cloudtruth, reverse_validation_cloudtruth)).T
 
     return_list = [training_data, validation_data, training_truth,
-                   validation_truth, bayes_values]
+                   validation_truth, bayes_values, empirical_values]
     return return_list
 
 
@@ -249,8 +254,6 @@ def SMprep_data(directory, validation_frac=0.15, bayesian=False, empirical=False
     confidence_flags = bits_from_int(confidence_int)
     confidence_flags = confidence_flags.T
 
-    pixel_indices = pixels.index.values
-
     pixel_channels = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
                               'S7_in', 'S8_in', 'S9_in', 'satellite_zenith_angle',
                               'solar_zenith_angle', 'latitude_an', 'longitude_an']].values).astype(float)
@@ -259,6 +262,9 @@ def SMprep_data(directory, validation_frac=0.15, bayesian=False, empirical=False
     pixel_inputs = np.column_stack((pixel_channels, confidence_flags))
 
     pixel_outputs = pixels[['Feature_Classification_Flags', 'bayes_in', 'cloud_an']].values
+    
+    pixel_locations = pixels[['Sfilename', 'row', 'column']].values
+    pixel_textures = context_loader(pixel_locations)
 
     pix = np.column_stack((pixel_inputs, pixel_outputs))
     pix = np.column_stack((pix, pixel_indices))
@@ -280,9 +286,11 @@ def SMprep_data(directory, validation_frac=0.15, bayesian=False, empirical=False
         bayes_values = None
 
     if empirical is True:
-        bayes_values = validation[:, 26]
+        empircal_values = validation[:, 26]
     else:
-        bayes_values = None
+        empirical_values = None
+
+    #pixel_indices = pixels.index.values
 
     training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
     reverse_training_cloudtruth = 1 - training_cloudtruth

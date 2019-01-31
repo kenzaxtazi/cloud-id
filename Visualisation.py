@@ -30,8 +30,14 @@ def FalseColour(Sreference, plot=True):
     """
     if type(Sreference) == str:
         scn = DL.scene_loader(Sreference)
+        if '/' in Sreference:
+            FileStr = max(Sreference.split('/'), key=len)
+        if '\\' in Sreference:
+            FileStr = max(Sreference.split('\\'), key=len)
+        FileStr = FileStr[16:30]
     else:
         scn = Sreference
+        FileStr = ''
 
     scn.load(['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an',
               'S6_an', 'latitude_an', 'longitude_an'])
@@ -52,13 +58,13 @@ def FalseColour(Sreference, plot=True):
     LatPos = str(round(np.array(scn['latitude_an'].values)[0, 0], 6))
     LonPos = str(round(np.array(scn['longitude_an'].values)[0, 0], 6))
 
-    PosString = '(' + LatPos + ', ' + LonPos + ')'
+    TitleStr = '(' + LatPos + ', ' + LonPos + ')\n' + FileStr
     if plot is True:
         plt.figure()
         plt.imshow(rgb)
-        plt.title('False colour image\n' + PosString)
+        plt.title('False colour image\n' + TitleStr)
 
-    return(rgb, PosString)
+    return(rgb, TitleStr)
 
 
 def MaskComparison(Sreference, mask1, mask2, animate=True, frametime=1000):
@@ -104,11 +110,11 @@ def MaskComparison(Sreference, mask1, mask2, animate=True, frametime=1000):
     print("Mask 1 image coverage: " + mask1cov_percent + "%")
     print("Mask 2 image coverage: " + mask2cov_percent + "%")
 
-    rgb, PosString = FalseColour(Sreference, plot=False)
+    rgb, TitleStr = FalseColour(Sreference, plot=False)
 
     if animate is True:
         fig = plt.figure()
-        plt.title(PosString)
+        plt.title(TitleStr)
 
         FC = [plt.imshow(rgb)]
 
@@ -123,15 +129,15 @@ def MaskComparison(Sreference, mask1, mask2, animate=True, frametime=1000):
         return(ani)
     else:
         plt.figure()
-        plt.title(PosString)
+        plt.title(TitleStr)
         plt.imshow(rgb)
 
         plt.figure()
-        plt.title(PosString)
+        plt.title(TitleStr)
         plt.imshow(mask1, cmap='Blues')
 
         plt.figure()
-        plt.title(PosString)
+        plt.title(TitleStr)
         plt.imshow(mask2, cmap='Reds')
 
         plt.show()

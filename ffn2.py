@@ -140,7 +140,7 @@ class FFN():
     def Train(self, training_data, training_truth, validation_data, validation_truth):
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         MODEL_NAME = 'Models/ffn_withancillarydata_' + timestamp
-        self.model.fit(training_data, training_truth, n_epoch=2,
+        self.model.fit(training_data, training_truth, n_epoch=4,
                        validation_set=(validation_data, validation_truth),
                        snapshot_step=10000, show_metric=True, run_id=MODEL_NAME)
 
@@ -175,7 +175,7 @@ if __name__ == '__main__':
     if os.path.exists('D:'):
         scenes = []
 
-    training_data, validation_data, training_truth, validation_truth, _ = dp.pkl_prep_data(
+    training_data, validation_data, training_truth, validation_truth, _, _ = dp.pkl_prep_data(
         '/Users/kenzatazi/Desktop/SatelliteData', validation_frac=0.15, seed=None)
     # MACHINE LEARNING MODEL
 

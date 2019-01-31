@@ -178,7 +178,7 @@ def process_pair(Spath, Cpath, interpolate=True):
         scn = DL.scene_loader(Spath)
         SLSTR_attributes = ['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an',
                             'S6_an', 'S7_in', 'S8_in', 'S9_in', 'bayes_an',
-                            'bayes_bn', 'bayes_cn','bayes_in', 'cloud_an',
+                            'bayes_bn', 'bayes_cn', 'bayes_in', 'cloud_an',
                             'cloud_bn', 'cloud_cn', 'cloud_in',
                             'satellite_zenith_angle', 'solar_zenith_angle',
                             'latitude_an', 'longitude_an', 'confidence_an']
@@ -270,17 +270,27 @@ def process_pair(Spath, Cpath, interpolate=True):
         Cfilenameser = pd.Series([Cpath.split('/')[-1]]
                                  * num_values, name='Cfilename')
 
+        rowser = pd.Series(rows)
+        colser = pd.Series(cols)
+        Cindser = pd.Series(Cindices)
+
         df = df.append(Sfilenameser)
         df = df.append(Cfilenameser)
+
+        df = df.append(rowser)
+        df = df.append(colser)
+        df = df.append(Cindser)
         df = df.transpose()
 
         # Label the data columns
         if Cpath.endswith('f'):
             df.columns = SLSTR_attributes + \
-                Calipso_attribute_names + ['Sfilename', 'Cfilename']
+                Calipso_attribute_names + \
+                ['Sfilename', 'Cfilename', 'RowIndex', 'ColIndex', 'CIndex']
         elif Cpath.endswith('5'):
             df.columns = SLSTR_attributes + \
-                CATS_attribute_names + ['Sfilename', 'Cfilename']
+                CATS_attribute_names + \
+                ['Sfilename', 'Cfilename', 'RowIndex', 'ColIndex', 'CIndex']
 
         return(df)
 

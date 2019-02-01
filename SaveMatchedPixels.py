@@ -272,25 +272,25 @@ def process_pair(Spath, Cpath, interpolate=True):
 
         rowser = pd.Series(rows)
         colser = pd.Series(cols)
-        Cindser = pd.Series(Cindices)
+        Calindser = pd.Series(Cindices)
 
         df = df.append(Sfilenameser)
         df = df.append(Cfilenameser)
 
         df = df.append(rowser)
         df = df.append(colser)
-        df = df.append(Cindser)
+        df = df.append(Calindser)
         df = df.transpose()
 
         # Label the data columns
         if Cpath.endswith('f'):
             df.columns = SLSTR_attributes + \
                 Calipso_attribute_names + \
-                ['Sfilename', 'Cfilename', 'RowIndex', 'ColIndex', 'CIndex']
+                ['Sfilename', 'Cfilename', 'RowIndex', 'ColIndex', 'CalIndex']
         elif Cpath.endswith('5'):
             df.columns = SLSTR_attributes + \
                 CATS_attribute_names + \
-                ['Sfilename', 'Cfilename', 'RowIndex', 'ColIndex', 'CIndex']
+                ['Sfilename', 'Cfilename', 'RowIndex', 'ColIndex', 'CalIndex']
 
         return(df)
 

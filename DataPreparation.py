@@ -84,10 +84,10 @@ def getinputs(Sreference, num_inputs=13):
         return(inputs.T)
 
 
-def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=False, seed=None, MaxDist=500, MaxTime=1200):
+def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=False, seed=None, MaxDist=500, MaxTime=1200, NaNFilter=True):
     """
     Prepares a set of data for training the FFN
-    
+
     Parameters
     -----------
     directory: string
@@ -102,7 +102,7 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
         Maximum collocation distance.
     MaxTime: int or float,
         Maximum collocation time.
-    
+
     Returns
     ---------
     return_list: list
@@ -127,7 +127,12 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
     # Remove high timediff / distance pixels ...
     df = df[df['Distance'] < MaxDist]
     df = df[abs(df['TimeDiff']) < MaxTime]
-    
+
+    if NaNFilter is True:
+        # Remove pixels where channels have NAN values
+        # S4 channel is most likely to have a NAN value
+        df = df[np.isnan(df['S4_an'].values.astype(np.float32)) == False]
+
     pixels = sklearn.utils.shuffle(df, random_state=seed)
 
     confidence_int = pixels['confidence_an'].values
@@ -143,7 +148,8 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
 
     pixel_inputs = np.column_stack((pixel_channels, confidence_flags))
 
-    pixel_outputs = pixels[['Feature_Classification_Flags', 'bayes_in', 'cloud_an']].values
+    pixel_outputs = pixels[[
+        'Feature_Classification_Flags', 'bayes_in', 'cloud_an']].values
 
     pix = np.column_stack((pixel_inputs, pixel_outputs))
     pix = np.column_stack((pix, pixel_indices))
@@ -163,7 +169,7 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
         bayes_values = validation[:, 25]
     else:
         bayes_values = None
-    
+
     if empirical is True:
         empircal_values = validation[:, 26]
     else:
@@ -189,7 +195,7 @@ def SMprep_data(directory, validation_frac=0.15, bayesian=False, empirical=False
     Prepares data for matched SLSTR and CALIOP pixels into training data,
     validation data, training truth data, validation truth data for the supermodel.
     Optionally ouputs bayes values for the validation set only.
-    
+
     Parameters
     -----------
     directory: string
@@ -206,7 +212,7 @@ def SMprep_data(directory, validation_frac=0.15, bayesian=False, empirical=False
         Maximum collocation distance.
     MaxTime: int or float,
         Maximum collocation time.
-    
+
     Returns
     ---------
     return_list: list
@@ -247,7 +253,7 @@ def SMprep_data(directory, validation_frac=0.15, bayesian=False, empirical=False
     # Remove high timediff / distance pixels ...
     df = df[df['Distance'] < MaxDist]
     df = df[abs(df['TimeDiff']) < MaxTime]
-    
+
     pixels = sklearn.utils.shuffle(df, random_state=seed)
 
     confidence_int = pixels['confidence_an'].values
@@ -261,8 +267,9 @@ def SMprep_data(directory, validation_frac=0.15, bayesian=False, empirical=False
 
     pixel_inputs = np.column_stack((pixel_channels, confidence_flags))
 
-    pixel_outputs = pixels[['Feature_Classification_Flags', 'bayes_in', 'cloud_an']].values
-    
+    pixel_outputs = pixels[[
+        'Feature_Classification_Flags', 'bayes_in', 'cloud_an']].values
+
     pixel_locations = pixels[['Sfilename', 'row', 'column']].values
     pixel_textures = context_loader(pixel_locations)
 

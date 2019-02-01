@@ -270,9 +270,9 @@ def process_pair(Spath, Cpath, interpolate=True):
         Cfilenameser = pd.Series([Cpath.split('/')[-1]]
                                  * num_values, name='Cfilename')
 
-        rowser = pd.Series(rows)
-        colser = pd.Series(cols)
-        Calindser = pd.Series(Cindices)
+        rowser = pd.Series(rows, name='RowIndex')
+        colser = pd.Series(cols, name='ColIndex')
+        Calindser = pd.Series(Cindices, name='CalIndex')
 
         df = df.append(Sfilenameser)
         df = df.append(Cfilenameser)

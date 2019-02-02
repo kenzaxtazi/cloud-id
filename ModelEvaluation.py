@@ -29,7 +29,7 @@ def get_accuracy(model, validation_data, validation_truth, para_num=24):
 
 
 def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
-              name=None):
+              emp_mask=None, name=None):
     """Plots Receiver Operating Characteristic (ROC) curve"""
 
     para_num = len(validation_data[0])
@@ -39,6 +39,7 @@ def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
     validation_truth = validation_truth.reshape(-1, 2)
 
     bayes_mask[bayes_mask > 1.0] = 1.0
+    emp_mask[emp_mask > 1.0] = 1.0
 
     predictions = model.predict(validation_data)
 
@@ -61,6 +62,13 @@ def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
         bayes_mask = bayes_mask.astype(int)
         tn, fp, fn, tp = (metrics.confusion_matrix(
             validation_truth[:, 0], bayes_mask, labels=(0, 1))).ravel()
+        plt.scatter(float(fp)/float(tn+fp), float(tp)/float(fn+tp))
+    
+    if emp_mask is not None:
+        validation_truth = validation_truth.astype(int)
+        emp_mask = emp_mask.astype(int)
+        tn, fp, fn, tp = (metrics.confusion_matrix(
+            validation_truth[:, 0], emp_mask, labels=(0, 1))).ravel()
         plt.scatter(float(fp)/float(tn+fp), float(tp)/float(fn+tp))
 
 

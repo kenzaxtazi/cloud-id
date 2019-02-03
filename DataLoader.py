@@ -153,6 +153,16 @@ def load_data(file, variable):
     data = sds_obj.get()
     return(data)
 
+def get_SLSTR_path(Sfilename):
+    """For a given SLSTR filename, return path to a local copy of the file"""
+    if os.path.exists('/vols/lhcb/egede/cloud'):
+        Sfile_fragments = Sfilename.split('_')
+        TimeString = Sfile_fragments[7]
+        Year = TimeString[0:4]
+        Month = TimeString[4:6]
+        return('/vols/lhcb/egede/cloud/SLSTR/' + Year + '/' + Month + '/' + Sfilename)
+    elif os.path.exists('D:/'):
+        return('D:/SatelliteData/SLSTR/' + Sfilename)
 
 class SDopener():
     # Class to call when using context manager

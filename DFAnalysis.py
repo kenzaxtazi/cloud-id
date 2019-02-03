@@ -144,7 +144,7 @@ def get_contextual_dataframe(df, contextlength=25):
 
         coords = list(set(coords))
 
-        newdf = make_df(coords, Sfile)
+        newdf = make_Context_df(coords, Sfile)
 
         out = out.append(newdf, ignore_index=True, sort=True)
 

@@ -220,9 +220,15 @@ def make_Context_df(coords, Sfile, Spath):
         df = df.append(Smake_series(attribute))
 
     Sfilenameser = pd.Series([Sfile] * num_values, name='Sfilename')
+    rowser = pd.Series(rows, name='RowIndex')
+    colser = pd.Series(cols, name='ColIndex')
+
 
     df = df.append(Sfilenameser)
+    df = df.append(rowser)
+    df = df.append(colser)
+
     df = df.transpose()
 
-    df.columns = SLSTR_attributes + ['Sfilename']
+    df.columns = SLSTR_attributes + ['Sfilename', 'RowIndex', 'ColIndex']
     return(df)

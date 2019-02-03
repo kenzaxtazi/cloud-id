@@ -144,7 +144,7 @@ def get_contextual_dataframe(df, contextlength=25):
 
         coords = list(set(coords))
 
-        newdf = make_Context_df(coords, Sfile)
+        newdf = make_Context_df(coords, Sfile, Spath)
 
         out = out.append(newdf, ignore_index=True, sort=True)
 
@@ -182,7 +182,7 @@ def get_coords(x0, y0, contextlength):
     return(N_list + E_list + S_list + W_list + NE_list + SE_list + NW_list + SW_list)
 
 
-def make_Context_df(coords, Sfile):
+def make_Context_df(coords, Sfile, Spath):
     if coords == None:
         return(pd.DataFrame())
 

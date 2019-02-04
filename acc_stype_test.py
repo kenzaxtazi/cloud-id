@@ -68,25 +68,23 @@ pixel_info = pd.concat([pixel_info1, pixel_info2, pixel_info3, pixel_info4,
                         pixel_info5, pixel_info6, pixel_info7, pixel_info8, pixel_info9],
                        sort=False)
 
-pixels = sklearn.utils.shuffle(pixel_info)
-
-
 # normal call
 """
-pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
+pixel_values = (pixel_info[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
                         'S7_in', 'S8_in', 'S9_in',
                         'satellite_zenith_angle', 'solar_zenith_angle',
                         'latitude_an', 'longitude_an',
-                        'confidence_an', 'Feature_Classification_Flags',
+                        'confidence_an', 'bayes_in', 'cloud_an',
+                        'Feature_Classification_Flags',
                         'TimeDiff']]).values
 """
 
 # to call bayesian values for ROC curve
-pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
-                        'S7_in', 'S8_in', 'S9_in', 'satellite_zenith_angle',
-                        'solar_zenith_angle', 'latitude_an', 'longitude_an',
-                        'confidence_an', 'bayes_in',
-                        'Feature_Classification_Flags', 'TimeDiff']]).values
+pixel_values = (pixel_info[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
+                            'S7_in', 'S8_in', 'S9_in', 'satellite_zenith_angle',
+                            'solar_zenith_angle', 'latitude_an', 'longitude_an',
+                            'confidence_an', 'bayes_in', 'cloud_an',
+                            'Feature_Classification_Flags', 'TimeDiff']]).values
 
 # If dataset is not created:
 
@@ -158,18 +156,19 @@ for i in range(len(surftype_list)):
 
 accuracies = (np.concatenate(np.array(accuracies))).reshape(-1, 3)
 
-t= np.arange(len(names))
+t = np.arange(len(names))
 
 plt.figure('Accuracy vs surface type')
 plt.title('Accuracy as a function of surface type')
 plt.ylabel('Accuracy')
 bars = plt.bar(t, accuracies[:, 0], width=0.5, align='center', color='honeydew',
-        edgecolor='palegreen',  yerr=(np.array(accuracies[:, 0])/np.array(N))**(0.5),
-        tick_label=names, zorder=1)
+               edgecolor='palegreen',  yerr=(np.array(accuracies[:, 0])/np.array(N))**(0.5),
+               tick_label=names, zorder=1)
 circles = plt.scatter(t, accuracies[:, 1], marker='o', zorder=2)
 stars = plt.scatter(t, accuracies[:, 2], marker='*', zorder=3)
 plt.xticks(rotation=90)
-plt.legend([bars, circles, stars],['Model accuracy', 'Bayesian mask accuracy', 'Empirical mask accuracy'])
+plt.legend([bars, circles, stars], ['Model accuracy',
+                                    'Bayesian mask accuracy', 'Empirical mask accuracy'])
 plt.show()
 
 # resets the tensorflow environment

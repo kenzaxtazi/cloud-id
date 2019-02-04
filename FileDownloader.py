@@ -35,9 +35,10 @@ def FTPdownload(ftpobj, path, destination):
             os.remove(foldername)
         except:
             pass
+        return(1)
     os.chdir(startdir)
     print('Download complete')
-
+    return(0)
 
 def NASA_download(NASA_FTP_directory, calipso_directory="", CATS_directory=""):
     """Download Calipso or CATS files from NASA"""

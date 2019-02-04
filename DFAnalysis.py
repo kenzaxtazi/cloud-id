@@ -156,16 +156,14 @@ def get_contextual_dataframe(df, contextlength=25, download_missing=False):
                 print('Skipping...')
                 continue
 
-        # Load the SLSTR file
-        scn = DL.scene_loader(Spath)
-
         coords = []
 
         for i in range(len(Indices)):
             x0, y0 = Indices[i]
             coords += get_coords(x0, y0, contextlength)
 
-        coords = list(set(coords)).sort()
+        coords = list(set(coords))
+        coords.sort()
 
         newdf = make_Context_df(coords, Sfile, Spath)
 

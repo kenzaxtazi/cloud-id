@@ -8,6 +8,7 @@ import DataPreparation as dp
 import Visualisation as Vis
 from ffn2 import FFN
 from tqdm import tqdm
+import FileDownloader as FD
 
 
 def make_confidence_hist(path, model='Net3_S_FFN', model_network='Network2', MaxDist=500, MaxTime=1200):
@@ -109,12 +110,15 @@ def get_bad_classifications(df):
     return(bad)
 
 
-def get_contextual_dataframe(df, contextlength=25):
+def get_contextual_dataframe(df, contextlength=25, download_missing=False):
     """Given a dataframe of poorly classified pixels, produce dataframe with neighbouring pixels"""
     # List of all unique SLSTR files in the dataframe
     Sfiles = list(set(df['Sfilename']))
 
     out = pd.DataFrame()
+
+    if download_missing is True:
+        ftp = FD.FTPlogin()
 
     for Sfile in tqdm(Sfiles):
 
@@ -130,8 +134,25 @@ def get_contextual_dataframe(df, contextlength=25):
         # If the file is not on the local machine
         if os.path.exists(Spath) is False:
 
-            # Download the file
-            pass
+            if download_missing is True:
+                # Download the file
+                tqdm.write(Sfile + ' not found locally...\n')
+                tqdm.write('Downloading...')
+
+                Year = Sfile[16:20]
+                Month = Sfile[20:22]
+                Day = Sfile[22:24]
+
+                CEDApath = Year + '/' + Month + '/' + Day + '/' + Sfile + '.zip'
+
+                DestinationPath = '/vols/lhcb/egede/cloud/SLSTR/' + Year + '/' + Month + '/'
+
+                FD.FTPdownload(ftp, CEDApath, DestinationPath)
+
+            else:
+                tqdm.write(Sfile + ' not found locally...\n')
+                print('Skipping...')
+                continue
 
         # Load the SLSTR file
         scn = DL.scene_loader(Spath)
@@ -142,7 +163,7 @@ def get_contextual_dataframe(df, contextlength=25):
             x0, y0 = Indices[i]
             coords += get_coords(x0, y0, contextlength)
 
-        coords = list(set(coords))
+        coords = list(set(coords)).sort()
 
         newdf = make_Context_df(coords, Sfile, Spath)
 
@@ -222,7 +243,6 @@ def make_Context_df(coords, Sfile, Spath):
     Sfilenameser = pd.Series([Sfile] * num_values, name='Sfilename')
     rowser = pd.Series(rows, name='RowIndex')
     colser = pd.Series(cols, name='ColIndex')
-
 
     df = df.append(Sfilenameser)
     df = df.append(rowser)

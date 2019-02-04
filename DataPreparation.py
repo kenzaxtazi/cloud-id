@@ -171,7 +171,7 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
         bayes_values = None
 
     if empirical is True:
-        empircal_values = validation[:, 26]
+        empirical_values = validation[:, 26]
     else:
         empirical_values = None
 
@@ -190,7 +190,7 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
     return return_list
 
 
-def SMprep_data(directory, validation_frac=0.15, bayesian=False, empirical=False, seed=None, MaxDist=500, MaxTime=1200):
+def SM_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=False, seed=None, MaxDist=500, MaxTime=1200):
     """
     Prepares data for matched SLSTR and CALIOP pixels into training data,
     validation data, training truth data, validation truth data for the supermodel.
@@ -311,7 +311,7 @@ def SMprep_data(directory, validation_frac=0.15, bayesian=False, empirical=False
     return return_list
 
 
-def surftype_class(validation_data, validation_truth, bayesian=None):
+def surftype_class(validation_data, validation_truth, masks=None):
     """
     Input: array of matched pixel information
     Output: arrays of matched pixel information for each surface type
@@ -334,43 +334,43 @@ def surftype_class(validation_data, validation_truth, bayesian=None):
 
     # sorting data point into surface type categories from the one-hot encoding
     # added in the previous step
-    if bayesian is not None:
+    if masks is not None:
         for i in range(len(validation_data)):
             if int(validation_data[i, 13]) == 1:
                 coastline.append(
-                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+                    np.array([validation_data[i], validation_truth[i], masks[i]]))
             if int(validation_data[i, 14]) == 1:
                 ocean.append(
-                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+                    np.array([validation_data[i], validation_truth[i], masks[i]]))
             if int(validation_data[i, 15]) == 1:
                 tidal.append(
-                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+                    np.array([validation_data[i], validation_truth[i], masks[i]]))
             if int(validation_data[i, 16]) == 1:
                 land.append(
-                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+                    np.array([validation_data[i], validation_truth[i], masks[i]]))
             if int(validation_data[i, 17]) == 1:
                 inland_water.append(
-                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+                    np.array([validation_data[i], validation_truth[i], masks[i]]))
             if int(validation_data[i, 18]) == 1:
                 cosmetic.append(
-                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+                    np.array([validation_data[i], validation_truth[i], masks[i]]))
             if int(validation_data[i, 19]) == 1:
                 duplicate.append(
-                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+                    np.array([validation_data[i], validation_truth[i], masks[i]]))
             if int(validation_data[i, 20]) == 1:
                 day.append(
-                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+                    np.array([validation_data[i], validation_truth[i], masks[i]]))
             if int(validation_data[i, 21]) == 1:
                 twilight.append(
-                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+                    np.array([validation_data[i], validation_truth[i], masks[i]]))
             if int(validation_data[i, 22]) == 1:
                 sun_glint.append(np.array(
-                    [validation_data[i], validation_truth[i], bayesian[i]]))
+                    [validation_data[i], validation_truth[i], masks[i]]))
             if int(validation_data[i, 23]) == 1:
                 snow.append(
-                    np.array([validation_data[i], validation_truth[i], bayesian[i]]))
+                    np.array([validation_data[i], validation_truth[i], masks[i]]))
 
-    if bayesian is None:
+    if masks is None:
         for i in range(len(validation_data)):
             if int(validation_data[i, 13]) == 1:
                 coastline.append([validation_data[i], validation_truth[i]])

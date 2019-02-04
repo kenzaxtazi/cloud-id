@@ -29,7 +29,7 @@ def get_accuracy(model, validation_data, validation_truth, para_num=24):
 
 
 def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
-              name=None):
+              emp_mask=None, name=None):
     """Plots Receiver Operating Characteristic (ROC) curve"""
 
     para_num = len(validation_data[0])
@@ -38,11 +38,9 @@ def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
     validation_truth = np.concatenate(validation_truth)
     validation_truth = validation_truth.reshape(-1, 2)
 
-    bayes_mask[bayes_mask > 1.0] = 1.0
-
     predictions = model.predict(validation_data)
 
-    false_positive_rate, true_positive_rate, thresholds = metrics.roc_curve(
+    false_positive_rate, true_positive_rate, _ = metrics.roc_curve(
         validation_truth[:, 0], predictions[:, 0], pos_label=1)
 
     if name is None:
@@ -51,17 +49,33 @@ def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
     else:
         plt.figure(name + ' ' + 'ROC')
         plt.title(name + ' ' + 'ROC')
-    plt.plot(false_positive_rate, true_positive_rate)
+    curve = plt.plot(false_positive_rate, true_positive_rate)
     plt.xlabel('False positive rate')
     plt.ylabel('True positive rate')
-    plt.plot([0, 1], [0, 1], label="random classifier")
+    random = plt.plot([0, 1], [0, 1], label="random classifier")
+    
+    handles= [curve, random]
+    plotlabels = ['Model', 'Random classifier']
 
     if bayes_mask is not None:
         validation_truth = validation_truth.astype(int)
         bayes_mask = bayes_mask.astype(int)
         tn, fp, fn, tp = (metrics.confusion_matrix(
             validation_truth[:, 0], bayes_mask, labels=(0, 1))).ravel()
-        plt.scatter(float(fp)/float(tn+fp), float(tp)/float(fn+tp))
+        bayes = plt.scatter(float(fp)/float(tn+fp), float(tp)/float(fn+tp), marker='o')
+        handles.append([bayes]) 
+        plotlabels.append(['Bayesian mask'])
+    
+    if emp_mask is not None:
+        validation_truth = validation_truth.astype(int)
+        emp_mask = emp_mask.astype(int)
+        tn, fp, fn, tp = (metrics.confusion_matrix(
+            validation_truth[:, 0], emp_mask, labels=(0, 1))).ravel()
+        emp = plt.scatter(float(fp)/float(tn+fp), float(tp)/float(fn+tp), marker='*')
+        handles.append([emp]) 
+        plotlabels.append(['Empirical mask'])
+    
+    plt.legend(handles, plotlabels)
 
 
 def AUC(model, validation_data, validation_truth):

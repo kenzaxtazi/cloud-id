@@ -156,9 +156,6 @@ def get_contextual_dataframe(df, contextlength=25, download_missing=False):
                 print('Skipping...')
                 continue
 
-        # Load the SLSTR file
-        scn = DL.scene_loader(Spath)
-
         coords = []
 
         for i in range(len(Indices)):

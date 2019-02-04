@@ -91,13 +91,15 @@ pixel_values = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
 # If dataset is not created:
 
 # prepares data for ffn
-training_data, validation_data, training_truth, validation_truth, 
-    bayes_values, emp_values= dp.prep_data(pixel_values, bayesian=True, empirical=True)
+training_data, validation_data, training_truth, validation_truth, bayes_values, emp_values = dp.pkl_prep_data(
+    '/Users/kenzatazi/Desktop/SatelliteData', bayesian=True, empirical=True)
 
 surftype_list = dp.surftype_class(
-    validation_data, validation_truth, bayes_values, emp_values)
+    validation_data, validation_truth, masks=np.column_stack(
+        (bayes_values, emp_values)))
 
 # If dataset already created :
+
 '''
 training_data = np.load('training_data.npy')
 validation_data = np.load('validation_data.npy')
@@ -125,34 +127,49 @@ model.Train(training_data, training_truth, validation_data,
 accuracies = []
 N = []
 
-names = ['Snow',  'Sun glint', 'Twilight', 'Day', 'Duplicate', 'Cosmetic',
-         'Inland water', 'Land', 'Tidal', 'Ocean', 'Coastline']
+names = ['Coastline', 'Ocean', 'Tidal', 'Land', 'Inland water',
+         'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Sun glint', 'Snow']
 
 for i in range(len(surftype_list)):
 
     if len(surftype_list[i]) > 0:
         a = np.concatenate(surftype_list[i])
         b = a.reshape(-1, 3)
+
         acc = me.get_accuracy(model.model, b[:, 0], b[:, 1])
+        labels = (np.concatenate(b[:, 1])).reshape((-1, 2))
+        masks = (np.concatenate(b[:, 2])).reshape((-1, 2))
+
+        bayes_mask = masks[:, 0]
+        emp_mask = masks[:, 1]
+        bayes_mask[bayes_mask > 1.0] = 1.0
+        emp_mask[emp_mask > 1.0] = 1.0
+
+        bayes_acc = 1 - np.mean(np.abs(labels[:, 0] - bayes_mask))
+        emp_acc = 1 - np.mean(np.abs(labels[:, 0] - emp_mask))
         me.ROC_curve(model.model, b[:, 0], b[:, 1],
-                     bayes_mask=b[:, 2], emp_mask=b[:,3], name=names[i])
-        accuracies.append(acc)
+                     bayes_mask=bayes_mask, emp_mask=emp_mask, name=names[i])
+        accuracies.append([acc, bayes_acc, emp_acc])
         N.append(len(surftype_list[i]))
 
     else:
-        accuracies.append(0)
+        accuracies.append([0, 0, 0])
         N.append(0)
 
+accuracies = (np.concatenate(np.array(accuracies))).reshape(-1, 3)
+
+t= np.arange(len(names))
 
 plt.figure('Accuracy vs surface type')
 plt.title('Accuracy as a function of surface type')
 plt.ylabel('Accuracy')
-plt.bar(names, accuracies, width=0.5, align='center', color='honeydew',
-        edgecolor='palegreen')
+bars = plt.bar(t, accuracies[:, 0], width=0.5, align='center', color='honeydew',
+        edgecolor='palegreen',  yerr=(np.array(accuracies[:, 0])/np.array(N))**(0.5),
+        tick_label=names, zorder=1)
+circles = plt.scatter(t, accuracies[:, 1], marker='o', zorder=2)
+stars = plt.scatter(t, accuracies[:, 2], marker='*', zorder=3)
 plt.xticks(rotation=90)
-plt.errorbar(names, accuracies,
-             yerr=(np.array(accuracies)/np.array(N))**(0.5), ls='none')
-
+plt.legend([bars, circles, stars],['Model accuracy', 'Bayesian mask accuracy', 'Empirical mask accuracy'])
 plt.show()
 
 # resets the tensorflow environment

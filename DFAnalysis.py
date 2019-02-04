@@ -136,7 +136,7 @@ def get_contextual_dataframe(df, contextlength=25, download_missing=False):
 
             if download_missing is True:
                 # Download the file
-                tqdm.write(Sfile + ' not found locally...\n')
+                tqdm.write(Sfile + ' not found locally...')
                 tqdm.write('Downloading...')
 
                 Year = Sfile[16:20]
@@ -147,10 +147,12 @@ def get_contextual_dataframe(df, contextlength=25, download_missing=False):
 
                 DestinationPath = '/vols/lhcb/egede/cloud/SLSTR/' + Year + '/' + Month + '/'
 
-                FD.FTPdownload(ftp, CEDApath, DestinationPath)
-
+                download_status = FD.FTPdownload(ftp, CEDApath, DestinationPath)
+                if download_status == 1:
+                    tqdm.write('Download failed, skipping...')
+                    continue
             else:
-                tqdm.write(Sfile + ' not found locally...\n')
+                tqdm.write(Sfile + ' not found locally...')
                 print('Skipping...')
                 continue
 

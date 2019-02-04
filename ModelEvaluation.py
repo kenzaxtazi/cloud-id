@@ -85,7 +85,7 @@ def precision_vs_recall(model, validation_data, validation_truth):
 
     predictions = np.nan_to_num(model.predict(validation_data))
 
-    precision, recall, thresholds = metrics.precision_recall_curve(
+    precision, recall, _ = metrics.precision_recall_curve(
         validation_truth[:, 0], predictions[:, 0], pos_label=1)
 
     plt.figure('Precision vs recall curve')
@@ -98,9 +98,6 @@ def precision_vs_recall(model, validation_data, validation_truth):
 def confusion_matrix(model, validation_data, validation_truth):
     """ Returns a confusion matrix"""
 
-    labels = model.predict_label(validation_data)
-    matrix = tf.confusion_matrix(validation_truth[:, 0],
-                                 labels[:, 0])
-    with tf.Session().as_default() as sess:
-        m = tf.Tensor.eval(matrix, feed_dict=None, session=sess)
+    l = model.predict_label(validation_data)
+    m = metrics.confusion_matrix(validation_truth[:, 0], l, labels=(0, 1))
     return m

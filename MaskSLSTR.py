@@ -1,7 +1,7 @@
 from ModelApplication import apply_mask
 import DataLoader as DL
 import Visualisation as Vis
-from ffn2 import FFN
+from FFN import FFN
 
 model = FFN('Net2_S_FFN', 'Network2')
 model.Load()

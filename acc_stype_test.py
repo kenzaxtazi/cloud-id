@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import sklearn.utils
 import DataPreparation as dp
 import tflearn
-from ffn2 import FFN
+from FFN import FFN
 import numpy as np
 from tensorflow import reset_default_graph
 from tflearn.layers.core import input_data, dropout, fully_connected
@@ -27,7 +27,7 @@ training_data, validation_data, training_truth, validation_truth, bayes_values, 
 '''
 
 # prepares data for ffn
-training_data, validation_data, training_truth, validation_truth, bayes_values, emp_values = dp.pkl_prep_data(
+training_data, validation_data, training_truth, validation_truth, bayes_values, emp_values, _ = dp.pkl_prep_data(
     '/Users/kenzatazi/Desktop/SatelliteData/SLSTR/Pixels2', bayesian=True, empirical=True)
 
 surftype_list = dp.surftype_class(

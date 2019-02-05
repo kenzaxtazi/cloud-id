@@ -131,7 +131,8 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
     if NaNFilter is True:
         # Remove pixels where channels have NAN values
         # S4 channel is most likely to have a NAN value
-        df = df[np.isnan(df['S4_an'].values.astype(np.float32)) == False]
+        df = df.drop(['confidence_in'], axis=1)
+        df = df.dropna()
 
     pixels = sklearn.utils.shuffle(df, random_state=seed)
 

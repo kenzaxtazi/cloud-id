@@ -27,7 +27,7 @@ training_data, validation_data, training_truth, validation_truth, bayes_values, 
 '''
 
 # prepares data for ffn
-training_data, validation_data, training_truth, validation_truth, bayes_values, emp_values = dp.pkl_prep_data(
+training_data, validation_data, training_truth, validation_truth, bayes_values, emp_values, _ = dp.pkl_prep_data(
     '/Users/kenzatazi/Desktop/SatelliteData/SLSTR/Pixels2', bayesian=True, empirical=True)
 
 surftype_list = dp.surftype_class(

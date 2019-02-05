@@ -49,11 +49,11 @@ def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
     else:
         plt.figure(name + ' ' + 'ROC')
         plt.title(name + ' ' + 'ROC')
-    curve = plt.plot(false_positive_rate, true_positive_rate, 'Model')
+    plt.plot(false_positive_rate, true_positive_rate, label='Model')
     plt.xlabel('False positive rate')
     plt.ylabel('True positive rate')
-    random = plt.plot([0, 1], [0, 1], label="Random classifier")
-    
+    plt.plot([0, 1], [0, 1], label="Random classifier")
+
     if bayes_mask is not None:
         validation_truth = validation_truth.astype(int)
         bayes_mask = bayes_mask.astype(int)
@@ -66,7 +66,7 @@ def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
         emp_mask = emp_mask.astype(int)
         tn, fp, fn, tp = (metrics.confusion_matrix(
             validation_truth[:, 0], emp_mask, labels=(0, 1))).ravel()
-        emp = plt.scatter(float(fp)/float(tn+fp), float(tp)/float(fn+tp), marker='*', label='Empirical mask')
+        plt.scatter(float(fp)/float(tn+fp), float(tp)/float(fn+tp), marker='*', label='Empirical mask')
     
     plt.legend()
 
@@ -85,7 +85,7 @@ def precision_vs_recall(model, validation_data, validation_truth):
 
     predictions = np.nan_to_num(model.predict(validation_data))
 
-    precision, recall, thresholds = metrics.precision_recall_curve(
+    precision, recall, _ = metrics.precision_recall_curve(
         validation_truth[:, 0], predictions[:, 0], pos_label=1)
 
     plt.figure('Precision vs recall curve')
@@ -98,9 +98,6 @@ def precision_vs_recall(model, validation_data, validation_truth):
 def confusion_matrix(model, validation_data, validation_truth):
     """ Returns a confusion matrix"""
 
-    labels = model.predict_label(validation_data)
-    matrix = tf.confusion_matrix(validation_truth[:, 0],
-                                 labels[:, 0])
-    with tf.Session().as_default() as sess:
-        m = tf.Tensor.eval(matrix, feed_dict=None, session=sess)
+    l = model.predict_label(validation_data)
+    m = metrics.confusion_matrix(validation_truth[:, 0], l, labels=(0, 1))
     return m

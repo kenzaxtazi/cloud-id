@@ -84,7 +84,7 @@ def getinputs(Sreference, num_inputs=13):
         return(inputs.T)
 
 
-def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=False, seed=None, MaxDist=500, MaxTime=1200, NaNFilter=True):
+def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=False, TimeDiff=False, seed=None, MaxDist=500, MaxTime=1200, NaNFilter=True):
     """
     Prepares a set of data for training the FFN
 
@@ -150,7 +150,7 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
     pixel_inputs = np.column_stack((pixel_channels, confidence_flags))
 
     pixel_outputs = pixels[[
-        'Feature_Classification_Flags', 'bayes_in', 'cloud_an']].values
+        'Feature_Classification_Flags', 'bayes_in', 'cloud_an', 'TimeDiff']].values
 
     pix = np.column_stack((pixel_inputs, pixel_outputs))
     pix = np.column_stack((pix, pixel_indices))
@@ -176,6 +176,11 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
     else:
         empirical_values = None
 
+    if TimeDiff is True:
+        times = validation[:, -2]
+    else:
+        times = None
+
     training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
     reverse_training_cloudtruth = 1 - training_cloudtruth
     training_truth = np.vstack(
@@ -187,7 +192,7 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
         (validation_cloudtruth, reverse_validation_cloudtruth)).T
 
     return_list = [training_data, validation_data, training_truth,
-                   validation_truth, bayes_values, empirical_values]
+                   validation_truth, bayes_values, empirical_values, times]
     return return_list
 
 

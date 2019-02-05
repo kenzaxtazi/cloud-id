@@ -22,28 +22,21 @@ import ModelApplication as app
 import ModelEvaluation as me
 import DataLoader as DL
 import Visualisation as Vis
+import numpy as np
 
 
 class Supermodel():
     """Object for handling TFLearn DNN models with added support for saving / loading different network configurations"""
 
-    def __init__(self, name, networkConfig=None, para_num=24, LR=1e-3, img_size=300):
+    def __init__(self, name, networkConfig=None, para_num=24, LR=1e-3, img_length=8, img_width=25):
         self.name = name
         self.networkConfig = networkConfig
         self.para_num = para_num
-        self.img_size
         self.LR = LR
+        self.img_length = img_length
+        self.img_width = img_width
 
-    def networkSetup(self):
-        """Setup network for the model. Specify network configuration by setting the networkConfig attribute"""
-        if self.networkConfig == None:  # No network configuration specified
-            self.Network0()  # Use default network
-        else:
-            # Use network function specified by networkConfig
-            networkFunc = getattr(self, self.networkConfig)
-            networkFunc()
-
-    def ffn(self):
+    def ffn1(self):
         # Feed Forward Network layers
 
         # layer 0: generates a 4D tensor
@@ -77,28 +70,34 @@ class Supermodel():
     def cnn(self):
 
         # Convolutional Network layers
-        
+
         # Layer 0: generates a 4D tensor
-        convnet = input_data(shape=[None, img_size, img_size], name='input')
+        convnet = input_data(
+            shape=[None, self.img_length, self.img_width], name='input')
 
         # Layer 1
-        convnet = conv_2d(convnet, nb_filter=32, filter_size=5, activation='relu')
+        convnet = conv_2d(convnet, nb_filter=32,
+                          filter_size=5, activation='relu')
         convnet = max_pool_2d(convnet, kernel_size=5)
 
         # Layer 2
-        convnet = conv_2d(convnet, nb_filter=64, filter_size=5, activation='relu')
+        convnet = conv_2d(convnet, nb_filter=64,
+                          filter_size=5, activation='relu')
         convnet = max_pool_2d(convnet, kernel_size=5)
 
         # Layer 3
-        convnet = conv_2d(convnet, nb_filter=128, filter_size=5, activation='relu')
+        convnet = conv_2d(convnet, nb_filter=128,
+                          filter_size=5, activation='relu')
         convnet = max_pool_2d(convnet, kernel_size=5)
 
         # Layer 4
-        convnet = conv_2d(convnet, nb_filter=64, filter_size=5, activation='relu')
+        convnet = conv_2d(convnet, nb_filter=64,
+                          filter_size=5, activation='relu')
         convnet = max_pool_2d(convnet, kernel_size=5)
 
         # Layer 5
-        convnet = conv_2d(convnet, nb_filter=32, filter_size=5, activation='relu')
+        convnet = conv_2d(convnet, nb_filter=32,
+                          filter_size=5, activation='relu')
         convnet = max_pool_2d(convnet, kernel_size=5)
 
         # Layer 6
@@ -108,17 +107,17 @@ class Supermodel():
         # Layer 7
         softmax = fully_connected(convnet, 2, activation='softmax')
 
-        Layer 7
-        convnet = fully_connected(convnet, n_units=1, activation='softmax')
-
+        # gives the paramaters to optimise the network
+        self.network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
+                                  loss='categorical_crossentropy', name='targets')
         self.networkConfig = 'cnn'
 
-def ffn2(self):
+    def ffn2(self):
 
         # Merge outputs from CNN with FFN1
 
         # layer -1: generates a 4D tensor
-        input_tensor = input_data(shape=[None, 2], name='input')
+        layer0 = input_data(shape=[None, 2], name='input')
 
         # Feed Forward Networks layers
 
@@ -146,11 +145,13 @@ def ffn2(self):
         # we are looking for.
         softmax = fully_connected(dropout5, 2, activation='softmax')
 
+        self.network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
+                                  loss='categorical_crossentropy', name='targets')
         self.networkConfig = 'fnn2'
 
-
     def Setup(self):
-        self.model = tflearn.DNN(self.network, tensorboard_verbose=0, tensorboard_dir='./Temp/tflearn_logs')
+        self.model = tflearn.DNN(
+            self.network, tensorboard_verbose=0, tensorboard_dir='./Temp/tflearn_logs')
 
     def Train(self, training_data, training_truth, validation_data, validation_truth):
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -164,17 +165,8 @@ def ffn2(self):
         with open("Models/" + self.name + '.txt', 'w') as file:
             file.write(self.networkConfig)
 
-    def Load(self):
-        with open('Models/' + self.name + '.txt', 'r') as file:
-            self.networkConfig = file.read()
-            print(self.networkConfig)
-        self.networkSetup()
-        self.Setup()
-        self.model.load('Models/' + self.name)
-
-    def trainffn1(self, training_data, validation_data, training_truth, validation_truth,
-            LR=1e-3, modelname='Models/supermodelffn' )
-        """ runs the two models together """
+    def trainffn1(self, training_data, validation_data, training_truth, validation_truth, LR=1e-3, modelname='Models/supermodelffn'):
+        """ runs the first FFN model """
 
         para_num = training_data.shape[-1]
 
@@ -183,16 +175,16 @@ def ffn2(self):
         validation_data = validation_data.reshape(-1, para_num)
 
         model = Supermodel('SM_FFN1', 'ffn11')
-        model.networkSetup()
         model.Setup()
-        model.Train(training_data, training_truth, validation_data, validation_truth)
+        model.Train(training_data, training_truth,
+                    validation_data, validation_truth)
         model.Save()
 
         return model
-    
+
     def traincnn(self, training_data, validation_data, training_truth, validation_truth,
-            LR=1e-3, modelname='Models/supermodelcnn' )
-        """ runs the two models together """
+                 LR=1e-3, modelname='Models/supermodelcnn'):
+        """ runs the CNN model """
 
         para_num = training_data.shape[-1]
 
@@ -201,15 +193,15 @@ def ffn2(self):
         validation_data = validation_data.reshape(-1, para_num)
 
         model = Supermodel('SM_CNN', 'cnn')
-        model.networkSetup()
         model.Setup()
-        model.Train(training_data, training_truth, validation_data, validation_truth)
+        model.Train(training_data, training_truth,
+                    validation_data, validation_truth)
         model.Save()
 
         return model
 
     def trainffn2(self, training_data, validation_data, training_truth, validation_truth,
-            LR=1e-3, modelname='Models/supermodelffn' )
+                  LR=1e-3, modelname='Models/supermodelffn'):
         """ runs the two models together """
 
         para_num = training_data.shape[-1]
@@ -219,52 +211,62 @@ def ffn2(self):
         validation_data = validation_data.reshape(-1, para_num)
 
         model = Supermodel('SM_FFN2', 'ffn2')
-        model.networkSetup()
         model.Setup()
-        model.Train(training_data, training_truth, validation_data, validation_truth)
+        model.Train(training_data, training_truth,
+                    validation_data, validation_truth)
         model.Save()
 
         return model
-    
-    def SMtrain(data)
-        ftd, fvd, ctd, cvd, tt, vt, _ = dp.SM_prep_data(data)  # TODO write function
 
-        FFN1 = runffn1(ftd, fvd, tt, vt)
-        CNN = runcnn(ctd, cvd, tt, vt)
+    def SM_train(self, data):
+        ftd, fvd, ctd, cvd, tt, vt, _, _ = dp.SM_prep_data(
+            data)  # TODO write function
 
-        f_training_predictions = model.FFN1.predict(ftd)
-        c_training_predictions = model.CNN.predict(ctd)
-        f_validation_predictions = model.FFN1.predict(fvd)
-        c_validation_predictions = model.CNN.predict(cvd)
+        FFN1 = self.trainffn1(ftd, fvd, tt, vt)
+        CNN = self.traincnn(ctd, cvd, tt, vt)
 
-        training_data = np.column_stack((f_training_predictions,c_training_predictions))
-        validation_data = np.column_stack((f_validation_predictions,c_validation_predictions))
+        f_training_predictions = FFN1.predict(ftd)
+        c_training_predictions = CNN.predict(ctd)
+        f_validation_predictions = FFN1.predict(fvd)
+        c_validation_predictions = CNN.predict(cvd)
 
-        FFN2 = runffn(training_data, tt, validation_data, vt)
+        training_data = np.column_stack(
+            (f_training_predictions, c_training_predictions))
+        validation_data = np.column_stack(
+            (f_validation_predictions, c_validation_predictions))
 
-    def SMpredict(testdata)
+        FFN2 = self.trainffn2(training_data, tt, validation_data, vt)
+
+        return FFN1, CNN, FFN2
+
+    def SM_predict(self, FFN1, CNN, FFN2, testdata, Sreference):
+
+        scene = DL.scene_loader(Sreference)
+
+        ftestdata = dp.getinputs(scene, num_inputs=24, indices=True) #include indices
+        indices = ftestdata[-1]
+
+        predictions1 = FFN1.predict(ftestdata[:-1]) #exclude indices when predicting 
+        augm_data = np.column_stack((predictions1, indices)) # merge with indices
+
+        gooddata = [x for x in augm_data if not(0.4 <=x[0] <0.6)]
+        poordata = augm_data[0.4 <= augm_data[:, 0] < 0.6]
         
-        ftestdata = dp.prep_testdata_ffn(test_data) # TODO write function
-        
-        predictions1 = FFN1.predict(ftestdata)
+        ctestdata = dp.context_getinputs(scene, poordata)  
+        predictions2 = CNN.predict(ctestdata[0])
 
-        augm_testdata = np.column_stack(predictions1,ftestdata)
+        predictions3 = FFN2.predict(
+            np.column_stack((augm_data[:,0], predictions2)))
 
-        testdata2 = augm_testdata[0.4 <= augm_testdata[:,0] < 0.6]
+        fixeddata= np.column_stack(predictions3, poordata[:,-1])
 
-        ctestdata = dp.prep_testdata_cnn(testdata2) # TODO write function
-
-        predictions2 = CNN.predict(ctestdata)
-
-        final_predictions = FFN.predict(np.column_stack(predictions1,predictions2))
+        final_predictions_with_indices = np.concatenate(gooddata, fixeddata)
+        final_predictions = (np.sort(final_predictions_with_indices))[:,0]
 
         return final_predictions
 
 
-    
-
-
-
+'''
 if __name__ == '__main__':
     # Pixel Loading
 
@@ -296,16 +298,16 @@ if __name__ == '__main__':
     # If dataset is not created:
 
     # prepares data for ffn
-    training_data, validation_data, training_truth, validation_truth, _ = dp.prep_data(
+    training_data, validation_data, training_truth, validation_truth, _ = dp.SM_prep_data(
         pixel_values)
 
     # If dataset already created :
-    '''
+    
     training_data = np.load('training_data.npy')
     validation_data = np.load('validation_data.npy')
     training_truth = np.load('training_truth.npy')
     validation_truth =np.load('validation_truth.npy')
-    '''
+    
 
     # MACHINE LEARNING MODEL
 
@@ -337,3 +339,4 @@ if __name__ == '__main__':
     bmask = DL.extract_mask(Sfile, 'bayes_in', 2)
 
     Vis.MaskComparison(Sfile, mask1, bmask, True, 1000)
+'''

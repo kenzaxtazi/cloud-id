@@ -111,7 +111,7 @@ def get_bad_classifications(df):
     return(bad)
 
 
-def get_contextual_dataframe(df, contextlength=25, download_missing=False):
+def get_contextual_dataframe(df, contextlength=25, download_missing=False, num_values=22):
     """Given a dataframe of poorly classified pixels, produce dataframe with neighbouring pixels"""
     # List of all unique SLSTR files in the dataframe
     Sfiles = list(set(df['Sfilename']))
@@ -167,14 +167,14 @@ def get_contextual_dataframe(df, contextlength=25, download_missing=False):
         coords = list(set(coords))
         coords.sort()
 
-        newdf = make_Context_df(coords, Sfile, Spath)
+        newdf = make_Context_df(coords, Sfile, Spath, num_values)
 
         out = out.append(newdf, ignore_index=True, sort=True)
 
     return(out)
 
 
-def make_Context_df(coords, Sfile, Spath):
+def make_Context_df(coords, Sfile, Spath, num_values):
     if coords == None:
         return(pd.DataFrame())
 
@@ -186,12 +186,20 @@ def make_Context_df(coords, Sfile, Spath):
     df = pd.DataFrame()
     # Load SLSTR data and desired attributes
     scn = DL.scene_loader(Spath)
-    SLSTR_attributes = ['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an',
-                        'S6_an', 'S7_in', 'S8_in', 'S9_in', 'bayes_an',
-                        'bayes_bn', 'bayes_cn', 'bayes_in', 'cloud_an',
-                        'cloud_bn', 'cloud_cn', 'cloud_in',
-                        'satellite_zenith_angle', 'solar_zenith_angle',
-                        'latitude_an', 'longitude_an', 'confidence_an']
+    if num_values == 22:
+        SLSTR_attributes = ['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an',
+                            'S6_an', 'S7_in', 'S8_in', 'S9_in', 'bayes_an',
+                            'bayes_bn', 'bayes_cn', 'bayes_in', 'cloud_an',
+                            'cloud_bn', 'cloud_cn', 'cloud_in',
+                            'satellite_zenith_angle', 'solar_zenith_angle',
+                            'latitude_an', 'longitude_an', 'confidence_an']
+    elif num_values == 1:
+        SLSTR_attributes = ['S1_an']
+
+    elif num_values == 9:
+        SLSTR_attributes = ['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an',
+                            'S6_an', 'S7_in', 'S8_in', 'S9_in']
+
     scn.load(SLSTR_attributes)
 
     def Smake_series(Sattribute):

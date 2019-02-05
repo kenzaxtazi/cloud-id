@@ -9,7 +9,7 @@ import DataLoader as DL
 import DataPreparation as dp
 import FileDownloader as FD
 import Visualisation as Vis
-from ffn2 import FFN
+from FFN import FFN
 
 
 def make_confidence_hist(path, model='Net3_S_FFN', model_network='Network2', MaxDist=500, MaxTime=1200):

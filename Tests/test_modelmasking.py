@@ -1,7 +1,7 @@
 import unittest
 from ModelApplication import apply_mask
 import numpy as np
-from ffn2 import FFN
+from FFN import FFN
 
 class TestMaskingMethod(unittest.TestCase):
 

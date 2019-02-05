@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import sklearn.utils
 import DataPreparation as dp
 import tflearn
-from ffn2 import FFN
+from FFN import FFN
 import numpy as np
 from tensorflow import reset_default_graph
 from tflearn.layers.core import input_data, dropout, fully_connected

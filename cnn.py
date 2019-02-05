@@ -12,6 +12,7 @@ import os
 import matplotlib.pyplot as plt
 import sklearn.utils
 import tflearn
+import tensorflow as tf
 from tensorflow import reset_default_graph
 from tflearn.layers.core import dropout, fully_connected, input_data
 from tflearn.layers.estimator import regression
@@ -258,7 +259,7 @@ class Supermodel():
         predictions3 = FFN2.predict(
             np.column_stack((augm_data[:,0], predictions2)))
 
-        fixeddata= np.column_stack(predictions3, poordata[:,-1])
+        fixeddata= np.column_stack((predictions3, poordata[:,-1]))
 
         final_predictions_with_indices = np.concatenate(gooddata, fixeddata)
         final_predictions = (np.sort(final_predictions_with_indices))[:,0]

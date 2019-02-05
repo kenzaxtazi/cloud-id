@@ -66,7 +66,7 @@ def getinputs(Sreference, num_inputs=24, indices=False):
     solza = DL.upscale_repeat(np.nan_to_num(scn['solar_zenith_angle'].values))
     lat = np.nan_to_num(scn['latitude_an'].values)
     lon = np.nan_to_num(scn['longitude_an'].values)
-    ind = np.arrange(7200000)
+    ind = np.arange(7200000)
 
     if num_inputs == 13:
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7, S8, S9, salza,
@@ -280,8 +280,6 @@ def SM_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fals
     pixel_outputs = pixels[[
         'Feature_Classification_Flags', 'bayes_in', 'cloud_an']].values
 
-    pixel_locations = pixels[['Sfilename', 'row', 'column']].values
-    pixel_textures = context_loader(pixel_locations)
 
     pix = np.column_stack((pixel_inputs, pixel_outputs))
     pix = np.column_stack((pix, pixel_indices))
@@ -350,7 +348,7 @@ def context_getinputs(Sreference, data):
     row = int(float(data[1])/2400.)
     column = data[1]%3000
    
-    star = dfa.get_coords(row, column, contextlength=25)
+    star = get_coords(row, column, contextlength=25)
 
     return star
 

@@ -31,6 +31,7 @@ class FFN():
         self.networkConfig = networkConfig
         self.para_num = para_num
         self.LR = LR
+        self.isLoaded = False
 
     def networkSetup(self):
         """Setup network for the model. Specify network configuration by setting the networkConfig attribute"""
@@ -143,6 +144,7 @@ class FFN():
         self.model.fit(training_data, training_truth, n_epoch=4,
                        validation_set=(validation_data, validation_truth),
                        snapshot_step=10000, show_metric=True, run_id=MODEL_NAME)
+        self.isLoaded = True
 
     def Save(self):
         self.model.save("Models/" + self.name)
@@ -156,6 +158,7 @@ class FFN():
         self.networkSetup()
         self.Setup()
         self.model.load('Models/' + self.name)
+        self.isLoaded = True
 
 
 if __name__ == '__main__':

@@ -474,6 +474,25 @@ def bits_from_int(array):
     out = (out > 0).astype(int)
     return(out)
 
+def bits_from_int2(array):
+    array = array.astype(int)
+    coastline = array & 1
+    ocean = array & 2
+    tidal = array & 4
+    land = array & 8
+    inland_water = array & 16
+    cosmetic = array & 256
+    duplicate = array & 512
+    day = array & 1024
+    twilight = array & 2048
+
+    dry_land = land * (1 - inland_water)
+
+    out = np.array([coastline, ocean, tidal, dry_land, inland_water, cosmetic,
+                    duplicate, day, twilight])
+    out = (out > 0).astype(int)
+    return(out)
+
 
 def surftype_processing(array):
     """

@@ -24,8 +24,8 @@ training_data, validation_data, training_truth, validation_truth, bayes_values, 
 '''
 
 # prepares data for ffn
-training_data, validation_data, training_truth, validation_truth, bayes_values, emp_values = dp.pkl_prep_data(
-    '/Users/kenzatazi/Desktop/SatelliteData/SLSTR/Pixels2', bayesian=False, empirical=False)
+training_data, validation_data, training_truth, validation_truth, _ , _, times = dp.pkl_prep_data(
+    '/Users/kenzatazi/Desktop/SatelliteData/SLSTR/Pixels2', TimeDiff=True)
 
 
 # If dataset already created :
@@ -55,7 +55,7 @@ model.Train(training_data, training_truth, validation_data,
             validation_truth)
 
 
-time_slices = np.linspace(0, 2000, 11)
+time_slices = np.linspace(0, 1401, 15)
 accuracies = []
 N = []
 
@@ -65,9 +65,9 @@ for t in time_slices:
 
     # slices
     for i in range(len(validation_data)):
-        if abs(int(validation_data[i, -1])) > t:
-            if abs(int(validation_data[i, -1])) < t+200:
-                new_validation_data.append(validation_data[i, :-1])
+        if abs(times[i]) > t:
+            if abs(times[i]) < t+100:
+                new_validation_data.append(validation_data[i])
                 new_validation_truth.append(validation_truth[i])
 
     new_validation_data = np.array(new_validation_data)
@@ -98,7 +98,7 @@ plt.figure('Accuracy vs time difference')
 plt.title('Accuracy as a function of time difference')
 plt.xlabel('Absolute time difference (s)')
 plt.ylabel('Accuracy')
-plt.bar(time_slices, accuracies, width=200, align='edge',
+plt.bar(time_slices, accuracies, width=100, align='edge',
         color='lightcyan',  edgecolor='lightseagreen', yerr=(np.array(accuracies)/np.array(N))**(0.5))
 plt.show()
 

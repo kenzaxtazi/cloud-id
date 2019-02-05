@@ -160,7 +160,7 @@ def get_contextual_dataframe(df, contextlength=25, download_missing=False):
 
         for i in range(len(Indices)):
             x0, y0 = Indices[i]
-            coords += get_coords(x0, y0, contextlength)
+            coords += dp.get_coords(x0, y0, contextlength)
 
         coords = list(set(coords))
         coords.sort()

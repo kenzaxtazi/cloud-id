@@ -175,7 +175,7 @@ if __name__ == '__main__':
     if os.path.exists('D:'):
         scenes = []
 
-    training_data, validation_data, training_truth, validation_truth, _, _ = dp.pkl_prep_data(
+    training_data, validation_data, training_truth, validation_truth, _, _, _ = dp.pkl_prep_data(
         '/Users/kenzatazi/Desktop/SatelliteData', validation_frac=0.15, seed=None)
     # MACHINE LEARNING MODEL
 

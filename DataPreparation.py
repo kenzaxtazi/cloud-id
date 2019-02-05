@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 import sklearn.utils
 from tqdm import tqdm
-import DFAnalysis as dfa
+
 
 import DataLoader as DL
 
@@ -85,7 +85,7 @@ def getinputs(Sreference, num_inputs=24, indices=False):
         inputs = np.vstack((inputs, confidence_flags))
         if indices is False: 
             inputs = np.reshape(inputs[:-1], (num_inputs, 7200000))
-            return(inputs.T)inputs
+            return(inputs.T)
 
 
 def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=False, TimeDiff=False, seed=None, MaxDist=500, MaxTime=1200, NaNFilter=True):
@@ -595,3 +595,35 @@ def TruthMatches(df):
     q = df['CTruth'] == df['STruth']
     out = np.mean(q)
     return(out)
+
+
+def get_coords(x0, y0, contextlength):
+    East_xs = np.linspace(x0 + 1, x0 + contextlength,
+                          contextlength).astype(int)
+    West_xs = np.linspace(x0 - contextlength, x0 - 1,
+                          contextlength).astype(int)
+
+    North_ys = np.linspace(y0 + 1, y0 + contextlength,
+                           contextlength).astype(int)
+    South_ys = np.linspace(y0 - contextlength, y0 - 1,
+                           contextlength).astype(int)
+
+    # Restrict to indices within 2400, 3000 frame
+    East_xs = East_xs[East_xs < 2400]
+    West_xs = West_xs[West_xs > -1]
+    North_ys = North_ys[North_ys < 3000]
+    South_ys = South_ys[South_ys > -1]
+
+    N_list = list(zip([x0] * len(North_ys), North_ys))
+    E_list = list(zip(East_xs, [y0] * len(East_xs)))
+    S_list = list(zip([x0] * len(South_ys), South_ys))
+    W_list = list(zip(West_xs, [y0] * len(West_xs)))
+
+    # Need to reverse South and West so it from x0, y0 outwards
+    NE_list = list(zip(East_xs, North_ys))
+    SE_list = list(zip(East_xs, South_ys[::-1]))
+    NW_list = list(zip(West_xs[::-1], North_ys))
+    SW_list = list(zip(West_xs[::-1], South_ys[::-1]))
+
+    return(N_list + E_list + S_list + W_list + NE_list + SE_list + NW_list + SW_list)
+

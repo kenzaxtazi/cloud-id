@@ -149,7 +149,7 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
     pixel_inputs = np.column_stack((pixel_channels, confidence_flags))
 
     pixel_outputs = pixels[[
-        'Feature_Classification_Flags', 'bayes_in', 'cloud_an']].values
+        'Feature_Classification_Flags', 'bayes_in', 'cloud_an', 'TimeDiff']].values
 
     pix = np.column_stack((pixel_inputs, pixel_outputs))
     pix = np.column_stack((pix, pixel_indices))
@@ -176,9 +176,9 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
         empirical_values = None
 
     if TimeDiff is True:
-        times = validation[:, -1]
+        times = validation[:, -2]
     else:
-        empirical_values = None
+        times = None
 
     training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
     reverse_training_cloudtruth = 1 - training_cloudtruth

@@ -27,8 +27,8 @@ training_data, validation_data, training_truth, validation_truth, bayes_values, 
 '''
 
 # prepares data for ffn
-training_data, validation_data, training_truth, validation_truth, bayes_values, emp_values = dp.pkl_prep_data(
-    '/Users/kenzatazi/Desktop/SatelliteData/SLSTR/Pixels2', bayesian=False, empirical=False)
+training_data, validation_data, training_truth, validation_truth, _, _, _ = dp.pkl_prep_data(
+    '/Users/kenzatazi/Desktop/SatelliteData/SLSTR/Pixels2')
 
 
 # If dataset already created :
@@ -68,7 +68,7 @@ model.Train(training_data, training_truth, validation_data,
 
 # VALIDATION
 
-angle_slices = np.linspace(6, 54, 9)
+angle_slices = np.linspace(3, 55, 18)
 accuracies = []
 N = []
 
@@ -79,8 +79,8 @@ for a in angle_slices:
 
     # slices
     for i in range(len(validation_data)):
-        if abs(int(validation_data[i, 9])) > a:
-            if abs(int(validation_data[i, 9])) < a+6:
+        if abs(validation_data[i, 9]) > a:
+            if abs(validation_data[i, 9]) < a+3:
                 new_validation_data.append(validation_data[i])
                 new_validation_truth.append(validation_truth[i])
 
@@ -104,10 +104,8 @@ plt.figure('Accuracy vs satellite zenith angle')
 plt.title('Accuracy as a function of satellite zenith angle')
 plt.xlabel('Satellite zenith angle (deg)')
 plt.ylabel('Accuracy')
-plt.bar(angle_slices, accuracies, width=6, align='edge', color='lavenderblush',
-        edgecolor='thistle')
-plt.errorbar(angle_slices+3, accuracies,
-             yerr=(np.array(accuracies)/np.array(N))**(0.5), ls='none')
+plt.bar(angle_slices, accuracies, width=3, align='edge', color='lavenderblush',
+        edgecolor='thistle', yerr=(np.array(accuracies)/np.array(N))**(0.5))
 plt.show()
 
 # resets the tensorflow environment

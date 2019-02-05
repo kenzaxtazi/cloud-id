@@ -160,6 +160,8 @@ class FFN():
         self.model.load('Models/' + self.name)
         self.isLoaded = True
 
+    def Predict(self, X):
+        return(self.model.predict(X))
 
 if __name__ == '__main__':
     # Pixel Loading

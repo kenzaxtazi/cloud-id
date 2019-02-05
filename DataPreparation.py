@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import sklearn.utils
 from tqdm import tqdm
+import DFAnalysis as dfa
 
 import DataLoader as DL
 
@@ -36,7 +37,7 @@ def PixelLoader(directory):
     return(out)
 
 
-def getinputs(Sreference, num_inputs=13):
+def getinputs(Sreference, num_inputs=24, indices=False):
     """
     For a given SLSTR file, produce a correctly formatted input array for
     tflearn model
@@ -65,23 +66,26 @@ def getinputs(Sreference, num_inputs=13):
     solza = DL.upscale_repeat(np.nan_to_num(scn['solar_zenith_angle'].values))
     lat = np.nan_to_num(scn['latitude_an'].values)
     lon = np.nan_to_num(scn['longitude_an'].values)
+    ind = np.arrange(7200000)
 
     if num_inputs == 13:
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7, S8, S9, salza,
-                           solza, lat, lon])
-        inputs = np.reshape(inputs, (num_inputs, 7200000))
-        return(inputs.T)
+                           solza, lat, lon, ind])
+        if indices is False: 
+            inputs = np.reshape(inputs[:-1], (num_inputs, 7200000))
+            return(inputs.T)
 
     if num_inputs == 24:
         scn.load(['confidence_an'])
         confidence = np.nan_to_num(scn['confidence_an'].values)
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                           S8, S9, salza, solza, lat, lon])
+                           S8, S9, salza, solza, lat, lon, ind])
         confidence_flags = bits_from_int(confidence)
 
         inputs = np.vstack((inputs, confidence_flags))
-        inputs = np.reshape(inputs, (num_inputs, 7200000))
-        return(inputs.T)
+        if indices is False: 
+            inputs = np.reshape(inputs[:-1], (num_inputs, 7200000))
+            return(inputs.T)inputs
 
 
 def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=False, TimeDiff=False, seed=None, MaxDist=500, MaxTime=1200, NaNFilter=True):
@@ -196,7 +200,7 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
     return return_list
 
 
-def SM_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=False, seed=None, MaxDist=500, MaxTime=1200):
+def SM_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=False, TimeDiff=False, seed=None, MaxDist=500, MaxTime=1200):
     """
     Prepares data for matched SLSTR and CALIOP pixels into training data,
     validation data, training truth data, validation truth data for the supermodel.
@@ -299,9 +303,9 @@ def SM_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fals
         bayes_values = None
 
     if empirical is True:
-        empircal_values = validation[:, 26]
+        emp_values = validation[:, 26]
     else:
-        empirical_values = None
+        emp_values = None
 
     #pixel_indices = pixels.index.values
 
@@ -315,6 +319,40 @@ def SM_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fals
 
     return_list = [ftd, fvd, ctd, cvd, tt, vt, bayes_values, emp_values]
     return return_list
+
+
+def context_getinputs(Sreference, data):
+    """ 
+    Download and prepares pixel contextual information for a given SLSTR file to get the Supermodel prediction.
+
+    Parameters
+    -----------
+    Sreferenc: string
+        path to dowload SLST files from.
+    data: multi dimensional array 
+        0: probability from first model 
+        1: indice from image 
+    
+    Returns
+    --------- 
+    star: array 
+        data for CNN 
+    """
+    
+    if type(Sreference) == str:
+        scn = DL.scene_loader(Sreference)
+    else:
+        scn = Sreference
+
+    scn.load(['S1_an'])
+    S1 = np.nan_to_num(scn['S1_an'].values)
+
+    row = int(float(data[1])/2400.)
+    column = data[1]%3000
+   
+    star = dfa.get_coords(row, column, contextlength=25)
+
+    return star
 
 
 def surftype_class(validation_data, validation_truth, masks=None):

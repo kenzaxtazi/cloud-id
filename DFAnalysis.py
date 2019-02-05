@@ -1,14 +1,15 @@
-import matplotlib.pyplot as plt
-import pandas as pd
 import os
+
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+from tqdm import tqdm
 
 import DataLoader as DL
 import DataPreparation as dp
+import FileDownloader as FD
 import Visualisation as Vis
 from ffn2 import FFN
-from tqdm import tqdm
-import FileDownloader as FD
 
 
 def make_confidence_hist(path, model='Net3_S_FFN', model_network='Network2', MaxDist=500, MaxTime=1200):
@@ -147,7 +148,8 @@ def get_contextual_dataframe(df, contextlength=25, download_missing=False):
 
                 DestinationPath = '/vols/lhcb/egede/cloud/SLSTR/' + Year + '/' + Month + '/'
 
-                download_status = FD.FTPdownload(ftp, CEDApath, DestinationPath)
+                download_status = FD.FTPdownload(
+                    ftp, CEDApath, DestinationPath)
                 if download_status == 1:
                     tqdm.write('Download failed, skipping...')
                     continue
@@ -160,7 +162,7 @@ def get_contextual_dataframe(df, contextlength=25, download_missing=False):
 
         for i in range(len(Indices)):
             x0, y0 = Indices[i]
-            coords += get_coords(x0, y0, contextlength)
+            coords += dp.get_coords(x0, y0, contextlength)
 
         coords = list(set(coords))
         coords.sort()
@@ -170,6 +172,7 @@ def get_contextual_dataframe(df, contextlength=25, download_missing=False):
         out = out.append(newdf, ignore_index=True, sort=True)
 
     return(out)
+
 
 def make_Context_df(coords, Sfile, Spath):
     if coords == None:

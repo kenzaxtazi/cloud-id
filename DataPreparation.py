@@ -70,7 +70,7 @@ def getinputs(Sreference, num_inputs=24, indices=False):
     if num_inputs == 13:
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7, S8, S9, salza,
                            solza, lat, lon])
-        inputs = np.reshape(inputs[:-1], (num_inputs, 7200000))
+        inputs = np.reshape(inputs, (num_inputs, 7200000))
         return(inputs.T)
 
     if num_inputs == 24:
@@ -81,7 +81,7 @@ def getinputs(Sreference, num_inputs=24, indices=False):
         confidence_flags = bits_from_int(confidence)
 
         inputs = np.vstack((inputs, confidence_flags))
-        inputs = np.reshape(inputs[:-1], (num_inputs, 7200000))
+        inputs = np.reshape(inputs, (num_inputs, 7200000))
         return(inputs.T)
 
 

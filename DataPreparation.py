@@ -66,26 +66,23 @@ def getinputs(Sreference, num_inputs=24, indices=False):
     solza = DL.upscale_repeat(np.nan_to_num(scn['solar_zenith_angle'].values))
     lat = np.nan_to_num(scn['latitude_an'].values)
     lon = np.nan_to_num(scn['longitude_an'].values)
-    ind = np.arange(7200000)
 
     if num_inputs == 13:
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7, S8, S9, salza,
-                           solza, lat, lon, ind])
-        if indices is False:
-            inputs = np.reshape(inputs[:-1], (num_inputs, 7200000))
-            return(inputs.T)
+                           solza, lat, lon])
+        inputs = np.reshape(inputs[:-1], (num_inputs, 7200000))
+        return(inputs.T)
 
     if num_inputs == 24:
         scn.load(['confidence_an'])
         confidence = np.nan_to_num(scn['confidence_an'].values)
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                           S8, S9, salza, solza, lat, lon, ind])
+                           S8, S9, salza, solza, lat, lon])
         confidence_flags = bits_from_int(confidence)
 
         inputs = np.vstack((inputs, confidence_flags))
-        if indices is False:
-            inputs = np.reshape(inputs[:-1], (num_inputs, 7200000))
-            return(inputs.T)
+        inputs = np.reshape(inputs[:-1], (num_inputs, 7200000))
+        return(inputs.T)
 
 
 def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=False, TimeDiff=False, seed=None, MaxDist=500, MaxTime=1200, NaNFilter=True):
@@ -462,6 +459,7 @@ def pad_array(a, targetshape=(25, 9), padvalue=-1):
     zeros[:a.shape[0], :a.shape[1]] = a
     return(zeros)
 
+
 def CNN_prep_data(truth_df, context_df):
     # TODO: Optimise
     out = []
@@ -494,15 +492,22 @@ def CNN_prep_data(truth_df, context_df):
             E3_df = df[df['ColIndex'] > y0]
             NS_df = df[df['ColIndex'] == y0]
 
-            W_array = pad_array(W3_df[W3_df['RowIndex'] == x0][channels].values[::-1])
-            NW_array = pad_array(W3_df[W3_df['RowIndex'] < x0][channels].values[::-1])
-            SW_array = pad_array(W3_df[W3_df['RowIndex'] > x0][channels].values)
+            W_array = pad_array(
+                W3_df[W3_df['RowIndex'] == x0][channels].values[::-1])
+            NW_array = pad_array(
+                W3_df[W3_df['RowIndex'] < x0][channels].values[::-1])
+            SW_array = pad_array(
+                W3_df[W3_df['RowIndex'] > x0][channels].values)
 
-            E_array = pad_array(E3_df[E3_df['RowIndex'] == x0][channels].values)
-            NE_array = pad_array(E3_df[E3_df['RowIndex'] < x0][channels].values[::-1])
-            SE_array = pad_array(E3_df[E3_df['RowIndex'] > x0][channels].values)
+            E_array = pad_array(
+                E3_df[E3_df['RowIndex'] == x0][channels].values)
+            NE_array = pad_array(
+                E3_df[E3_df['RowIndex'] < x0][channels].values[::-1])
+            SE_array = pad_array(
+                E3_df[E3_df['RowIndex'] > x0][channels].values)
 
-            N_array = pad_array(NS_df[NS_df['RowIndex'] < x0][channels].values[::-1])
+            N_array = pad_array(
+                NS_df[NS_df['RowIndex'] < x0][channels].values[::-1])
             S_array = pad_array(NS_df[NS_df['RowIndex'] > x0][channels].values)
 
             star = np.array([N_array, NE_array, W_array, SE_array,

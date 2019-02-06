@@ -98,10 +98,10 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
         path to dowload pickle files from.
     validation_frac: float btw 0 and 1
         The fraction of the complete dataset that is taken as validation data.
-    bayesian: boolean 
+    bayesian: boolean
         If True, outputs bayesian mask values.
-    seed: int 
-        Random generator seed to shuffle data.  
+    seed: int
+        Random generator seed to shuffle data.
     MaxDist: int or float,
         Maximum collocation distance.
     MaxTime: int or float,
@@ -111,7 +111,7 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
     ---------
     return_list: list
         List of 5 elements including the training data, validation data, training truth,
-        validation truth and bayesian mask values or None. 
+        validation truth and bayesian mask values or None.
     """
     # Record RNG seed to file, or set custom seed.
     if seed == None:
@@ -212,12 +212,12 @@ def SM_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fals
         path to dowload pickle files from.
     validation_frac: float btw 0 and 1
         The fraction of the complete dataset that is taken as validation data.
-    bayesian: boolean 
+    bayesian: boolean
         If True, outputs bayesian mask values.
-    empirical: boolean 
+    empirical: boolean
         If True, outputs bayesian mask values.
-    seed: int 
-        Random generator seed to shuffle data.  
+    seed: int
+        Random generator seed to shuffle data.
     MaxDist: int or float,
         Maximum collocation distance.
     MaxTime: int or float,
@@ -226,23 +226,23 @@ def SM_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fals
     Returns
     ---------
     return_list: list
-        List of 8 elements including ftd, fvd, ctd, cvd, tt, vt, bayes_values, emp_values. 
+        List of 8 elements including ftd, fvd, ctd, cvd, tt, vt, bayes_values, emp_values.
 
-    ftd: array 
+    ftd: array
         Training data for FFN1 of the supermodel
     fvd: array
         Validation data for FFN1 of the supermodel
     ctd: array
-        Contextual training data for CNN 
+        Contextual training data for CNN
     cvd:
-        Contextual training data for CNN 
+        Contextual training data for CNN
     tt:
         Array of training truths (one hot encoded)
     vt:
         Array of validation truths (one hot encoded)
     bayes_values:
         Array of bayesian mask values to compare the model with
-    emp_values: 
+    emp_values:
         Array of emperical mask values to compare the model with
     """
    # Record RNG seed to file, or set custom seed.
@@ -304,7 +304,7 @@ def SM_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fals
     else:
         emp_values = None
 
-    #pixel_indices = pixels.index.values
+    # pixel_indices = pixels.index.values
 
     training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
     reverse_training_cloudtruth = 1 - training_cloudtruth
@@ -319,21 +319,21 @@ def SM_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fals
 
 
 def context_getinputs(Sreference, data):
-    """ 
+    """
     Download and prepares pixel contextual information for a given SLSTR file to get the Supermodel prediction.
 
     Parameters
     -----------
     Sreferenc: string
         path to dowload SLST files from.
-    data: multi dimensional array 
-        0: probability from first model 
-        1: indice from image 
+    data: multi dimensional array
+        0: probability from first model
+        1: indice from image
 
     Returns
-    --------- 
-    star: array 
-        data for CNN 
+    ---------
+    star: array
+        data for CNN
     """
 
     if type(Sreference) == str:
@@ -455,26 +455,26 @@ def surftype_class(validation_data, validation_truth, masks=None):
             duplicate, day, twilight, sun_glint, snow]
 
 
+def pad_array(a, targetshape=(25, 9), padvalue=-1):
+    zeros = np.zeros(targetshape)
+    zeros = zeros + padvalue
+
+    zeros[:a.shape[0], :a.shape[1]] = a
+    return(zeros)
+
 def CNN_prep_data(truth_df, context_df):
-    # TODO: Pad the output lists to fixed size
+    # TODO: Optimise
     out = []
 
-    pix = pd.read_pickle(truth_df)
-    con = pd.read_pickle(context_df)
-
-    con = con[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
-               'S7_in', 'S8_in', 'S9_in', 'RowIndex', 'ColIndex', 'Sfilename']]
-    Pos = con[['RowIndex', 'ColIndex']].values
+    Pos = context_df[['RowIndex', 'ColIndex']].values
     Pos = tuple(map(tuple, Pos))
-    con['Pos'] = Pos
+    context_df['Pos'] = Pos
 
-    Sfiles = list(set(pix['Sfilename']))
+    Sfiles = list(set(truth_df['Sfilename']))
 
     for Sfile in tqdm(Sfiles):
-        pix1 = pix[pix['Sfilename'] == Sfile]
-        con1 = con[con['Sfilename'] == Sfile]
-
-        con1.drop(['Sfilename'], axis=1)
+        pix1 = truth_df[truth_df['Sfilename'] == Sfile]
+        con1 = context_df[context_df['Sfilename'] == Sfile]
 
         RowIndices = pix1['RowIndex'].values
         ColIndices = pix1['ColIndex'].values
@@ -483,27 +483,32 @@ def CNN_prep_data(truth_df, context_df):
             x0, y0 = RowIndices[i], ColIndices[i]
 
             coords = get_coords(x0, y0, 25)
-            # df.drop(['Sfilename', 'RowIndex', 'ColIndex'], axis=1)
+
             df = con1[con1['Pos'].isin(coords)]
             df = df.sort_values('Pos')
 
-            W3_df = df[df['RowIndex'] < x0]
-            E3_df = df[df['RowIndex'] > x0]
-            NS_df = df[df['RowIndex'] == x0]
+            channels = ['S1_an', 'S2_an', 'S3_an', 'S4_an',
+                        'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in']
 
-            W_list = W3_df[W3_df['ColIndex'] == y0].values[::-1]
-            NW_list = W3_df[W3_df['ColIndex'] > y0].values[::-1]
-            SW_list = W3_df[W3_df['ColIndex'] < y0].values
+            W3_df = df[df['ColIndex'] < y0]
+            E3_df = df[df['ColIndex'] > y0]
+            NS_df = df[df['ColIndex'] == y0]
 
-            E_list = E3_df[E3_df['ColIndex'] == y0].values
-            NE_list = E3_df[E3_df['ColIndex'] > y0].values[::-1]
-            SE_list = E3_df[E3_df['ColIndex'] < y0].values
+            W_array = pad_array(W3_df[W3_df['RowIndex'] == x0][channels].values[::-1])
+            NW_array = pad_array(W3_df[W3_df['RowIndex'] < x0][channels].values[::-1])
+            SW_array = pad_array(W3_df[W3_df['RowIndex'] > x0][channels].values)
 
-            N_list = NS_df[NS_df['ColIndex'] > y0].values[::-1]
-            S_list = NS_df[NS_df['ColIndex'] < y0].values
+            E_array = pad_array(E3_df[E3_df['RowIndex'] == x0][channels].values)
+            NE_array = pad_array(E3_df[E3_df['RowIndex'] < x0][channels].values[::-1])
+            SE_array = pad_array(E3_df[E3_df['RowIndex'] > x0][channels].values)
 
-            out.append([N_list, NE_list, W_list, SE_list,
-                        S_list, SW_list, W_list, NW_list])
+            N_array = pad_array(NS_df[NS_df['RowIndex'] < x0][channels].values[::-1])
+            S_array = pad_array(NS_df[NS_df['RowIndex'] > x0][channels].values)
+
+            star = np.array([N_array, NE_array, W_array, SE_array,
+                             S_array, SW_array, W_array, NW_array])
+
+            out.append(star)
 
     return(np.array(out))
 

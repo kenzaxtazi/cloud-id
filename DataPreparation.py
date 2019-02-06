@@ -71,7 +71,7 @@ def getinputs(Sreference, num_inputs=24, indices=False):
     if num_inputs == 13:
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7, S8, S9, salza,
                            solza, lat, lon, ind])
-        if indices is False: 
+        if indices is False:
             inputs = np.reshape(inputs[:-1], (num_inputs, 7200000))
             return(inputs.T)
 
@@ -83,7 +83,7 @@ def getinputs(Sreference, num_inputs=24, indices=False):
         confidence_flags = bits_from_int(confidence)
 
         inputs = np.vstack((inputs, confidence_flags))
-        if indices is False: 
+        if indices is False:
             inputs = np.reshape(inputs[:-1], (num_inputs, 7200000))
             return(inputs.T)
 
@@ -280,7 +280,6 @@ def SM_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fals
     pixel_outputs = pixels[[
         'Feature_Classification_Flags', 'bayes_in', 'cloud_an']].values
 
-
     pix = np.column_stack((pixel_inputs, pixel_outputs))
     pix = np.column_stack((pix, pixel_indices))
 
@@ -330,13 +329,13 @@ def context_getinputs(Sreference, data):
     data: multi dimensional array 
         0: probability from first model 
         1: indice from image 
-    
+
     Returns
     --------- 
     star: array 
         data for CNN 
     """
-    
+
     if type(Sreference) == str:
         scn = DL.scene_loader(Sreference)
     else:
@@ -346,8 +345,8 @@ def context_getinputs(Sreference, data):
     S1 = np.nan_to_num(scn['S1_an'].values)
 
     row = int(float(data[1])/2400.)
-    column = data[1]%3000
-   
+    column = data[1] % 3000
+
     star = get_coords(row, column, contextlength=25)
 
     return star
@@ -456,6 +455,59 @@ def surftype_class(validation_data, validation_truth, masks=None):
             duplicate, day, twilight, sun_glint, snow]
 
 
+def CNN_prep_data(truth_df, context_df):
+    # TODO: Pad the output lists to fixed size
+    out = []
+
+    pix = pd.read_pickle(truth_df)
+    con = pd.read_pickle(context_df)
+
+    con = con[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
+               'S7_in', 'S8_in', 'S9_in', 'RowIndex', 'ColIndex', 'Sfilename']]
+    Pos = con[['RowIndex', 'ColIndex']].values
+    Pos = tuple(map(tuple, Pos))
+    con['Pos'] = Pos
+
+    Sfiles = list(set(pix['Sfilename']))
+
+    for Sfile in tqdm(Sfiles):
+        pix1 = pix[pix['Sfilename'] == Sfile]
+        con1 = con[con['Sfilename'] == Sfile]
+
+        con1.drop(['Sfilename'], axis=1)
+
+        RowIndices = pix1['RowIndex'].values
+        ColIndices = pix1['ColIndex'].values
+
+        for i in range(len(RowIndices)):
+            x0, y0 = RowIndices[i], ColIndices[i]
+
+            coords = get_coords(x0, y0, 25)
+            # df.drop(['Sfilename', 'RowIndex', 'ColIndex'], axis=1)
+            df = con1[con1['Pos'].isin(coords)]
+            df = df.sort_values('Pos')
+
+            W3_df = df[df['RowIndex'] < x0]
+            E3_df = df[df['RowIndex'] > x0]
+            NS_df = df[df['RowIndex'] == x0]
+
+            W_list = W3_df[W3_df['ColIndex'] == y0].values[::-1]
+            NW_list = W3_df[W3_df['ColIndex'] > y0].values[::-1]
+            SW_list = W3_df[W3_df['ColIndex'] < y0].values
+
+            E_list = E3_df[E3_df['ColIndex'] == y0].values
+            NE_list = E3_df[E3_df['ColIndex'] > y0].values[::-1]
+            SE_list = E3_df[E3_df['ColIndex'] < y0].values
+
+            N_list = NS_df[NS_df['ColIndex'] > y0].values[::-1]
+            S_list = NS_df[NS_df['ColIndex'] < y0].values
+
+            out.append([N_list, NE_list, W_list, SE_list,
+                        S_list, SW_list, W_list, NW_list])
+
+    return(np.array(out))
+
+
 def bits_from_int(array):
     array = array.astype(int)
     coastline = array & 1
@@ -473,6 +525,7 @@ def bits_from_int(array):
                     duplicate, day, twilight, sun_glint, snow])
     out = (out > 0).astype(int)
     return(out)
+
 
 def bits_from_int2(array):
     array = array.astype(int)
@@ -643,4 +696,3 @@ def get_coords(x0, y0, contextlength):
     SW_list = list(zip(West_xs[::-1], South_ys[::-1]))
 
     return(N_list + E_list + S_list + W_list + NE_list + SE_list + NW_list + SW_list)
-

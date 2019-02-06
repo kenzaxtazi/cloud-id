@@ -9,12 +9,12 @@ class SuperModel():
         self.FFN1 = FFN1
         self.FFN2 = FFN2
         self.CNN = CNN
-    
+
     def predict_file(self, Sreference):
 
         scene = DL.scene_loader(Sreference)
 
-        ftestdata = dp.getinputs(scene, num_inputs=24, indices=True) #include indices
+        ftestdata = dp.getinputs(scene, num_inputs=self.FFN1.para_num, indices=True) #include indices
         indices = ftestdata[-1]
 
         predictions1 = self.FFN1.Predict(ftestdata[:-1]) #exclude indices when predicting 

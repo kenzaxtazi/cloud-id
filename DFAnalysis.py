@@ -174,7 +174,7 @@ def get_contextual_dataframe(df, contextlength=25, download_missing=False, num_v
     return(out)
 
 
-def make_Context_df(coords, Sfile, Spath, num_values):
+def make_Context_df(coords, Sfile, Spath, para_num):
     if coords == None:
         return(pd.DataFrame())
 
@@ -186,17 +186,17 @@ def make_Context_df(coords, Sfile, Spath, num_values):
     df = pd.DataFrame()
     # Load SLSTR data and desired attributes
     scn = DL.scene_loader(Spath)
-    if num_values == 22:
+    if para_num == 22:
         SLSTR_attributes = ['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an',
                             'S6_an', 'S7_in', 'S8_in', 'S9_in', 'bayes_an',
                             'bayes_bn', 'bayes_cn', 'bayes_in', 'cloud_an',
                             'cloud_bn', 'cloud_cn', 'cloud_in',
                             'satellite_zenith_angle', 'solar_zenith_angle',
                             'latitude_an', 'longitude_an', 'confidence_an']
-    elif num_values == 1:
+    elif para_num == 1:
         SLSTR_attributes = ['S1_an']
 
-    elif num_values == 9:
+    elif para_num == 9:
         SLSTR_attributes = ['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an',
                             'S6_an', 'S7_in', 'S8_in', 'S9_in']
 

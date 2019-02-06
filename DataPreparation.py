@@ -510,7 +510,7 @@ def CNN_prep_data(truth_df, context_df):
                 NS_df[NS_df['RowIndex'] < x0][channels].values[::-1])
             S_array = pad_array(NS_df[NS_df['RowIndex'] > x0][channels].values)
 
-            star = np.array([N_array, NE_array, W_array, SE_array,
+            star = np.array([N_array, NE_array, E_array, SE_array,
                              S_array, SW_array, W_array, NW_array])
 
             out.append(star)
@@ -677,7 +677,7 @@ def TruthMatches(df):
     return(out)
 
 
-def get_coords(x0, y0, contextlength):
+def get_coords(x0, y0, contextlength, separate=False):
     East_xs = np.linspace(x0 + 1, x0 + contextlength,
                           contextlength).astype(int)
     West_xs = np.linspace(x0 - contextlength, x0 - 1,

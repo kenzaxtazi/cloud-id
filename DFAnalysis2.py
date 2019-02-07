@@ -167,8 +167,6 @@ def get_contextual_dataframe(df, contextlength=25, download_missing=False, num_v
         if len(coords) == 0:
             return(pd.DataFrame())
 
-        df = pd.DataFrame()
-
         scn = DL.scene_loader(Spath)
         scn.load(['S1_an'])
         S1 = np.array(scn['S1_an'].values)

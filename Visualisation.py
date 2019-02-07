@@ -194,7 +194,7 @@ def plot_poles(latitude, longitude, data):
     plt.show()
 
 
-def probability_mask(pmask, S1):
+def simple_mask(pmask, S1):
     """ 
     Creates plot for the probability mask 
 

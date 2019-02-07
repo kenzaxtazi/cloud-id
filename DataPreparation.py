@@ -138,7 +138,7 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
         df = df.drop(['confidence_in'], axis=1)
         df = df.dropna()
 
-    pixels = sklearn.utils.shuffle(df, random_state=seed)
+    pixels = sklearn.utils.shuffle(df, random_state=seed) # TODO need to shuffle after sperating data 
 
     confidence_int = pixels['confidence_an'].values
     confidence_flags = bits_from_int(confidence_int)
@@ -200,7 +200,7 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
     return return_list
 
 
-def SM_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=False, TimeDiff=False, seed=None, MaxDist=500, MaxTime=1200):
+def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     """
     Prepares data for matched SLSTR and CALIOP pixels into training data,
     validation data, training truth data, validation truth data for the supermodel.
@@ -208,118 +208,66 @@ def SM_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fals
 
     Parameters
     -----------
-    directory: string
-        path to dowload pickle files from.
-    validation_frac: float btw 0 and 1
-        The fraction of the complete dataset that is taken as validation data.
-    bayesian: boolean 
-        If True, outputs bayesian mask values.
-    empirical: boolean 
-        If True, outputs bayesian mask values.
-    seed: int 
-        Random generator seed to shuffle data.  
-    MaxDist: int or float,
-        Maximum collocation distance.
-    MaxTime: int or float,
-        Maximum collocation time.
+    location_directory
+        direction with the pixel locations and truths
+    
+    context_directory:
+        directory with context information 
+    
+    validation_frac: float between 0 and 1
+        the fraction of the dataset that is taken as validation 
 
     Returns
     ---------
-    return_list: list
-        List of 8 elements including ftd, fvd, ctd, cvd, tt, vt, bayes_values, emp_values. 
+    training_data: array 
 
-    ftd: array 
-        Training data for FFN1 of the supermodel
-    fvd: array
-        Validation data for FFN1 of the supermodel
-    ctd: array
-        Contextual training data for CNN 
-    cvd:
-        Contextual training data for CNN 
-    tt:
-        Array of training truths (one hot encoded)
-    vt:
-        Array of validation truths (one hot encoded)
-    bayes_values:
-        Array of bayesian mask values to compare the model with
-    emp_values: 
-        Array of emperical mask values to compare the model with
+    validation_data: array
+
+    training_truth: array
+
+    validation_truth: array
+
     """
-   # Record RNG seed to file, or set custom seed.
-    if seed == None:
-        seed = np.random.randint(0, 2**32, dtype='uint32')
-        np.random.seed(seed)
-    else:
-        print("Using predefined seed")
-        np.random.seed(seed)
-
-    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    with open('Temp/NumpySeeds.txt', 'a') as file:
-        file.write(timestamp + ': ' + str(seed) + '\n')
 
     # Load collocated pixels from dataframe
-    df = PixelLoader(directory)
+    P4 = PixelLoader(location_directory)
+    # Load one month from context dataframe 
+    C4 = PixelLoader(context_directory)
 
-    # Remove high timediff / distance pixels ...
-    df = df[df['Distance'] < MaxDist]
-    df = df[abs(df['TimeDiff']) < MaxTime]
+    p4 = P4['RowIndex', 'ColIndex', 'Sfilename']
+    c4 = C4['Pos', 'Sfilename', 'Star_array']
 
-    pixels = sklearn.utils.shuffle(df, random_state=seed)
+    Sfiles = list(set(p4['Sfilename']))
 
-    confidence_int = pixels['confidence_an'].values
-    confidence_flags = bits_from_int(confidence_int)
-    confidence_flags = confidence_flags.T
+    
+    truth = P4['Feature_Classification_Flags'].values
+    data = []
 
-    pixel_channels = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
-                              'S7_in', 'S8_in', 'S9_in', 'satellite_zenith_angle',
-                              'solar_zenith_angle', 'latitude_an', 'longitude_an']].values).astype(float)
-    pixel_channels = np.nan_to_num(pixel_channels)
+    for file in Sfiles:
+        ldf = p4[p4['Sfilename'] == file]
+        cdf = c4[c4['Sfilename'] == file]
 
-    pixel_inputs = np.column_stack((pixel_channels, confidence_flags))
+        ldf=ldf.values
+        cdf=cdf.values
 
-    pixel_outputs = pixels[[
-        'Feature_Classification_Flags', 'bayes_in', 'cloud_an']].values
+        for i in ldf:
+            star_row = cdf[(cdf[i,0])[0] == ldf[i,0]]
+            star_column = star_row[(star_row[i,0])[1] == ldf[i,1]]
+            star = star_column[2]
+            data.append(star)
 
+    data = np.array(data)
 
-    pix = np.column_stack((pixel_inputs, pixel_outputs))
-    pix = np.column_stack((pix, pixel_indices))
+    pct = int(len(data)*validation_frac)
+    training_data = data[:-pct, :]   # take all but the 15% last
+    validation_data = data[-pct:, :]   # take the last 15% of pixels
+    training_truth = truth[:-pct, :]
+    validation_truth = truth[-pct:, :]
 
-    pix = pix.astype(float)
-
-    pct = int(len(pix)*validation_frac)
-    training = pix[:-pct, :]   # take all but the 15% last
-    validation = pix[-pct:, :]   # take the last 15% of pixels
-
-    ftd = training[:, :24]
-    training_truth_flags = training[:, 24]
-    fvd = validation[:, :24]
-    validation_truth_flags = validation[:, 24]
-
-    if bayesian is True:
-        bayes_values = validation[:, 25]
-    else:
-        bayes_values = None
-
-    if empirical is True:
-        emp_values = validation[:, 26]
-    else:
-        emp_values = None
-
-    #pixel_indices = pixels.index.values
-
-    training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
-    reverse_training_cloudtruth = 1 - training_cloudtruth
-    tt = np.vstack((training_cloudtruth, reverse_training_cloudtruth)).T
-
-    validation_cloudtruth = (validation_truth_flags.astype(int) & 2) / 2
-    reverse_validation_cloudtruth = 1 - validation_cloudtruth
-    vt = np.vstack((validation_cloudtruth, reverse_validation_cloudtruth)).T
-
-    return_list = [ftd, fvd, ctd, cvd, tt, vt, bayes_values, emp_values]
-    return return_list
+    return training_data, validation_data, training_truth, validation_truth
 
 
-def context_getinputs(Sreference, data):
+def context_getinputs(S1, Sreference, data):
     """ 
     Download and prepares pixel contextual information for a given SLSTR file to get the Supermodel prediction.
 

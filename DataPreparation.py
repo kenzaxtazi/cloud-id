@@ -37,7 +37,7 @@ def PixelLoader(directory):
     return(out)
 
 
-def getinputs(Sreference, num_inputs=24, indices=False):
+def getinputs(Sreference, num_inputs=24):
     """
     For a given SLSTR file, produce a correctly formatted input array for
     tflearn model
@@ -66,26 +66,23 @@ def getinputs(Sreference, num_inputs=24, indices=False):
     solza = DL.upscale_repeat(np.nan_to_num(scn['solar_zenith_angle'].values))
     lat = np.nan_to_num(scn['latitude_an'].values)
     lon = np.nan_to_num(scn['longitude_an'].values)
-    ind = np.arange(7200000)
 
     if num_inputs == 13:
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7, S8, S9, salza,
-                           solza, lat, lon, ind])
-        if indices is False: 
-            inputs = np.reshape(inputs[:-1], (num_inputs, 7200000))
-            return(inputs.T)
+                           solza, lat, lon])
+        inputs = np.reshape(inputs, (num_inputs, 7200000))
+        return(inputs.T)
 
     if num_inputs == 24:
         scn.load(['confidence_an'])
         confidence = np.nan_to_num(scn['confidence_an'].values)
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                           S8, S9, salza, solza, lat, lon, ind])
+                           S8, S9, salza, solza, lat, lon])
         confidence_flags = bits_from_int(confidence)
 
         inputs = np.vstack((inputs, confidence_flags))
-        if indices is False: 
-            inputs = np.reshape(inputs[:-1], (num_inputs, 7200000))
-            return(inputs.T)
+        inputs = np.reshape(inputs, (num_inputs, 7200000))
+        return(inputs.T)
 
 
 def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=False, TimeDiff=False, seed=None, MaxDist=500, MaxTime=1200, NaNFilter=True):
@@ -98,10 +95,10 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
         path to dowload pickle files from.
     validation_frac: float btw 0 and 1
         The fraction of the complete dataset that is taken as validation data.
-    bayesian: boolean 
+    bayesian: boolean
         If True, outputs bayesian mask values.
-    seed: int 
-        Random generator seed to shuffle data.  
+    seed: int
+        Random generator seed to shuffle data.
     MaxDist: int or float,
         Maximum collocation distance.
     MaxTime: int or float,
@@ -111,7 +108,7 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
     ---------
     return_list: list
         List of 5 elements including the training data, validation data, training truth,
-        validation truth and bayesian mask values or None. 
+        validation truth and bayesian mask values or None.
     """
     # Record RNG seed to file, or set custom seed.
     if seed == None:
@@ -208,6 +205,7 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
     Parameters
     -----------
+<<<<<<< HEAD
     location_directory
         direction with the pixel locations and truths
     
@@ -220,6 +218,56 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     Returns
     ---------
     training_data: array 
+=======
+    directory: string
+        path to dowload pickle files from.
+    validation_frac: float btw 0 and 1
+        The fraction of the complete dataset that is taken as validation data.
+    bayesian: boolean
+        If True, outputs bayesian mask values.
+    empirical: boolean
+        If True, outputs bayesian mask values.
+    seed: int
+        Random generator seed to shuffle data.
+    MaxDist: int or float,
+        Maximum collocation distance.
+    MaxTime: int or float,
+        Maximum collocation time.
+
+    Returns
+    ---------
+    return_list: list
+        List of 8 elements including ftd, fvd, ctd, cvd, tt, vt, bayes_values, emp_values.
+
+    ftd: array
+        Training data for FFN1 of the supermodel
+    fvd: array
+        Validation data for FFN1 of the supermodel
+    ctd: array
+        Contextual training data for CNN
+    cvd:
+        Contextual training data for CNN
+    tt:
+        Array of training truths (one hot encoded)
+    vt:
+        Array of validation truths (one hot encoded)
+    bayes_values:
+        Array of bayesian mask values to compare the model with
+    emp_values:
+        Array of emperical mask values to compare the model with
+    """
+   # Record RNG seed to file, or set custom seed.
+    if seed == None:
+        seed = np.random.randint(0, 2**32, dtype='uint32')
+        np.random.seed(seed)
+    else:
+        print("Using predefined seed")
+        np.random.seed(seed)
+
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    with open('Temp/NumpySeeds.txt', 'a') as file:
+        file.write(timestamp + ': ' + str(seed) + '\n')
+>>>>>>> 69319ebfaf5de041d4f16c956e7df8f97a24be67
 
     validation_data: array
 
@@ -234,10 +282,15 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     # Load one month from context dataframe 
     C4 = PixelLoader(context_directory)
 
+<<<<<<< HEAD
     p4 = P4['RowIndex', 'ColIndex', 'Sfilename']
     c4 = C4['Pos', 'Sfilename', 'Star_array']
 
     Sfiles = list(set(p4['Sfilename']))
+=======
+    pix = np.column_stack((pixel_inputs, pixel_outputs))
+    pix = np.column_stack((pix, pixel_indices))
+>>>>>>> 69319ebfaf5de041d4f16c956e7df8f97a24be67
 
     
     truth = P4['Feature_Classification_Flags'].values
@@ -258,11 +311,15 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
     data = np.array(data)
 
+<<<<<<< HEAD
     pct = int(len(data)*validation_frac)
     training_data = data[:-pct, :]   # take all but the 15% last
     validation_data = data[-pct:, :]   # take the last 15% of pixels
     training_truth_flags = truth[:-pct, :]
     validation_truth_flags = truth[-pct:, :]
+=======
+    # pixel_indices = pixels.index.values
+>>>>>>> 69319ebfaf5de041d4f16c956e7df8f97a24be67
 
     training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
     reverse_training_cloudtruth = 1 - training_cloudtruth
@@ -277,24 +334,29 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     return training_data, validation_data, training_truth, validation_truth
 
 
+<<<<<<< HEAD
 def context_getinputs(S1, Sreference, data):
     """ 
+=======
+def context_getinputs(Sreference, data):
+    """
+>>>>>>> 69319ebfaf5de041d4f16c956e7df8f97a24be67
     Download and prepares pixel contextual information for a given SLSTR file to get the Supermodel prediction.
 
     Parameters
     -----------
     Sreferenc: string
         path to dowload SLST files from.
-    data: multi dimensional array 
-        0: probability from first model 
-        1: indice from image 
-    
+    data: multi dimensional array
+        0: probability from first model
+        1: indice from image
+
     Returns
-    --------- 
-    star: array 
-        data for CNN 
+    ---------
+    star: array
+        data for CNN
     """
-    
+
     if type(Sreference) == str:
         scn = DL.scene_loader(Sreference)
     else:
@@ -304,8 +366,8 @@ def context_getinputs(S1, Sreference, data):
     S1 = np.nan_to_num(scn['S1_an'].values)
 
     row = int(float(data[1])/2400.)
-    column = data[1]%3000
-   
+    column = data[1] % 3000
+
     star = get_coords(row, column, contextlength=25)
 
     return star
@@ -414,6 +476,72 @@ def surftype_class(validation_data, validation_truth, masks=None):
             duplicate, day, twilight, sun_glint, snow]
 
 
+def pad_array(a, targetshape=(25, 9), padvalue=-1):
+    zeros = np.zeros(targetshape)
+    zeros = zeros + padvalue
+
+    zeros[:a.shape[0], :a.shape[1]] = a
+    return(zeros)
+
+
+def CNN_prep_data(truth_df, context_df):
+    # TODO: Optimise
+    out = []
+
+    Pos = context_df[['RowIndex', 'ColIndex']].values
+    Pos = tuple(map(tuple, Pos))
+    context_df['Pos'] = Pos
+
+    Sfiles = list(set(truth_df['Sfilename']))
+
+    for Sfile in tqdm(Sfiles):
+        pix1 = truth_df[truth_df['Sfilename'] == Sfile]
+        con1 = context_df[context_df['Sfilename'] == Sfile]
+
+        RowIndices = pix1['RowIndex'].values
+        ColIndices = pix1['ColIndex'].values
+
+        for i in range(len(RowIndices)):
+            x0, y0 = RowIndices[i], ColIndices[i]
+
+            coords = get_coords(x0, y0, 25)
+
+            df = con1[con1['Pos'].isin(coords)]
+            df = df.sort_values('Pos')
+
+            channels = ['S1_an', 'S2_an', 'S3_an', 'S4_an',
+                        'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in']
+
+            W3_df = df[df['ColIndex'] < y0]
+            E3_df = df[df['ColIndex'] > y0]
+            NS_df = df[df['ColIndex'] == y0]
+
+            W_array = pad_array(
+                W3_df[W3_df['RowIndex'] == x0][channels].values[::-1])
+            NW_array = pad_array(
+                W3_df[W3_df['RowIndex'] < x0][channels].values[::-1])
+            SW_array = pad_array(
+                W3_df[W3_df['RowIndex'] > x0][channels].values)
+
+            E_array = pad_array(
+                E3_df[E3_df['RowIndex'] == x0][channels].values)
+            NE_array = pad_array(
+                E3_df[E3_df['RowIndex'] < x0][channels].values[::-1])
+            SE_array = pad_array(
+                E3_df[E3_df['RowIndex'] > x0][channels].values)
+
+            N_array = pad_array(
+                NS_df[NS_df['RowIndex'] < x0][channels].values[::-1])
+            S_array = pad_array(NS_df[NS_df['RowIndex'] > x0][channels].values)
+
+            star = np.array([N_array, NE_array, E_array, SE_array,
+                             S_array, SW_array, W_array, NW_array])
+
+            out.append(star)
+
+    return(np.array(out))
+
+
 def bits_from_int(array):
     array = array.astype(int)
     coastline = array & 1
@@ -429,6 +557,26 @@ def bits_from_int(array):
     snow = array & 8192
     out = np.array([coastline, ocean, tidal, land, inland_water, cosmetic,
                     duplicate, day, twilight, sun_glint, snow])
+    out = (out > 0).astype(int)
+    return(out)
+
+
+def bits_from_int2(array):
+    array = array.astype(int)
+    coastline = array & 1
+    ocean = array & 2
+    tidal = array & 4
+    land = array & 8
+    inland_water = array & 16
+    cosmetic = array & 256
+    duplicate = array & 512
+    day = array & 1024
+    twilight = array & 2048
+
+    dry_land = land * (1 - inland_water)
+
+    out = np.array([coastline, ocean, tidal, dry_land, inland_water, cosmetic,
+                    duplicate, day, twilight])
     out = (out > 0).astype(int)
     return(out)
 
@@ -553,33 +701,34 @@ def TruthMatches(df):
     return(out)
 
 
-def get_coords(x0, y0, contextlength):
+def get_coords(x0, y0, contextlength, separate=False):
     East_xs = np.linspace(x0 + 1, x0 + contextlength,
                           contextlength).astype(int)
-    West_xs = np.linspace(x0 - contextlength, x0 - 1,
+    West_xs = np.linspace(x0 - 1, x0 - contextlength,
                           contextlength).astype(int)
 
-    North_ys = np.linspace(y0 + 1, y0 + contextlength,
+    South_ys = np.linspace(y0 + 1, y0 + contextlength,
                            contextlength).astype(int)
-    South_ys = np.linspace(y0 - contextlength, y0 - 1,
+    North_ys = np.linspace(y0 - 1, y0 - contextlength,
                            contextlength).astype(int)
 
     # Restrict to indices within 2400, 3000 frame
     East_xs = East_xs[East_xs < 2400]
     West_xs = West_xs[West_xs > -1]
-    North_ys = North_ys[North_ys < 3000]
-    South_ys = South_ys[South_ys > -1]
+    North_ys = North_ys[North_ys > -1]
+    South_ys = South_ys[South_ys < 3000]
 
     N_list = list(zip([x0] * len(North_ys), North_ys))
     E_list = list(zip(East_xs, [y0] * len(East_xs)))
     S_list = list(zip([x0] * len(South_ys), South_ys))
     W_list = list(zip(West_xs, [y0] * len(West_xs)))
 
-    # Need to reverse South and West so it from x0, y0 outwards
     NE_list = list(zip(East_xs, North_ys))
-    SE_list = list(zip(East_xs, South_ys[::-1]))
-    NW_list = list(zip(West_xs[::-1], North_ys))
-    SW_list = list(zip(West_xs[::-1], South_ys[::-1]))
+    SE_list = list(zip(East_xs, South_ys))
+    NW_list = list(zip(West_xs, North_ys))
+    SW_list = list(zip(West_xs, South_ys))
 
-    return(N_list + E_list + S_list + W_list + NE_list + SE_list + NW_list + SW_list)
-
+    if separate is False:
+        return(N_list + NE_list + E_list + SE_list + S_list + SW_list + W_list + NW_list)
+    if separate is True:
+        return([N_list, NE_list, E_list, SE_list, S_list, SW_list, W_list, NW_list])

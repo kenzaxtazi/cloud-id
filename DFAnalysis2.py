@@ -162,12 +162,30 @@ def get_contextual_dataframe(df, contextlength=25, download_missing=False, num_v
 
         for i in range(len(Indices)):
             x0, y0 = Indices[i]
-            coords += dp.get_coords(x0, y0, contextlength)
+            coords.append(dp.get_coords(x0, y0, contextlength, True))
 
-        coords = list(set(coords))
-        coords.sort()
+        if len(coords) == 0:
+            return(pd.DataFrame())
 
-        newdf = make_Context_df(coords, Sfile, Spath, num_values)
+        scn = DL.scene_loader(Spath)
+        scn.load(['S1_an'])
+        S1 = np.array(scn['S1_an'].values)
+
+        data = []
+
+        for pixel in coords:
+            pixel_data = []
+            for arm in pixel:
+                xs = [i[0] for i in arm]
+                ys = [i[1] for i in arm]
+                arm_data = S1[xs, ys]
+                pixel_data.append(arm_data)
+            data.append(pixel_data)
+
+        SfileList = [Sfile] * len(data)
+        Positions = list(Indices)
+
+        newdf = pd.DataFrame({'Sfilename': SfileList, 'Pos': Positions, 'Star_array': data})
 
         out = out.append(newdf, ignore_index=True, sort=True)
 

@@ -205,7 +205,6 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
     Parameters
     -----------
-<<<<<<< HEAD
     location_directory
         direction with the pixel locations and truths
     
@@ -218,56 +217,6 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     Returns
     ---------
     training_data: array 
-=======
-    directory: string
-        path to dowload pickle files from.
-    validation_frac: float btw 0 and 1
-        The fraction of the complete dataset that is taken as validation data.
-    bayesian: boolean
-        If True, outputs bayesian mask values.
-    empirical: boolean
-        If True, outputs bayesian mask values.
-    seed: int
-        Random generator seed to shuffle data.
-    MaxDist: int or float,
-        Maximum collocation distance.
-    MaxTime: int or float,
-        Maximum collocation time.
-
-    Returns
-    ---------
-    return_list: list
-        List of 8 elements including ftd, fvd, ctd, cvd, tt, vt, bayes_values, emp_values.
-
-    ftd: array
-        Training data for FFN1 of the supermodel
-    fvd: array
-        Validation data for FFN1 of the supermodel
-    ctd: array
-        Contextual training data for CNN
-    cvd:
-        Contextual training data for CNN
-    tt:
-        Array of training truths (one hot encoded)
-    vt:
-        Array of validation truths (one hot encoded)
-    bayes_values:
-        Array of bayesian mask values to compare the model with
-    emp_values:
-        Array of emperical mask values to compare the model with
-    """
-   # Record RNG seed to file, or set custom seed.
-    if seed == None:
-        seed = np.random.randint(0, 2**32, dtype='uint32')
-        np.random.seed(seed)
-    else:
-        print("Using predefined seed")
-        np.random.seed(seed)
-
-    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    with open('Temp/NumpySeeds.txt', 'a') as file:
-        file.write(timestamp + ': ' + str(seed) + '\n')
->>>>>>> 69319ebfaf5de041d4f16c956e7df8f97a24be67
 
     validation_data: array
 
@@ -282,15 +231,10 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     # Load one month from context dataframe 
     C4 = PixelLoader(context_directory)
 
-<<<<<<< HEAD
     p4 = P4['RowIndex', 'ColIndex', 'Sfilename']
     c4 = C4['Pos', 'Sfilename', 'Star_array']
 
     Sfiles = list(set(p4['Sfilename']))
-=======
-    pix = np.column_stack((pixel_inputs, pixel_outputs))
-    pix = np.column_stack((pix, pixel_indices))
->>>>>>> 69319ebfaf5de041d4f16c956e7df8f97a24be67
 
     
     truth = P4['Feature_Classification_Flags'].values
@@ -311,15 +255,11 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
     data = np.array(data)
 
-<<<<<<< HEAD
     pct = int(len(data)*validation_frac)
     training_data = data[:-pct, :]   # take all but the 15% last
     validation_data = data[-pct:, :]   # take the last 15% of pixels
     training_truth_flags = truth[:-pct, :]
     validation_truth_flags = truth[-pct:, :]
-=======
-    # pixel_indices = pixels.index.values
->>>>>>> 69319ebfaf5de041d4f16c956e7df8f97a24be67
 
     training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
     reverse_training_cloudtruth = 1 - training_cloudtruth
@@ -334,13 +274,8 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     return training_data, validation_data, training_truth, validation_truth
 
 
-<<<<<<< HEAD
 def context_getinputs(S1, Sreference, data):
     """ 
-=======
-def context_getinputs(Sreference, data):
-    """
->>>>>>> 69319ebfaf5de041d4f16c956e7df8f97a24be67
     Download and prepares pixel contextual information for a given SLSTR file to get the Supermodel prediction.
 
     Parameters

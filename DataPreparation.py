@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jan  6 17:29:23 2019
 
-@author: kenzatazi
-"""
+##############################################
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
+# This software is distributed under the terms of the GNU General Public
+# Licence version 3 (GPLv3)
+##############################################
 
 import datetime
 import os
@@ -135,7 +134,8 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
         df = df.drop(['confidence_in'], axis=1)
         df = df.dropna()
 
-    pixels = sklearn.utils.shuffle(df, random_state=seed) # TODO need to shuffle after sperating data 
+    # TODO need to shuffle after sperating data
+    pixels = sklearn.utils.shuffle(df, random_state=seed)
 
     confidence_int = pixels['confidence_an'].values
     confidence_flags = bits_from_int(confidence_int)
@@ -207,10 +207,10 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     -----------
     location_directory
         direction with the pixel locations and truths
-    
+
     context_directory:
         directory with context information 
-    
+
     validation_frac: float between 0 and 1
         the fraction of the dataset that is taken as validation 
 
@@ -228,7 +228,7 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
     # Load collocated pixels from dataframe
     P4 = PixelLoader(location_directory)
-    # Load one month from context dataframe 
+    # Load one month from context dataframe
     C4 = PixelLoader(context_directory)
 
     p4 = P4['RowIndex', 'ColIndex', 'Sfilename']
@@ -236,7 +236,6 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
     Sfiles = list(set(p4['Sfilename']))
 
-    
     truth = P4['Feature_Classification_Flags'].values
     data = []
 
@@ -244,12 +243,12 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
         ldf = p4[p4['Sfilename'] == file]
         cdf = c4[c4['Sfilename'] == file]
 
-        ldf=ldf.values
-        cdf=cdf.values
+        ldf = ldf.values
+        cdf = cdf.values
 
         for i in ldf:
-            star_row = cdf[(cdf[i,0])[0] == ldf[i,0]]
-            star_column = star_row[(star_row[i,0])[1] == ldf[i,1]]
+            star_row = cdf[(cdf[i, 0])[0] == ldf[i, 0]]
+            star_column = star_row[(star_row[i, 0])[1] == ldf[i, 1]]
             star = star_column[2]
             data.append(star)
 

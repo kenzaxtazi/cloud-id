@@ -130,4 +130,4 @@ if __name__ == '__main__':
     bmask = DL.extract_mask(scenes, 'bayes_in', 2)
 
     #Vis.MaskComparison(Sfile, mask1, bmask, True, 1000)
-    Vis.simple_mask(pmask, S1)
+    #Vis.simple_mask(mask1, S1)

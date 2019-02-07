@@ -60,9 +60,9 @@ class CNN():
                                   loss='categorical_crossentropy', name='targets')
         self.networkConfig = 'cnn'
 
-
     def Setup(self):
-        self.model = tflearn.DNN(self.network, tensorboard_verbose=0, tensorboard_dir='./Temp/tflearn_logs')
+        self.model = tflearn.DNN(
+            self.network, tensorboard_verbose=0, tensorboard_dir='./Temp/tflearn_logs')
 
     def Train(self, training_data, training_truth, validation_data, validation_truth):
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -104,11 +104,11 @@ if __name__ == '__main__':
     if os.path.exists('D:'):
         scenes = []
 
-    # one month at a time 
-    training_data, validation_data, training_truth, validation_truth = dp.cnn_prep_data( 
-        location_directory='/home/hep/trz15/Matched_Pixels2/Calipso/P4'
-        context_directory='/home/hep/trz15/Matched_Pixels2/Calipso/Context'
-     
+    # one month at a time
+    training_data, validation_data, training_truth, validation_truth = dp.cnn_prep_data(
+        location_directory='/home/hep/trz15/Matched_Pixels2/Calipso/P4',
+        context_directory='/home/hep/trz15/Matched_Pixels2/Calipso/Context')
+
     # MACHINE LEARNING MODEL
 
     # Creating network and setting hypermarameters for model
@@ -123,8 +123,8 @@ if __name__ == '__main__':
                 validation_data, validation_truth)
     model.Save()
 
-
-    mask1 = app.apply_mask(model.model, scenes, binary=True, probability=True)[1]
+    mask1 = app.apply_mask(model.model, scenes,
+                           binary=True, probability=True)[1]
 
     # bmask = DL.extract_mask(Sfile, 'cloud_an', 64)
     bmask = DL.extract_mask(scenes, 'bayes_in', 2)

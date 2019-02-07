@@ -1,7 +1,17 @@
-import DataLoader as DL
-import DataPreparation as dp
-import numpy as np
 
+##############################################
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# This software is distributed under the terms of the GNU General Public
+# Licence version 3 (GPLv3)
+##############################################
+
+import FFN
+import CNN
+import DataPreparation as dp
+import ModelApplication as app
+import ModelEvaluation as me
+import DataLoader as DL
+import Visualisation as Vis
 
 class SuperModel():
     def __init__(self, name, FFN1, FFN2, CNN):

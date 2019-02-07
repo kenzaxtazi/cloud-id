@@ -1,7 +1,14 @@
+
+##############################################
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# This software is distributed under the terms of the GNU General Public
+# Licence version 3 (GPLv3)
+##############################################
+
 import datetime
 import os
 
-import matplotlib.pyplot as plt
+#CNNimport matplotlib.pyplot as plt
 import sklearn.utils
 import tflearn
 from tensorflow import reset_default_graph

@@ -162,7 +162,7 @@ def get_contextual_dataframe(df, contextlength=25, download_missing=False, num_v
 
         for i in range(len(Indices)):
             x0, y0 = Indices[i]
-            coords.append(dp.get_coords(x0, y0, contextlength))
+            coords.append(dp.get_coords(x0, y0, contextlength, True))
 
         if len(coords) == 0:
             return(pd.DataFrame())

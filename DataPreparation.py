@@ -261,8 +261,18 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     pct = int(len(data)*validation_frac)
     training_data = data[:-pct, :]   # take all but the 15% last
     validation_data = data[-pct:, :]   # take the last 15% of pixels
-    training_truth = truth[:-pct, :]
-    validation_truth = truth[-pct:, :]
+    training_truth_flags = truth[:-pct, :]
+    validation_truth_flags = truth[-pct:, :]
+
+    training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
+    reverse_training_cloudtruth = 1 - training_cloudtruth
+    training_truth = np.vstack(
+        (training_cloudtruth, reverse_training_cloudtruth)).T
+
+    validation_cloudtruth = (validation_truth_flags.astype(int) & 2) / 2
+    reverse_validation_cloudtruth = 1 - validation_cloudtruth
+    validation_truth = np.vstack(
+        (validation_cloudtruth, reverse_validation_cloudtruth)).T
 
     return training_data, validation_data, training_truth, validation_truth
 

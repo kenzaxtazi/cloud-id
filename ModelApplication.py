@@ -10,7 +10,7 @@ import numpy as np
 import DataPreparation as dp
 
 
-def apply_mask(model, Sfile, num_inputs=24, binary=True, probability=False):
+def apply_mask(model, Sfile, input_type=24, binary=True, probability=False):
     """
     Function to produce predicted mask for given model and SLSTR file.
 
@@ -33,7 +33,7 @@ def apply_mask(model, Sfile, num_inputs=24, binary=True, probability=False):
     mask: array
         Mask predicted by model for Sfile
     """
-    inputs = dp.getinputs(Sfile, num_inputs)
+    inputs = dp.getinputs(Sfile, input_type)
     returnlist = []
 
     if binary is True:

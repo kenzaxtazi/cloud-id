@@ -22,7 +22,7 @@ class SuperModel():
 
     def predict_file(self, Sreference):
 
-        ftestdata = dp.getinputs(Sreference, num_inputs=24)  # include indices
+        ftestdata = dp.getinputs(Sreference, input_type=24)  # include indices
         indices = np.arange(7200000)
 
         # exclude indices when predicting

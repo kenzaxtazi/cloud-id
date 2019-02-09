@@ -36,7 +36,7 @@ def PixelLoader(directory):
     return(out)
 
 
-def getinputs(Sreference, num_inputs=24):
+def getinputs(Sreference, input_type=24):
     """
     For a given SLSTR file, produce a correctly formatted input array for
     tflearn model
@@ -66,13 +66,13 @@ def getinputs(Sreference, num_inputs=24):
     lat = np.nan_to_num(scn['latitude_an'].values)
     lon = np.nan_to_num(scn['longitude_an'].values)
 
-    if num_inputs == 13:
+    if input_type == 13:
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7, S8, S9, salza,
                            solza, lat, lon])
-        inputs = np.reshape(inputs, (num_inputs, 7200000))
+        inputs = np.reshape(inputs, (13, 7200000))
         return(inputs.T)
 
-    if num_inputs == 24:
+    if input_type == 24:
         scn.load(['confidence_an'])
         confidence = np.nan_to_num(scn['confidence_an'].values)
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
@@ -80,7 +80,7 @@ def getinputs(Sreference, num_inputs=24):
         confidence_flags = bits_from_int(confidence)
 
         inputs = np.vstack((inputs, confidence_flags))
-        inputs = np.reshape(inputs, (num_inputs, 7200000))
+        inputs = np.reshape(inputs, (24, 7200000))
         return(inputs.T)
 
 
@@ -570,7 +570,7 @@ def surftype_processing(array):
     return new_array
 
 
-def inputs_from_df(df, num_inputs=24):
+def inputs_from_df(df, input_type=24):
     """Load values from dataframe into input array for tflearn model"""
     S1 = np.nan_to_num(df['S1_an'].values)
     S2 = np.nan_to_num(df['S2_an'].values)
@@ -585,7 +585,7 @@ def inputs_from_df(df, num_inputs=24):
     solza = np.nan_to_num(df['solar_zenith_angle'].values)
     lat = np.nan_to_num(df['latitude_an'].values)
     lon = np.nan_to_num(df['longitude_an'].values)
-    if num_inputs == 24:
+    if input_type == 24:
         confidence = np.nan_to_num(df['confidence_an'].values)
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
                            S8, S9, salza, solza, lat, lon])

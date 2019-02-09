@@ -263,10 +263,10 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
         for i in ldf:
             star_row = cdf[((cdf[:, 0])[0])[0] == i[0]]
             star_column = star_row[((star_row[:, 0])[0])[1] == i[1]]
-            print(star_column)
-            star = star_column[2]
-            padded_star = star_padding(star)
-            data.append(padded_star)
+            if len(star_column) > 0:
+                star = star_column[2]
+                padded_star = star_padding(star)
+                data.append(padded_star)
 
     data = np.array(data)
 

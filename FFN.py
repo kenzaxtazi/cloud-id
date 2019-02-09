@@ -180,7 +180,7 @@ if __name__ == '__main__':
         scenes = []
 
     training_data, validation_data, training_truth, validation_truth, _, _, _ = dp.pkl_prep_data(
-        '/Users/kenzatazi/Desktop/SatelliteData', validation_frac=0.15, seed=None)
+        './SatelliteData/SLSTR/Pixels3', validation_frac=0.15, seed=None)
    
 
    

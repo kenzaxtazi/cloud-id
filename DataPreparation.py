@@ -72,6 +72,15 @@ def getinputs(Sreference, input_type=24):
         inputs = np.reshape(inputs, (13, 7200000))
         return(inputs.T)
 
+    if input_type == 22:
+        inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
+                           S8, S9, salza, solza, lat, lon])
+        confidence_flags = bits_from_int2(confidence)
+
+        inputs = np.vstack((inputs, confidence_flags))
+        inputs = np.reshape(inputs, (22, 7200000))
+        return(inputs.T)
+
     if input_type == 24:
         scn.load(['confidence_an'])
         confidence = np.nan_to_num(scn['confidence_an'].values)
@@ -84,7 +93,7 @@ def getinputs(Sreference, input_type=24):
         return(inputs.T)
 
 
-def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=False, TimeDiff=False, seed=None, MaxDist=500, MaxTime=1200, NaNFilter=True):
+def pkl_prep_data(directory, input_type=24, validation_frac=0.15, bayesian=False, empirical=False, TimeDiff=False, seed=None, MaxDist=500, MaxTime=1200, NaNFilter=True):
     """
     Prepares a set of data for training the FFN
 
@@ -138,7 +147,12 @@ def pkl_prep_data(directory, validation_frac=0.15, bayesian=False, empirical=Fal
     pixels = sklearn.utils.shuffle(df, random_state=seed)
 
     confidence_int = pixels['confidence_an'].values
-    confidence_flags = bits_from_int(confidence_int)
+
+    if input_type == 24:
+        confidence_flags = bits_from_int(confidence_int)
+    elif input_type == 22:
+        confidence_flags = bits_from_int2(confidence_int)
+
     confidence_flags = confidence_flags.T
 
     pixel_indices = pixels.index.values
@@ -249,10 +263,10 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
         for i in ldf:
             star_row = cdf[(cdf[:, 0])[0] == i[0]]
             print('i[1]', i[1])
-            print('star_row[:,1]', star_row[:,1])
+            print('star_row[:,1]', star_row[:, 1])
             star_column = star_row[(star_row[:, 0])[1] == i[1]]
             star = star_column[2]
-            padded_star= star_padding(star)
+            padded_star = star_padding(star)
             data.append(padded_star)
 
     data = np.array(data)
@@ -420,8 +434,6 @@ def pad_array(a, targetshape=(25, 9), padvalue=-1):
     zeros[:a.shape[0], :a.shape[1]] = a
     return(zeros)
 
-
-
     # TODO: Optimise
     out = []
 
@@ -583,6 +595,17 @@ def inputs_from_df(df, input_type=24):
     solza = np.nan_to_num(df['solar_zenith_angle'].values)
     lat = np.nan_to_num(df['latitude_an'].values)
     lon = np.nan_to_num(df['longitude_an'].values)
+
+    if input_type == 22:
+        confidence = np.nan_to_num(df['confidence_an'].values)
+        inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
+                           S8, S9, salza, solza, lat, lon])
+        confidence_flags = bits_from_int2(confidence)
+
+        inputs = np.vstack((inputs, confidence_flags))
+
+        return(inputs.T)
+
     if input_type == 24:
         confidence = np.nan_to_num(df['confidence_an'].values)
         inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
@@ -679,22 +702,23 @@ def star_padding(star):
     -----------
     stars : array of lists 
         contextual data for a target pixel, in the shape of a star
-    
+
     Returns
     ____
     padded_star: 8x50 array 
         padded contextual data for a target pixel, in the shape of a star
 
     """
-    padded_star=[]
+    padded_star = []
 
     for arm in star:
-        if len(arm)<50:
-            padded_arm = np.pad(arm, (0, 50-len(arm)), mode='constant', constant_values=-5)
+        if len(arm) < 50:
+            padded_arm = np.pad(arm, (0, 50-len(arm)),
+                                mode='constant', constant_values=-5)
             padded_star.append(padded_arm)
-        else: 
+        else:
             padded_star.append(arm)
 
-    padded_star= np.array(padded_arm)
+    padded_star = np.array(padded_arm)
 
-    return padded_star 
+    return padded_star

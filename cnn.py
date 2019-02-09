@@ -20,7 +20,7 @@ import DataPreparation as dp
 import ModelApplication as app
 import ModelEvaluation as me
 import DataLoader as DL
-import Visualisation as Vis
+#import Visualisation as Vis
 
 
 class CNN():

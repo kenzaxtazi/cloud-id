@@ -247,8 +247,8 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
         cdf = cdf.values
 
         for i in ldf:
-            star_row = cdf[(cdf[i, 0])[0] == ldf[i, 0]]
-            star_column = star_row[(star_row[i, 0])[1] == ldf[i, 1]]
+            star_row = cdf[cdf[:, 0] == i[0]]
+            star_column = star_row[star_row[:, 1] == i[1]]
             star = star_column[2]
             padded_star= star_padding(star)
             data.append(padded_star)

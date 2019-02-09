@@ -250,7 +250,8 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
             star_row = cdf[(cdf[i, 0])[0] == ldf[i, 0]]
             star_column = star_row[(star_row[i, 0])[1] == ldf[i, 1]]
             star = star_column[2]
-            data.append(star)
+            padded_star= star_padding(star)
+            data.append(padded_star)
 
     data = np.array(data)
 
@@ -418,7 +419,7 @@ def pad_array(a, targetshape=(25, 9), padvalue=-1):
     return(zeros)
 
 
-def CNN_prep_data(truth_df, context_df):
+
     # TODO: Optimise
     out = []
 
@@ -666,3 +667,32 @@ def get_coords(x0, y0, contextlength, separate=False):
         return(N_list + NE_list + E_list + SE_list + S_list + SW_list + W_list + NW_list)
     if separate is True:
         return([N_list, NE_list, E_list, SE_list, S_list, SW_list, W_list, NW_list])
+
+
+def star_padding(star):
+    """
+    Pads out contextual stars 
+
+    Parameters
+    -----------
+    stars : array of lists 
+        contextual data for a target pixel, in the shape of a star
+    
+    Returns
+    ____
+    padded_star: 8x50 array 
+        padded contextual data for a target pixel, in the shape of a star
+
+    """
+    padded_star=[]
+
+    for arm in star:
+        if len(arm)<50:
+            padded_arm = np.pad(arm, (0, 50-len(arm)), mode='constant', constant_values=-5)
+            padded_star.append(padded_arm)
+        else: 
+            padded_star.append(arm)
+
+    padded_star= np.array(padded_arm)
+
+    return padded_star 

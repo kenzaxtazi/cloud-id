@@ -49,9 +49,9 @@ class SuperModel():
 
     def Save(self):
         os.mkdir('Models/' + self.name)
-        self.FFN1.save('Models/' + self.name + '/FFN1_' + self.FFN1.name)
-        self.FFN2.save('Models/' + self.name + '/FFN2_' + self.FFN2.name)
-        self.CNN.save('Models/' + self.name + '/CNN_' + self.CNN.name)
+        self.FFN1.Save('Models/' + self.name + '/FFN1_' + self.FFN1.name)
+        self.FFN2.Save('Models/' + self.name + '/FFN2_' + self.FFN2.name)
+        self.CNN.Save('Models/' + self.name + '/CNN_' + self.CNN.name)
         with open('Models/' + self.name + '/Info.txt') as file:
             file.write('FFN1: ' + self.FFN1.name + '\n')
             file.write('FFN2: ' + self.FFN2.name + '\n')

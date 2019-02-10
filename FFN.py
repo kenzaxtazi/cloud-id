@@ -166,29 +166,10 @@ class FFN():
 
 if __name__ == '__main__':
     # Pixel Loading
-
-    if os.path.exists('/vols/lhcb/egede/cloud'):
-        # Script is running on lx02
-        scenes = ['/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20171120T190102_20171120T190402_20171122T003854_0179_024_341_2880_LN2_O_NT_002.SEN3',
-                  '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20171217T190102_20171217T190402_20171218T223735_0179_025_341_2879_LN2_O_NT_002.SEN3',
-                  '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20180113T190102_20180113T190402_20180114T230219_0179_026_341_2880_LN2_O_NT_002.SEN3',
-                  '/vols/lhcb/egede/cloud/SLSTR/pacific_day/S3A_SL_1_RBT____20180209T190102_20180209T190402_20180210T234449_0179_027_341_2880_LN2_O_NT_002.SEN3']
-
-    if os.path.exists('/Users/kenzatazi'):
-        # Script is running on Kenza's laptop
-        scenes = ['/Users/kenzatazi/Desktop/SatelliteData/S3A_SL_1_RBT____20180529T113003_20180529T113303_20180530T154711_0179_031_351_1620_LN2_O_NT_003.SEN3']
-
-    if os.path.exists('D:'):
-        scenes = []
-
     df = dp.PixelLoader('./SatelliteData/SLSTR/Pixels3')
 
     training_data, validation_data, training_truth, validation_truth = df.dp.get_training_data(
         22)
-
-    # MACHINE LEARNING MODEL
-
-    # Creating network and setting hypermarameters for model
 
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     MODEL_NAME = 'Models/ffn_withancillarydata_' + timestamp
@@ -200,7 +181,7 @@ if __name__ == '__main__':
                 validation_data, validation_truth)
     model.Save()
 
-    Sfile = r"D:\SatelliteData\SLSTR\Dataset1\S3A_SL_1_RBT____20180822T000619_20180822T000919_20180822T015223_0179_035_016_3240_SVL_O_NR_003.SEN3"
+    Sfile = "./SatelliteData/SLSTR/Dataset1/S3A_SL_1_RBT____20180822T000619_20180822T000919_20180822T015223_0179_035_016_3240_SVL_O_NR_003.SEN3"
 
     mask1 = app.apply_mask(model.model, Sfile, 22)[0]
 

@@ -1,6 +1,6 @@
 
 ##############################################
-# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
 # This software is distributed under the terms of the GNU General Public
 # Licence version 3 (GPLv3)
 ##############################################
@@ -135,12 +135,13 @@ class FFN():
         self.networkConfig = 'Network2'
 
     def Setup(self):
-        self.model = tflearn.DNN(self.network, tensorboard_verbose=0, tensorboard_dir='./Temp/tflearn_logs')
+        self.model = tflearn.DNN(
+            self.network, tensorboard_verbose=0, tensorboard_dir='./Temp/tflearn_logs')
 
     def Train(self, training_data, training_truth, validation_data, validation_truth):
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         MODEL_NAME = 'Models/ffn_withancillarydata_' + timestamp
-        self.model.fit(training_data, training_truth, n_epoch=4,
+        self.model.fit(training_data, training_truth, n_epoch=16,
                        validation_set=(validation_data, validation_truth),
                        snapshot_step=10000, show_metric=True, run_id=MODEL_NAME)
         self.isLoaded = True
@@ -162,6 +163,7 @@ class FFN():
     def Predict(self, X):
         return(self.model.predict(X))
 
+
 if __name__ == '__main__':
     # Pixel Loading
 
@@ -179,11 +181,11 @@ if __name__ == '__main__':
     if os.path.exists('D:'):
         scenes = []
 
-    training_data, validation_data, training_truth, validation_truth, _, _, _ = dp.pkl_prep_data(
-        './SatelliteData/SLSTR/Pixels3', validation_frac=0.15, seed=None)
-   
+    df = dp.PixelLoader('./SatelliteData/SLSTR/Pixels3')
 
-   
+    training_data, validation_data, training_truth, validation_truth = df.dp.get_training_data(
+        22)
+
     # MACHINE LEARNING MODEL
 
     # Creating network and setting hypermarameters for model
@@ -191,7 +193,7 @@ if __name__ == '__main__':
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     MODEL_NAME = 'Models/ffn_withancillarydata_' + timestamp
 
-    model = FFN('Net2_S_FFN', 'Network2')
+    model = FFN('Net1_FFN_v4', 'Network1', 22)
     model.networkSetup()
     model.Setup()
     model.Train(training_data, training_truth,
@@ -200,7 +202,7 @@ if __name__ == '__main__':
 
     Sfile = r"D:\SatelliteData\SLSTR\Dataset1\S3A_SL_1_RBT____20180822T000619_20180822T000919_20180822T015223_0179_035_016_3240_SVL_O_NR_003.SEN3"
 
-    mask1 = app.apply_mask(model.model, Sfile)[0]
+    mask1 = app.apply_mask(model.model, Sfile, 22)[0]
 
     # bmask = DL.extract_mask(Sfile, 'cloud_an', 64)
     bmask = DL.extract_mask(Sfile, 'bayes_in', 2)

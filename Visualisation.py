@@ -41,7 +41,7 @@ def FalseColour(Sreference, plot=True):
             FileStr = max(Sreference.split('/'), key=len)
         if '\\' in Sreference:
             FileStr = max(Sreference.split('\\'), key=len)
-        FileStr = FileStr[16:30]
+        FileStr = FileStr[16:31]
     else:
         scn = Sreference
         FileStr = ''

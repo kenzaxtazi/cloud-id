@@ -72,25 +72,21 @@ def getinputs(Sreference, input_type=24):
         inputs = np.reshape(inputs, (13, 7200000))
         return(inputs.T)
 
+    scn.load(['confidence_an'])
+    confidence = np.nan_to_num(scn['confidence_an'].values)
+    inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
+                       S8, S9, salza, solza, lat, lon])
+    confidence_flags = bits_from_int(confidence, input_type)
+
+    inputs = np.vstack((inputs, confidence_flags))
+
     if input_type == 22:
-        inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                           S8, S9, salza, solza, lat, lon])
-        confidence_flags = bits_from_int2(confidence)
-
-        inputs = np.vstack((inputs, confidence_flags))
         inputs = np.reshape(inputs, (22, 7200000))
-        return(inputs.T)
 
-    if input_type == 24:
-        scn.load(['confidence_an'])
-        confidence = np.nan_to_num(scn['confidence_an'].values)
-        inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                           S8, S9, salza, solza, lat, lon])
-        confidence_flags = bits_from_int(confidence)
-
-        inputs = np.vstack((inputs, confidence_flags))
+    elif input_type == 24:
         inputs = np.reshape(inputs, (24, 7200000))
-        return(inputs.T)
+
+    return(inputs.T)
 
 
 def pkl_prep_data(directory, input_type=24, validation_frac=0.15, bayesian=False, empirical=False, TimeDiff=False, seed=None, MaxDist=500, MaxTime=1200, NaNFilter=True):
@@ -148,10 +144,7 @@ def pkl_prep_data(directory, input_type=24, validation_frac=0.15, bayesian=False
 
     confidence_int = pixels['confidence_an'].values
 
-    if input_type == 24:
-        confidence_flags = bits_from_int(confidence_int)
-    elif input_type == 22:
-        confidence_flags = bits_from_int2(confidence_int)
+    confidence_flags = bits_from_int(confidence_int, input_type)
 
     confidence_flags = confidence_flags.T
 
@@ -263,7 +256,7 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
         for i in ldf:
             print(((cdf[:, 0])[0])[0])
             star_row = cdf[((cdf[:, 0])[0])[0] == i[0]]
-            if len(star_row)>0:
+            if len(star_row) > 0:
                 star_column = star_row[((star_row[:, 0])[0])[1] == i[1]]
                 if len(star_column) > 0:
                     star = star_column[2]
@@ -492,7 +485,7 @@ def pad_array(a, targetshape=(25, 9), padvalue=-1):
     return(np.array(out))
 
 
-def bits_from_int(array):
+def bits_from_int(array, num_inputs=24):
     array = array.astype(int)
     coastline = array & 1
     ocean = array & 2
@@ -505,28 +498,15 @@ def bits_from_int(array):
     twilight = array & 2048
     sun_glint = array & 4096
     snow = array & 8192
-    out = np.array([coastline, ocean, tidal, land, inland_water, cosmetic,
-                    duplicate, day, twilight, sun_glint, snow])
-    out = (out > 0).astype(int)
-    return(out)
-
-
-def bits_from_int2(array):
-    array = array.astype(int)
-    coastline = array & 1
-    ocean = array & 2
-    tidal = array & 4
-    land = array & 8
-    inland_water = array & 16
-    cosmetic = array & 256
-    duplicate = array & 512
-    day = array & 1024
-    twilight = array & 2048
 
     dry_land = land * (1 - inland_water)
+    if num_inputs == 24:
+        out = np.array([coastline, ocean, tidal, land, inland_water, cosmetic,
+                        duplicate, day, twilight, sun_glint, snow])
 
-    out = np.array([coastline, ocean, tidal, dry_land, inland_water, cosmetic,
-                    duplicate, day, twilight])
+    if num_inputs == 22:
+        out = np.array([coastline, ocean, tidal, dry_land, inland_water, cosmetic,
+                        duplicate, day, twilight])
     out = (out > 0).astype(int)
     return(out)
 
@@ -597,69 +577,14 @@ def inputs_from_df(df, input_type=24):
     lat = np.nan_to_num(df['latitude_an'].values)
     lon = np.nan_to_num(df['longitude_an'].values)
 
-    if input_type == 22:
-        confidence = np.nan_to_num(df['confidence_an'].values)
-        inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                           S8, S9, salza, solza, lat, lon])
-        confidence_flags = bits_from_int2(confidence)
+    confidence = np.nan_to_num(df['confidence_an'].values)
+    inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
+                       S8, S9, salza, solza, lat, lon])
+    confidence_flags = bits_from_int(confidence, input_type)
 
-        inputs = np.vstack((inputs, confidence_flags))
+    inputs = np.vstack((inputs, confidence_flags))
 
-        return(inputs.T)
-
-    if input_type == 24:
-        confidence = np.nan_to_num(df['confidence_an'].values)
-        inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                           S8, S9, salza, solza, lat, lon])
-        confidence_flags = bits_from_int(confidence)
-
-        inputs = np.vstack((inputs, confidence_flags))
-
-        return(inputs.T)
-    else:
-        print("Invalid number of inputs")
-
-
-def truth_from_bitmask(row):
-    val = row['Feature_Classification_Flags']
-    val = np.nan_to_num(val)
-    val = int(val) & 7
-    if val == 2:
-        return(True)
-    else:
-        return(False)
-
-
-def make_attrib_hist(df, column='Latitude'):
-    out = df[column]
-    frq, edges = np.histogram(out, 100)
-    plt.title(column + ' histogram')
-    plt.bar(edges[:-1], frq, width=np.diff(edges), ec='k', align='edge')
-    plt.show()
-
-
-def make_CTruth_col(df):
-    FCF = df['Feature_Classification_Flags']
-    val = FCF.astype(int)
-    val = val & 7
-    CTruth = val == 2
-    df['CTruth'] = pd.Series(CTruth, index=df.index)
-    return(df)
-
-
-def make_STruth_col(df, cloudmask='cloud_an', bit=1):
-    bitfield = df[cloudmask]
-    val = bitfield.astype(int)
-    val = val & bit
-    STruth = val == bit
-    df['STruth'] = pd.Series(STruth, index=df.index)
-    return(df)
-
-
-def TruthMatches(df):
-    q = df['CTruth'] == df['STruth']
-    out = np.mean(q)
-    return(out)
+    return(inputs.T)
 
 
 def get_coords(x0, y0, contextlength, separate=False):
@@ -723,3 +648,121 @@ def star_padding(star):
     padded_star = np.array(padded_arm)
 
     return padded_star
+
+# Class to add useful methods to pd DataFrame
+@pd.api.extensions.register_dataframe_accessor("dp")
+class DataPreparer():
+    def __init__(self, pandas_obj):
+        # self._validate(pandas_obj)
+        self._obj = pandas_obj
+
+    def remove_nan(self):
+        if 'confidence_in' in self._obj.columns:
+            self._obj = self._obj.drop(['confidence_in'], axis=1)
+        self._obj = self._obj.dropna()
+        return(self._obj)
+
+    def remove_anomalous(self, MaxDist=500, MaxTime=1200):
+        self._obj = self._obj[self._obj['Distance'] < MaxDist]
+        self._obj = self._obj[abs(self._obj['TimeDiff']) < MaxTime]
+        return(self._obj)
+
+    def shuffle_random(self, validation_frac=0.15):
+        self._obj = self._obj.sample(frac=1)
+        return(self._obj)
+
+    def shuffle_by_file(self, validation_frac=0.15):
+        Sfiles = list(set(self._obj['Sfilename']))
+        np.random.shuffle(Sfiles)
+        sorterindex = dict(zip(Sfiles, range(len(Sfiles))))
+        self._obj['Temp'] = self._obj['Sfilename'].map(sorterindex)
+        self._obj = self._obj.sort_values(['Temp'])
+        self._obj = self._obj.drop(['Temp'], axis=1)
+
+    def get_training_data(self, input_type=24, validation_frac=0.15):
+        self.remove_nan()
+        self.remove_anomalous()
+        self.shuffle_by_file(validation_frac)
+
+        pixel_channels = (self._obj[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in',
+                                     'satellite_zenith_angle', 'solar_zenith_angle', 'latitude_an', 'longitude_an']].values).astype(float)
+        confidence_ints = self._obj['confidence_an'].values
+
+        confidence_flags = bits_from_int(confidence_ints, input_type)
+
+        confidence_flags = confidence_flags.T
+
+        pixel_indices = self._obj.index.values
+
+        pixel_inputs = np.column_stack((pixel_channels, confidence_flags))
+
+        pixel_outputs = self._obj[[
+            'Feature_Classification_Flags', 'bayes_in', 'cloud_an', 'TimeDiff']].values
+
+        pix = np.column_stack((pixel_inputs, pixel_outputs))
+        pix = np.column_stack((pix, pixel_indices))
+
+        pix = pix.astype('float')
+
+        pct = int(len(pix)*validation_frac)
+        training = pix[:-pct, :]   # take all but the 15% last
+        validation = pix[-pct:, :]   # take the last 15% of pixels
+
+        training_data = training[:, :input_type]
+        training_truth_flags = training[:, input_type]
+        validation_data = validation[:, :input_type]
+        validation_truth_flags = validation[:, input_type]
+
+        training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
+        reverse_training_cloudtruth = 1 - training_cloudtruth
+        training_truth = np.vstack(
+            (training_cloudtruth, reverse_training_cloudtruth)).T
+
+        validation_cloudtruth = (validation_truth_flags.astype(int) & 2) / 2
+        reverse_validation_cloudtruth = 1 - validation_cloudtruth
+        validation_truth = np.vstack(
+            (validation_cloudtruth, reverse_validation_cloudtruth)).T
+
+        return_list = [training_data, validation_data, training_truth,
+                       validation_truth]
+        return return_list
+
+    def get_inputs(self, input_type=24):
+
+        pixel_channels = (self._obj[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in',
+                                     'satellite_zenith_angle', 'solar_zenith_angle', 'latitude_an', 'longitude_an']].values).astype(float)
+
+        confidence_ints = self._obj['confidence_an'].values
+
+        confidence_flags = bits_from_int(confidence_ints, input_type)
+
+        confidence_flags = confidence_flags.T
+
+        pixel_inputs = np.column_stack((pixel_channels, confidence_flags))
+
+        inputs = np.vstack((pixel_inputs, confidence_flags))
+
+        return(inputs.T)
+
+    def make_attrib_hist(self, column='latitude_an'):
+        out = self._obj[column]
+        frq, edges = np.histogram(out, 100)
+        plt.title(column + ' histogram')
+        plt.bar(edges[:-1], frq, width=np.diff(edges), ec='k', align='edge')
+        plt.show()
+
+    def make_CTruth_col(self):
+        FCF = self._obj['Feature_Classification_Flags']
+        val = FCF.astype(int)
+        val = val & 7
+        CTruth = val == 2
+        self._obj['CTruth'] = pd.Series(CTruth, index=df.index)
+        return(self._obj)
+
+    def make_STruth_col(self, cloudmask='cloud_an', bit=1):
+        bitfield = self._obj[cloudmask]
+        val = bitfield.astype(int)
+        val = val & bit
+        STruth = val == bit
+        self._obj['STruth'] = pd.Series(STruth, index=df.index)
+        return(self._obj)

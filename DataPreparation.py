@@ -72,25 +72,23 @@ def getinputs(Sreference, input_type=24):
         inputs = np.reshape(inputs, (13, 7200000))
         return(inputs.T)
 
+
+    scn.load(['confidence_an'])
+    confidence = np.nan_to_num(scn['confidence_an'].values)
+    inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
+                        S8, S9, salza, solza, lat, lon])
+    confidence_flags = bits_from_int(confidence, input_type)
+
+    inputs = np.vstack((inputs, confidence_flags))
+
     if input_type == 22:
-        inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                           S8, S9, salza, solza, lat, lon])
-        confidence_flags = bits_from_int2(confidence)
-
-        inputs = np.vstack((inputs, confidence_flags))
         inputs = np.reshape(inputs, (22, 7200000))
-        return(inputs.T)
 
-    if input_type == 24:
-        scn.load(['confidence_an'])
-        confidence = np.nan_to_num(scn['confidence_an'].values)
-        inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                           S8, S9, salza, solza, lat, lon])
-        confidence_flags = bits_from_int(confidence)
-
-        inputs = np.vstack((inputs, confidence_flags))
+    elif input_type == 24:
         inputs = np.reshape(inputs, (24, 7200000))
-        return(inputs.T)
+    
+    return(inputs.T)
+
 
 
 def pkl_prep_data(directory, input_type=24, validation_frac=0.15, bayesian=False, empirical=False, TimeDiff=False, seed=None, MaxDist=500, MaxTime=1200, NaNFilter=True):
@@ -148,10 +146,8 @@ def pkl_prep_data(directory, input_type=24, validation_frac=0.15, bayesian=False
 
     confidence_int = pixels['confidence_an'].values
 
-    if input_type == 24:
-        confidence_flags = bits_from_int(confidence_int)
-    elif input_type == 22:
-        confidence_flags = bits_from_int2(confidence_int)
+    confidence_flags = bits_from_int(confidence_int, input_type)
+
 
     confidence_flags = confidence_flags.T
 
@@ -492,7 +488,7 @@ def pad_array(a, targetshape=(25, 9), padvalue=-1):
     return(np.array(out))
 
 
-def bits_from_int(array):
+def bits_from_int(array, num_inputs=24):
     array = array.astype(int)
     coastline = array & 1
     ocean = array & 2
@@ -505,30 +501,18 @@ def bits_from_int(array):
     twilight = array & 2048
     sun_glint = array & 4096
     snow = array & 8192
-    out = np.array([coastline, ocean, tidal, land, inland_water, cosmetic,
-                    duplicate, day, twilight, sun_glint, snow])
-    out = (out > 0).astype(int)
-    return(out)
-
-
-def bits_from_int2(array):
-    array = array.astype(int)
-    coastline = array & 1
-    ocean = array & 2
-    tidal = array & 4
-    land = array & 8
-    inland_water = array & 16
-    cosmetic = array & 256
-    duplicate = array & 512
-    day = array & 1024
-    twilight = array & 2048
 
     dry_land = land * (1 - inland_water)
-
-    out = np.array([coastline, ocean, tidal, dry_land, inland_water, cosmetic,
-                    duplicate, day, twilight])
+    if num_inputs == 24:
+        out = np.array([coastline, ocean, tidal, land, inland_water, cosmetic,
+                        duplicate, day, twilight, sun_glint, snow])
+    
+    if num_inputs == 22:
+        out = np.array([coastline, ocean, tidal, dry_land, inland_water, cosmetic,
+                        duplicate, day, twilight])
     out = (out > 0).astype(int)
     return(out)
+
 
 
 def surftype_processing(array):
@@ -597,27 +581,14 @@ def inputs_from_df(df, input_type=24):
     lat = np.nan_to_num(df['latitude_an'].values)
     lon = np.nan_to_num(df['longitude_an'].values)
 
-    if input_type == 22:
-        confidence = np.nan_to_num(df['confidence_an'].values)
-        inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                           S8, S9, salza, solza, lat, lon])
-        confidence_flags = bits_from_int2(confidence)
+    confidence = np.nan_to_num(df['confidence_an'].values)
+    inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
+                        S8, S9, salza, solza, lat, lon])
+    confidence_flags = bits_from_int(confidence, input_type)
 
-        inputs = np.vstack((inputs, confidence_flags))
+    inputs = np.vstack((inputs, confidence_flags))
 
-        return(inputs.T)
-
-    if input_type == 24:
-        confidence = np.nan_to_num(df['confidence_an'].values)
-        inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                           S8, S9, salza, solza, lat, lon])
-        confidence_flags = bits_from_int(confidence)
-
-        inputs = np.vstack((inputs, confidence_flags))
-
-        return(inputs.T)
-    else:
-        print("Invalid number of inputs")
+    return(inputs.T)
 
 
 def truth_from_bitmask(row):

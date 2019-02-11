@@ -101,83 +101,83 @@ class DataAnalyser():
                        self._obj['longitude_an'].values, self._obj['Agree'].values)
 
 
-def get_contextual_dataframe(self, contextlength=50, download_missing=False):
-    """Given a dataframe of poorly classified pixels, produce dataframe with neighbouring S1 pixel values"""
-    # List of all unique SLSTR files in the dataframe
-    Sfiles = list(set(self._obj['Sfilename']))
+    def get_contextual_dataframe(self, contextlength=50, download_missing=False):
+        """Given a dataframe of poorly classified pixels, produce dataframe with neighbouring S1 pixel values"""
+        # List of all unique SLSTR files in the dataframe
+        Sfiles = list(set(self._obj['Sfilename']))
 
-    out = pd.DataFrame()
+        out = pd.DataFrame()
 
-    if download_missing is True:
-        ftp = FD.FTPlogin()
+        if download_missing is True:
+            ftp = FD.FTPlogin()
 
-    for Sfile in tqdm(Sfiles):
+        for Sfile in tqdm(Sfiles):
 
-        # Load the rows of the dataframe for a SLSTR file
-        Sdf = self._obj[self._obj['Sfilename'] == Sfile]
+            # Load the rows of the dataframe for a SLSTR file
+            Sdf = self._obj[self._obj['Sfilename'] == Sfile]
 
-        # Get the indices of the pixels
-        Indices = Sdf[['RowIndex', 'ColIndex']].values
+            # Get the indices of the pixels
+            Indices = Sdf[['RowIndex', 'ColIndex']].values
 
-        # Get the path to the SLSTR file on the local machine
-        Spath = DL.get_SLSTR_path(Sfile)
+            # Get the path to the SLSTR file on the local machine
+            Spath = DL.get_SLSTR_path(Sfile)
 
-        # If the file is not on the local machine
-        if os.path.exists(Spath) is False:
+            # If the file is not on the local machine
+            if os.path.exists(Spath) is False:
 
-            if download_missing is True:
-                # Download the file
-                tqdm.write(Sfile + ' not found locally...')
-                tqdm.write('Downloading...')
+                if download_missing is True:
+                    # Download the file
+                    tqdm.write(Sfile + ' not found locally...')
+                    tqdm.write('Downloading...')
 
-                Year = Sfile[16:20]
-                Month = Sfile[20:22]
-                Day = Sfile[22:24]
+                    Year = Sfile[16:20]
+                    Month = Sfile[20:22]
+                    Day = Sfile[22:24]
 
-                CEDApath = Year + '/' + Month + '/' + Day + '/' + Sfile + '.zip'
+                    CEDApath = Year + '/' + Month + '/' + Day + '/' + Sfile + '.zip'
 
-                DestinationPath = '/vols/lhcb/egede/cloud/SLSTR/' + Year + '/' + Month + '/'
+                    DestinationPath = '/vols/lhcb/egede/cloud/SLSTR/' + Year + '/' + Month + '/'
 
-                download_status = FD.FTPdownload(
-                    ftp, CEDApath, DestinationPath)
-                if download_status == 1:
-                    tqdm.write('Download failed, skipping...')
+                    download_status = FD.FTPdownload(
+                        ftp, CEDApath, DestinationPath)
+                    if download_status == 1:
+                        tqdm.write('Download failed, skipping...')
+                        continue
+                else:
+                    tqdm.write(Sfile + ' not found locally...')
+                    print('Skipping...')
                     continue
-            else:
-                tqdm.write(Sfile + ' not found locally...')
-                print('Skipping...')
-                continue
 
-        coords = []
+            coords = []
 
-        for i in range(len(Indices)):
-            x0, y0 = Indices[i]
-            coords.append(dp.get_coords(x0, y0, contextlength, True))
+            for i in range(len(Indices)):
+                x0, y0 = Indices[i]
+                coords.append(dp.get_coords(x0, y0, contextlength, True))
 
-        if len(coords) == 0:
-            return(pd.DataFrame())
+            if len(coords) == 0:
+                return(pd.DataFrame())
 
-        scn = DL.scene_loader(Spath)
-        scn.load(['S1_an'])
-        S1 = np.array(scn['S1_an'].values)
+            scn = DL.scene_loader(Spath)
+            scn.load(['S1_an'])
+            S1 = np.array(scn['S1_an'].values)
 
-        data = []
+            data = []
 
-        for pixel in coords:
-            pixel_data = []
-            for arm in pixel:
-                xs = [i[0] for i in arm]
-                ys = [i[1] for i in arm]
-                arm_data = S1[xs, ys]
-                pixel_data.append(arm_data)
-            data.append(pixel_data)
+            for pixel in coords:
+                pixel_data = []
+                for arm in pixel:
+                    xs = [i[0] for i in arm]
+                    ys = [i[1] for i in arm]
+                    arm_data = S1[xs, ys]
+                    pixel_data.append(arm_data)
+                data.append(pixel_data)
 
-        SfileList = [Sfile] * len(data)
-        Positions = list(Indices)
+            SfileList = [Sfile] * len(data)
+            Positions = list(Indices)
 
-        newdf = pd.DataFrame(
-            {'Sfilename': SfileList, 'Pos': Positions, 'Star_array': data})
+            newdf = pd.DataFrame(
+                {'Sfilename': SfileList, 'Pos': Positions, 'Star_array': data})
 
-        out = out.append(newdf, ignore_index=True, sort=True)
+            out = out.append(newdf, ignore_index=True, sort=True)
 
-    return(out)
+        return(out)

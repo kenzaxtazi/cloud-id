@@ -27,7 +27,7 @@ def SLSTR_query(url):
         out = []
         # Number of matches:
         if 'totalResult' in str(root[5]):
-            #num_matches = root[5].text
+            # num_matches = root[5].text
             for i in root:
                 if "entry" in str(i):
                     out.append(i[0].text + "," + i[1].attrib['href'])
@@ -106,7 +106,7 @@ def makeurlquery(Cfilename, timewindow=20, num=20):
             query = base
         else:
             query += "%20OR%20"
-        query += _makequeryforslice(xs[i], xs[i+1])
+        query += _makequeryforslice(xs[i], xs[i + 1])
         if i % 10 == 9 or i == num - 1:     # End the query
             query += ")"
             query += "&rows=25&start=0"
@@ -181,8 +181,10 @@ def match_directory(directory, output='Matches.txt', timewindow=30, num=20):
 
     # Find files which are duplicates, i.e. they have the same Framenumber, Relative Orbit Number and Absolute Orbit Number
     for i in range(1, len(Sfilenames)):
-        if Sfilenames[i-1][77:81] == Sfilenames[i][77:81] and Sfilenames[i-1][73:76] == Sfilenames[i][73:76] and Sfilenames[i-1][69:72] == Sfilenames[i][69:72]:
-            if Cfilenames[i-1] == Cfilenames[i]:
+        if (Sfilenames[i - 1][77:81] == Sfilenames[i][77:81]
+                and Sfilenames[i - 1][73:76] == Sfilenames[i][73:76]
+                and Sfilenames[i - 1][69:72] == Sfilenames[i][69:72]):
+            if Cfilenames[i - 1] == Cfilenames[i]:
                 duplicates.append(i)
 
     # Create unique version of sorted data
@@ -236,7 +238,7 @@ def collocate(SLSTR_filename, Cfilename, verbose=False, persistent=False):
         try:
             matches = abs(slat[i, j] - clat) < lattolerance
             if matches.any():
-                loc = np.where(matches == True)
+                loc = np.where(matches)
                 lontolerance = (
                     lattolerance / np.cos(slat[i, j] * np.pi / 180))
                 for k in loc[0]:
@@ -255,7 +257,7 @@ def collocate(SLSTR_filename, Cfilename, verbose=False, persistent=False):
         for i in [0, 2399, 1, 2398, 2, 2397, 3, 2396, 4, 2395, 5, 2394, 6, 2393, 7, 2392, 8, 2391, 9, 2390]:
             for j in range(3000):
                 out = match_SLSTR_pixel([i, j])
-                if out != None:
+                if out is not None:
                     if i < 10:
                         edge = 'top'
                     if i > 2389:
@@ -266,7 +268,7 @@ def collocate(SLSTR_filename, Cfilename, verbose=False, persistent=False):
         for i in range(10, 2391):
             for j in [0, 2999, 1, 2998, 2, 2997, 3, 2996, 4, 2995, 5, 2994, 6, 2993, 7, 2992, 8, 2991, 9, 2990]:
                 out = match_SLSTR_pixel([i, j])
-                if out != None:
+                if out is not None:
                     if j < 10:
                         edge = 'left'
                     if j > 2989:
@@ -278,7 +280,7 @@ def collocate(SLSTR_filename, Cfilename, verbose=False, persistent=False):
 
     coords, edge = findedgepixel()
 
-    if coords != None:
+    if coords is not None:
         # Check adjacent(ish) neighbours
         i = coords[0][0]
         j = coords[0][1]
@@ -287,7 +289,7 @@ def collocate(SLSTR_filename, Cfilename, verbose=False, persistent=False):
             for i in (tqdm(range(2400)) if verbose else range(2400)):
                 for k in range(j - 10, j + 10):
                     matches = match_SLSTR_pixel([i, k])
-                    if matches != None:
+                    if matches is not None:
                         coords += matches
                         j = k
 
@@ -295,7 +297,7 @@ def collocate(SLSTR_filename, Cfilename, verbose=False, persistent=False):
             for i in (tqdm(range(2399, -1, -1)) if verbose else range(2399, -1, -1)):
                 for k in range(j - 10, j + 10):
                     matches = match_SLSTR_pixel([i, k])
-                    if matches != None:
+                    if matches is not None:
                         coords += matches
                         j = k
 
@@ -303,7 +305,7 @@ def collocate(SLSTR_filename, Cfilename, verbose=False, persistent=False):
             for j in (tqdm(range(3000)) if verbose else range(3000)):
                 for k in range(i - 10, i + 11):
                     matches = match_SLSTR_pixel([k, j])
-                    if matches != None:
+                    if matches is not None:
                         coords += matches
                         i = k
 
@@ -311,7 +313,7 @@ def collocate(SLSTR_filename, Cfilename, verbose=False, persistent=False):
             for j in (tqdm(range(2999, -1, -1)) if verbose else range(2999, -1, -1)):
                 for k in range(i - 10, i + 11):
                     matches = match_SLSTR_pixel([k, j])
-                    if matches != None:
+                    if matches is not None:
                         coords += matches
                         i = k
     else:
@@ -320,7 +322,7 @@ def collocate(SLSTR_filename, Cfilename, verbose=False, persistent=False):
             for i in (tqdm(range(2400)) if verbose else range(2400)):
                 for j in range(3000):
                     matches = match_SLSTR_pixel([i, j])
-                    if matches != None:
+                    if matches is not None:
                         coords += matches
         else:
             tqdm.write("No pixel found on edge, skipping")

@@ -79,14 +79,20 @@ def summary(scene, filenames=None, saveimage=False, outputpath='public'):
     scene.load(['S1_an', 'latitude', 'longitude'])
     lat = scene['latitude'].values[0][0]  # Latitude of corner pixel
     lon = scene['longitude'].values[0][0]  # Longitude of corner pixel
-    if saveimage != False:
+    if saveimage is not False:
         if outputpath == 'public':
             # cd to public folder
             os.chdir(path_to_public())
-        if filenames != None:
-            imagename = ('S1n_' + str(filenames[0][:31]) + '_' +
-                         str(filenames[0][82:94]) + '-(' + str(lat) + ',' +
-                         str(lon) + ')')
+        if filenames is not None:
+            imagename = ('S1n_'
+                         + str(filenames[0][:31])
+                         + '_'
+                         + str(filenames[0][82:94])
+                         + '-('
+                         + str(lat)
+                         + ','
+                         + str(lon)
+                         + ')')
         else:
             imagename = 'test'
         scene.save_dataset('S1_an', str(imagename) + '.png')
@@ -112,7 +118,7 @@ def makepngimage(scene, channel='S1_an', outputpath='public'):
 def norm(band):
     """ Normalises the bands for the false color image"""
     band_min, band_max = band.min(), band.max()
-    return ((band - band_min)/(band_max - band_min))
+    return ((band - band_min) / (band_max - band_min))
 
 
 def extract_mask(Sreference, MaskFile, MaskBit):
@@ -153,6 +159,7 @@ def load_data(file, variable):
     data = sds_obj.get()
     return(data)
 
+
 def get_SLSTR_path(Sfilename):
     """For a given SLSTR filename, return path to a local copy of the file"""
     if os.path.exists('/vols/lhcb/egede/cloud'):
@@ -163,6 +170,7 @@ def get_SLSTR_path(Sfilename):
         return('/vols/lhcb/egede/cloud/SLSTR/' + Year + '/' + Month + '/' + Sfilename)
     elif os.path.exists('D:/'):
         return('D:/SatelliteData/SLSTR/' + Sfilename)
+
 
 class SDopener():
     # Class to call when using context manager

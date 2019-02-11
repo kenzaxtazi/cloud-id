@@ -105,7 +105,7 @@ def df_model_agreement(path, MaxDist, MaxTime, model, model_network):
     df['Labels'] = pd.Series(output_labels[:, 0], index=df.index)
     df['Label_Confidence'] = pd.Series(output_con[:, 0], index=df.index)
 
-    dp.make_CTruth_col(df)
+    df = df.dp.make_CTruth_col()
 
     df['Agree'] = df['CTruth'] != df['Labels']
     return df

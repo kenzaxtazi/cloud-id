@@ -147,8 +147,7 @@ if __name__ == '__main__':
                 validation_data, validation_truth)
     model.Save()
 
-    mask1 = app.apply_mask(model.model, scenes,
-                           binary=True, probability=True)[1]
+    mask1 = app.apply_mask(model.model, scenes, modeltype='cnn')[1]
 
     # bmask = DL.extract_mask(Sfile, 'cloud_an', 64)
     bmask = DL.extract_mask(scenes, 'bayes_in', 2)

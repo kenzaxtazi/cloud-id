@@ -233,43 +233,31 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     """
 
     # Load collocated pixels from dataframe
-    P4 = PixelLoader(location_directory)
+    L4 = PixelLoader(location_directory)
     # Load one month from context dataframe
     C4 = PixelLoader(context_directory)
 
-    p4 = P4[['RowIndex', 'ColIndex', 'Sfilename']]
+    l4 = P4[['RowIndex', 'ColIndex', 'Sfilename', 'Feature_Classification_Flags']]
     c4 = C4[['Pos', 'Sfilename', 'Star_array']]
 
-    Sfiles = list(set(p4['Sfilename']))
+    context_locations = (np.concatenate(c4[:,0])).shape(-1,2)
+    filenames = (np.concatenate(c4[:,1])).shape(-1)
+    stars = c4[:,2]
+    padded_star = star_padding(star)
 
-    truth = P4['Feature_Classification_Flags'].values
-    data = []
+    truth = []
 
-    for file in tqdm(Sfiles):
-        print('file', file)
-        ldf = p4[p4['Sfilename'] == file]
-        cdf = c4[c4['Sfilename'] == file]
+    for i in len(context_locations):
+        file = l4[l4[:,2] == filenames[i]]
+        star_row = file[file[:,0] == context_locations[i,0]]
+        star_column = star_row[star_row[:,1] == context_locations[i,1]]
+        truth.append(star_column[3])
 
-        ldf = ldf.values
-        cdf = cdf.values
-
-        if len(cdf) > 0:
-            for i in ldf:
-                print('i', i[0:2])
-                if  len((cdf[0, :]) > 0 :
-                    star_row = cdf[((cdf[0, :])[0])[0] == i[0]]
-                    if len(star_row) > 0:
-                        star_column = star_row[((star_row[0, :])[0])[1] == i[1]]
-                        if len(star_column) > 0:
-                            star = star_column[2]
-                            padded_star = star_padding(star)
-                            data.append(padded_star)
-
-    data = np.array(data)
+    truth = (np.concatenate(truth)).shape(-1,2)
 
     pct = int(len(data)*validation_frac)
-    training_data = data[:-pct, :]   # take all but the 15% last
-    validation_data = data[-pct:, :]   # take the last 15% of pixels
+    training_data = padded_star[:-pct, :]   # take all but the 15% last
+    validation_data = padded_star[-pct:, :]   # take the last 15% of pixels
     training_truth_flags = truth[:-pct, :]
     validation_truth_flags = truth[-pct:, :]
 

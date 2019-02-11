@@ -241,17 +241,18 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     c4 = C4[['Pos', 'Sfilename', 'Star_array']].values
 
     context_locations = (np.concatenate(c4[:,0])).shape(-1,2)
-    filenames = (np.concatenate(c4[:,1])).shape(-1)
+    filenames = c4[:,1]
     stars = c4[:,2]
-    padded_star = star_padding(star)
+    padded_star = star_padding(stars)
 
     truth = []
 
-    for i in len(context_locations):
+    print('matching datasets')
+    for i in tqdm(range(len(context_locations))):
         file = l4[l4[:,2] == filenames[i]]
         star_row = file[file[:,0] == context_locations[i,0]]
         star_column = star_row[star_row[:,1] == context_locations[i,1]]
-        truth.append(star_column[3])
+        truth.append(star_column[0,3])
 
     truth = (np.concatenate(truth)).shape(-1,2)
 
@@ -625,19 +626,22 @@ def star_padding(star):
         padded contextual data for a target pixel, in the shape of a star
 
     """
-    padded_star = []
+    padded_stars = []
 
-    for arm in star:
-        if len(arm) < 50:
-            padded_arm = np.pad(arm, (0, 50-len(arm)),
-                                mode='constant', constant_values=-5)
-            padded_star.append(padded_arm)
-        else:
-            padded_star.append(arm)
+    print('padding stars')
+    
+    for star in tqdm(stars)
+        for arm in star:
+            if len(arm) < 50:
+                padded_arm = np.pad(arm, (0, 50-len(arm)),
+                                    mode='constant', constant_values=-5)
+                padded_star.append(padded_arm)
+            else:
+                padded_star.append(arm)
 
-    padded_star = np.array(padded_arm)
+        padded_stars.append(padded_star)
 
-    return padded_star
+    return padded_stars
 
 # Class to add useful methods to pd DataFrame
 @pd.api.extensions.register_dataframe_accessor("dp")

@@ -302,11 +302,13 @@ def cnn_getinputs(Sreference, positions=None):
     scn.load(['S1_an'])
     S1 = np.nan_to_num(scn['S1_an'].values)
 
-    if postions == None:
-        row = int(float(data[1])/2400.)
-        column = data[1] % 3000
+    if positions == None:
+        row = np.repeat(np.arrange(2400), 3000)
+        column = np.tile(np.arrange(3000), 2400)
 
-    star = get_coords(row, column, contextlength=50)
+        star = get_coords(row, column, contextlength=50)
+    else
+        star = get_coords(positions[:,0], positions[:,1], contextlength=50)
 
     return star
 

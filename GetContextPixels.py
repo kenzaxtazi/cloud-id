@@ -1,5 +1,5 @@
-import DFAnalysis as DFA
-import DataPreparation as DP
+import DFAnalysis2 as DFA
+
 
 
 df = DFA.df_model_agreement('/home/hep/trz15/Matched_Pixels2/Calipso/P4',

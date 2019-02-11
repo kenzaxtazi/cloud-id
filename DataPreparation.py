@@ -276,7 +276,7 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     return training_data, validation_data, training_truth, validation_truth
 
 
-def context_getinputs(S1, Sreference, data):
+def cnn_getinputs(Sreference, positions=None):
     """ 
     Download and prepares pixel contextual information for a given SLSTR file to get the Supermodel prediction.
 
@@ -302,10 +302,11 @@ def context_getinputs(S1, Sreference, data):
     scn.load(['S1_an'])
     S1 = np.nan_to_num(scn['S1_an'].values)
 
-    row = int(float(data[1])/2400.)
-    column = data[1] % 3000
+    if postions == None:
+        row = int(float(data[1])/2400.)
+        column = data[1] % 3000
 
-    star = get_coords(row, column, contextlength=25)
+    star = get_coords(row, column, contextlength=50)
 
     return star
 

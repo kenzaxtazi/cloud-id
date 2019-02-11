@@ -237,8 +237,6 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     # Load one month from context dataframe
     C4 = PixelLoader(context_directory)
 
-    l4 = L4[['RowIndex', 'ColIndex', 'Sfilename',
-             'Feature_Classification_Flags']].values
     c4 = C4[['Pos', 'Sfilename', 'Star_array']].values
 
     stars = c4[:, 2]

@@ -154,9 +154,16 @@ class FFN():
 
     def Load(self):
         with open('Models/' + self.name + '.txt', 'r') as file:
-            self.networkConfig, self.para_num = file.readlines()
-            print(self.networkConfig)
-            print('Number of inputs: ' + self.para_num)
+            settings = file.readlines()
+            if len(settings) == 1:
+                self.networkConfig == settings[0]
+                print(self.networkConfig)
+            
+            elif len(settings) == 2:
+                self.networkConfig = settings[0].strip()
+                self.para_num = settings[1].strip()
+                print(self.networkConfig)
+                print('Number of inputs: ' + self.para_num)
         self.networkSetup()
         self.Setup()
         self.model.load('Models/' + self.name)

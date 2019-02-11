@@ -257,9 +257,9 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
     pct = int(len(padded_star)*validation_frac)
     training_data = padded_star[:-pct]   # take all but the 15% last
-    validation_data = padded_star[-pct]   # take the last 15% of pixels
+    validation_data = padded_star[-pct:]   # take the last 15% of pixels
     training_truth_flags = truth[:-pct]
-    validation_truth_flags = truth[-pct]
+    validation_truth_flags = truth[-pct:]
 
     training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
     reverse_training_cloudtruth = 1 - training_cloudtruth

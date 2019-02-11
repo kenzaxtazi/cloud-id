@@ -694,7 +694,7 @@ class DataPreparer():
         val = FCF.astype(int)
         val = val & 7
         CTruth = val == 2
-        self._obj['CTruth'] = pd.Series(CTruth, index=df.index)
+        self._obj['CTruth'] = pd.Series(CTruth, index=self._obj.index)
         return(self._obj)
 
     def make_STruth_col(self, cloudmask='cloud_an', bit=1):
@@ -702,5 +702,5 @@ class DataPreparer():
         val = bitfield.astype(int)
         val = val & bit
         STruth = val == bit
-        self._obj['STruth'] = pd.Series(STruth, index=df.index)
+        self._obj['STruth'] = pd.Series(STruth, index=self._obj.index)
         return(self._obj)

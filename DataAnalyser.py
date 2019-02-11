@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 ##############################################
 # (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
@@ -5,6 +6,8 @@
 # Licence version 3 (GPLv3)
 ##############################################
 
+=======
+>>>>>>> 1504e07d1504845da0df806ccf6def2544c6edf8
 import os
 
 import matplotlib.pyplot as plt
@@ -26,9 +29,9 @@ class DataAnalyser():
 
     def model_agreement(self, model, MaxDist=None, MaxTime=None, num_inputs=24):
         # Add useful columns to dataframe
-        if MaxDist != None:
+        if MaxDist is not None:
             self._obj = self._obj[self._obj['Distance'] < MaxDist]
-        if MaxTime != None:
+        if MaxTime is not None:
             self._obj = self._obj[abs(self._obj['TimeDiff']) < MaxTime]
 
         inputs = self._obj.dp.get_inputs(num_inputs)
@@ -50,7 +53,7 @@ class DataAnalyser():
 
     def get_bad_classifications(self):
         """Given a processed dataframe which has model predictions, produce dataframe with poorly classified pixels"""
-        bad = self._obj[(self._obj['Agree'] == False) | (
+        bad = self._obj[(self._obj['Agree'] is False) | (
             (self._obj['Label_Confidence'] < 0.7) & (self._obj['Label_Confidence'] > 0.3))]
         return(bad)
 
@@ -74,7 +77,7 @@ class DataAnalyser():
         """
         self._obj = self.model_agreement(model, MaxDist, MaxTime)
 
-        wrong = self._obj[self._obj['Agree'] == False]
+        wrong = self._obj[self._obj['Agree'] is False]
 
         bconfidence = wrong['Label_Confidence'].values
         tconfidence = self._obj['Label_Confidence'].values

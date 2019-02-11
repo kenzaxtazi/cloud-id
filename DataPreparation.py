@@ -115,7 +115,7 @@ def pkl_prep_data(directory, input_type=24, validation_frac=0.15, bayesian=False
         validation truth and bayesian mask values or None.
     """
     # Record RNG seed to file, or set custom seed.
-    if seed == None:
+    if seed is None:
         seed = np.random.randint(0, 2**32, dtype='uint32')
         np.random.seed(seed)
     else:
@@ -165,7 +165,7 @@ def pkl_prep_data(directory, input_type=24, validation_frac=0.15, bayesian=False
 
     pix = pix.astype(float)
 
-    pct = int(len(pix)*validation_frac)
+    pct = int(len(pix) * validation_frac)
     training = pix[:-pct, :]   # take all but the 15% last
     validation = pix[-pct:, :]   # take the last 15% of pixels
 
@@ -216,14 +216,14 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
         direction with the pixel locations and truths
 
     context_directory:
-        directory with context information 
+        directory with context information
 
     validation_frac: float between 0 and 1
-        the fraction of the dataset that is taken as validation 
+        the fraction of the dataset that is taken as validation
 
     Returns
     ---------
-    training_data: array 
+    training_data: array
 
     validation_data: array
 
@@ -256,7 +256,11 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     truth = merged['Feature_Classification_Flags'].values
 
     # split data into validation and training
+<<<<<<< HEAD
     pct = int(len(padded_star)*validation_frac)
+=======
+    pct = int(len(padded_star) * validation_frac)
+>>>>>>> 1504e07d1504845da0df806ccf6def2544c6edf8
     training_data = padded_star[:-pct]   # take all but the 15% last
     validation_data = padded_star[-pct:]   # take the last 15% of pixels
     training_truth_flags = truth[:-pct]
@@ -277,7 +281,7 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
 
 def cnn_getinputs(Sreference, positions=None):
-    """ 
+    """
     Download and prepares pixel contextual information for a given SLSTR file to get the Supermodel prediction.
 
     Parameters
@@ -300,9 +304,9 @@ def cnn_getinputs(Sreference, positions=None):
         scn = Sreference
 
     scn.load(['S1_an'])
-    S1 = np.nan_to_num(scn['S1_an'].values)
+    S1 = np.nan_to_num(scn['S1_an'].values)  # @TODO: Use or remove
 
-    if positions == None:
+    if positions is None:
         row = np.repeat(np.arange(2400), 3000)
         column = np.tile(np.arange(3000), 2400)
 
@@ -527,16 +531,16 @@ def get_coords(x0, y0, contextlength, separate=False):
 
 def star_padding(stars):
     """
-    Pads out contextual stars 
+    Pads out contextual stars
 
     Parameters
     -----------
-    stars : array of lists 
+    stars : array of lists
         contextual data for a target pixel, in the shape of a star
 
     Returns
     ____
-    padded_star: 8x50 array 
+    padded_star: 8x50 array
         padded contextual data for a target pixel, in the shape of a star
 
     """
@@ -550,7 +554,7 @@ def star_padding(stars):
 
         for arm in star:
             if len(arm) < 50:
-                padded_arm = np.pad(arm, (0, 50-len(arm)),
+                padded_arm = np.pad(arm, (0, 50 - len(arm)),
                                     mode='constant', constant_values=0)
                 padded_star.append(padded_arm)
             else:
@@ -636,7 +640,7 @@ class DataPreparer():
 
         pix = pix.astype('float')
 
-        pct = int(len(pix)*validation_frac)
+        pct = int(len(pix) * validation_frac)
         training = pix[:-pct, :]   # take all but the 15% last
         validation = pix[-pct:, :]   # take the last 15% of pixels
 

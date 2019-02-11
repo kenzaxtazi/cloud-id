@@ -1,6 +1,6 @@
 
 ##############################################
-# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
 # This software is distributed under the terms of the GNU General Public
 # Licence version 3 (GPLv3)
 ##############################################
@@ -8,7 +8,6 @@
 import os
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
@@ -182,7 +181,7 @@ def get_contextual_dataframe(df, contextlength=25, download_missing=False, num_v
 
 
 def make_Context_df(coords, Sfile, Spath, para_num):
-    if coords == None:
+    if coords is None:
         return(pd.DataFrame())
 
     rows = [i[0] for i in coords]
@@ -215,8 +214,8 @@ def make_Context_df(coords, Sfile, Spath, para_num):
         matched pixels in an SLSTR file
         """
         # Prepare second index system for data on 1km instead of 0.5km grid
-        hrows = [int(i/2) for i in rows]
-        hcols = [int(i/2) for i in cols]
+        hrows = [int(i / 2) for i in rows]
+        hcols = [int(i / 2) for i in cols]
         if Sattribute in ['S7_in', 'S8_in', 'S9_in', 'bayes_in', 'cloud_in', 'satellite_zenith_angle', 'solar_zenith_angle']:
             data = scn[Sattribute].values[hrows, hcols]
         else:

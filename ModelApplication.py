@@ -10,7 +10,7 @@ import numpy as np
 import DataPreparation as dp
 
 
-def apply_mask(model, Sfile, input_type=24, modeltype='ffn' ):
+def apply_mask(model, Sfile, input_type=24, modeltype='ffn', positions=None):
     """
     Function to produce predicted mask for given model and SLSTR file.
 
@@ -33,10 +33,10 @@ def apply_mask(model, Sfile, input_type=24, modeltype='ffn' ):
     mask: array
         Mask predicted by model for Sfile
     """
-    if modeltype == 'ffn'
+    if modeltype == 'ffn':
         inputs = dp.getinputs(Sfile, input_type)
-    if modeltype == 'cnn'
-        inputs = dp.cnn_getinputs(Sfile, input_type)
+    if modeltype == 'cnn':
+        inputs = dp.cnn_getinputs(Sfile, positions)
     
     returnlist = []
 

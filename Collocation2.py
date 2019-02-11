@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Nov 18 15:07:55 2018
 
-@author: tomzh
-"""
-
+##############################################
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# This software is distributed under the terms of the GNU General Public
+# Licence version 3 (GPLv3)
+##############################################
 
 import os
 import traceback

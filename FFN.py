@@ -149,12 +149,21 @@ class FFN():
     def Save(self):
         self.model.save("Models/" + self.name)
         with open("Models/" + self.name + '.txt', 'w') as file:
-            file.write(self.networkConfig)
+            file.write(self.networkConfig + '\n')
+            file.write(self.para_num)
 
     def Load(self):
         with open('Models/' + self.name + '.txt', 'r') as file:
-            self.networkConfig = file.read()
-            print(self.networkConfig)
+            settings = file.readlines()
+            if len(settings) == 1:
+                self.networkConfig == settings[0]
+                print(self.networkConfig)
+            
+            elif len(settings) == 2:
+                self.networkConfig = settings[0].strip()
+                self.para_num = settings[1].strip()
+                print(self.networkConfig)
+                print('Number of inputs: ' + self.para_num)
         self.networkSetup()
         self.Setup()
         self.model.load('Models/' + self.name)
@@ -163,6 +172,8 @@ class FFN():
     def Predict(self, X):
         return(self.model.predict(X))
 
+    def Predict_label(self, X):
+        return(self.model.predict_label(X))
 
 if __name__ == '__main__':
     # Pixel Loading

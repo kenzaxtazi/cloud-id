@@ -255,14 +255,14 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
     truth = merged['Feature_Classification_Flags'].values
 
-    # split data into validation and training  
+    # split data into validation and training
     pct = int(len(padded_star)*validation_frac)
     training_data = padded_star[:-pct]   # take all but the 15% last
     validation_data = padded_star[-pct:]   # take the last 15% of pixels
     training_truth_flags = truth[:-pct]
     validation_truth_flags = truth[-pct:]
 
-    # turn binary truth flags into one hot code 
+    # turn binary truth flags into one hot code
     training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
     reverse_training_cloudtruth = 1 - training_cloudtruth
     training_truth = np.vstack(
@@ -308,7 +308,7 @@ def cnn_getinputs(Sreference, positions=None):
 
         star = get_coords(row, column, contextlength=50)
     else:
-        star = get_coords(positions[:,0], positions[:,1], contextlength=50)
+        star = get_coords(positions[:, 0], positions[:, 1], contextlength=50)
 
     return star
 
@@ -558,8 +558,8 @@ def star_padding(stars):
 
         padded_stars.append(padded_star)
 
-    padded_stars = np.concatenate(padded_stars).reshape((-1,8,50,1))
-    
+    padded_stars = np.concatenate(padded_stars).reshape((-1, 8, 50, 1))
+
     # format inputs
     padded_stars = np.nan_to_num(padded_stars)
 
@@ -585,11 +585,25 @@ class DataPreparer():
         self._obj = self._obj[abs(self._obj['TimeDiff']) < MaxTime]
         return(self._obj)
 
-    def shuffle_random(self, validation_frac=0.15):
+    def prepare_random(self, seed):
+        if seed == None:
+            seed = np.random.randint(0, 2**32, dtype='uint32')
+            np.random.seed(seed)
+        else:
+            print("Using predefined seed")
+            np.random.seed(seed)
+
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        with open('Temp/NumpySeeds.txt', 'a') as file:
+            file.write(timestamp + ': ' + str(seed) + '\n')
+
+    def shuffle_random(self, validation_frac=0.15, seed=None):
+        self.prepare_random(seed)
         self._obj = self._obj.sample(frac=1)
         return(self._obj)
 
-    def shuffle_by_file(self, validation_frac=0.15):
+    def shuffle_by_file(self, validation_frac=0.15, seed=None):
+        self.prepare_random(seed)
         Sfiles = list(set(self._obj['Sfilename']))
         np.random.shuffle(Sfiles)
         sorterindex = dict(zip(Sfiles, range(len(Sfiles))))

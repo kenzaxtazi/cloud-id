@@ -1,9 +1,16 @@
+
+##############################################
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
+# This software is distributed under the terms of the GNU General Public
+# Licence version 3 (GPLv3)
+##############################################
+
 import os
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from tqdm import tqdm
-import numpy as np
 
 import DataLoader as DL
 import DataPreparation as dp
@@ -102,7 +109,6 @@ class DataAnalyser():
 
         Vis.plot_poles(self._obj['latitude_an'].values,
                        self._obj['longitude_an'].values, self._obj['Agree'].values)
-
 
     def get_contextual_dataframe(self, contextlength=50, download_missing=False):
         """Given a dataframe of poorly classified pixels, produce dataframe with neighbouring S1 pixel values"""

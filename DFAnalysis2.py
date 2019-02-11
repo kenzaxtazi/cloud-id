@@ -95,7 +95,7 @@ def df_model_agreement(path, MaxDist, MaxTime, model, model_network):
     df = df[df['Distance'] < MaxDist]
     df = df[abs(df['TimeDiff']) < MaxTime]
 
-    inputs = dp.inputs_from_df(df, 24)
+    inputs = df.dp.get_inputs(df, 24)
     model = FFN(model, model_network)
     model.Load()
 

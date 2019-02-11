@@ -492,32 +492,6 @@ def surftype_processing(array):
     return new_array
 
 
-def inputs_from_df(df, input_type=24):
-    """Load values from dataframe into input array for tflearn model"""
-    S1 = np.nan_to_num(df['S1_an'].values)
-    S2 = np.nan_to_num(df['S2_an'].values)
-    S3 = np.nan_to_num(df['S3_an'].values)
-    S4 = np.nan_to_num(df['S4_an'].values)
-    S5 = np.nan_to_num(df['S5_an'].values)
-    S6 = np.nan_to_num(df['S6_an'].values)
-    S7 = np.nan_to_num(df['S7_in'].values)
-    S8 = np.nan_to_num(df['S8_in'].values)
-    S9 = np.nan_to_num(df['S9_in'].values)
-    salza = np.nan_to_num(df['satellite_zenith_angle'].values)
-    solza = np.nan_to_num(df['solar_zenith_angle'].values)
-    lat = np.nan_to_num(df['latitude_an'].values)
-    lon = np.nan_to_num(df['longitude_an'].values)
-
-    confidence = np.nan_to_num(df['confidence_an'].values)
-    inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                       S8, S9, salza, solza, lat, lon])
-    confidence_flags = bits_from_int(confidence, input_type)
-
-    inputs = np.vstack((inputs, confidence_flags))
-
-    return(inputs.T)
-
-
 def get_coords(x0, y0, contextlength, separate=False):
     East_xs = np.linspace(x0 + 1, x0 + contextlength,
                           contextlength).astype(int)

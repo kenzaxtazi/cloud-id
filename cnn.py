@@ -45,7 +45,7 @@ class CNN():
 
     def Network0(self):
         convnet = input_data(
-            shape=[None, self.img_length, self.img_width], name='input')
+            shape=[None, self.img_length, self.img_width, 1], name='input')
 
         # Layer 1
         convnet = conv_2d(convnet, nb_filter=32,

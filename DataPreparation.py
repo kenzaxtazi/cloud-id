@@ -255,12 +255,17 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
     truth = merged['Feature_Classification_Flags'].values
 
+    # format inputs
+    padded_star = np.nan_to_num(padded_star.reshape(-1,8,50,1))
+
+    # split data into validation and training  
     pct = int(len(padded_star)*validation_frac)
     training_data = padded_star[:-pct]   # take all but the 15% last
     validation_data = padded_star[-pct:]   # take the last 15% of pixels
     training_truth_flags = truth[:-pct]
     validation_truth_flags = truth[-pct:]
 
+    # turn binary truth flags into one hot code 
     training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
     reverse_training_cloudtruth = 1 - training_cloudtruth
     training_truth = np.vstack(

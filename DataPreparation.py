@@ -307,7 +307,7 @@ def cnn_getinputs(Sreference, positions=None):
         column = np.tile(np.arrange(3000), 2400)
 
         star = get_coords(row, column, contextlength=50)
-    else
+    else:
         star = get_coords(positions[:,0], positions[:,1], contextlength=50)
 
     return star

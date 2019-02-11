@@ -629,8 +629,8 @@ def star_padding(star):
     padded_stars = []
 
     print('padding stars')
-    
-    for star in tqdm(stars)
+
+    for star in tqdm(stars):
         for arm in star:
             if len(arm) < 50:
                 padded_arm = np.pad(arm, (0, 50-len(arm)),

@@ -241,8 +241,6 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
              'Feature_Classification_Flags']].values
     c4 = C4[['Pos', 'Sfilename', 'Star_array']].values
 
-    context_locations = (np.concatenate(c4[:, 0])).reshape(-1, 2)
-    filenames = c4[:, 1]
     stars = c4[:, 2]
     padded_star = star_padding(stars)
 
@@ -260,10 +258,10 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     truth = merged['Feature_Classification_Flags'].values
 
     pct = int(len(padded_star)*validation_frac)
-    training_data = padded_star[:-pct, :]   # take all but the 15% last
-    validation_data = padded_star[-pct:, :]   # take the last 15% of pixels
-    training_truth_flags = truth[:-pct, :]
-    validation_truth_flags = truth[-pct:, :]
+    training_data = padded_star[:-pct]   # take all but the 15% last
+    validation_data = padded_star[-pct]   # take the last 15% of pixels
+    training_truth_flags = truth[:-pct]
+    validation_truth_flags = truth[-pct]
 
     training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
     reverse_training_cloudtruth = 1 - training_cloudtruth

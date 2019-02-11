@@ -240,7 +240,7 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     l4 = L4[['RowIndex', 'ColIndex', 'Sfilename', 'Feature_Classification_Flags']].values
     c4 = C4[['Pos', 'Sfilename', 'Star_array']].values
 
-    context_locations = (np.concatenate(c4[:,0])).shape(-1,2)
+    context_locations = (np.concatenate(c4[:,0])).reshape(-1,2)
     filenames = c4[:,1]
     stars = c4[:,2]
     padded_star = star_padding(stars)

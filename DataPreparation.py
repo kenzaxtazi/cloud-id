@@ -256,7 +256,7 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
     truth = (np.concatenate(truth)).shape(-1,2)
 
-    pct = int(len(data)*validation_frac)
+    pct = int(len(padded_star)*validation_frac)
     training_data = padded_star[:-pct, :]   # take all but the 15% last
     validation_data = padded_star[-pct:, :]   # take the last 15% of pixels
     training_truth_flags = truth[:-pct, :]
@@ -633,7 +633,7 @@ def star_padding(stars):
     for star in tqdm(stars):
 
         padded_star=[]
-                
+
         for arm in star:
             if len(arm) < 50:
                 padded_arm = np.pad(arm, (0, 50-len(arm)),

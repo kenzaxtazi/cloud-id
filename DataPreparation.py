@@ -255,9 +255,6 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
     truth = merged['Feature_Classification_Flags'].values
 
-    # format inputs
-    padded_star = np.nan_to_num(padded_star.reshape(-1,8,50,1))
-
     # split data into validation and training  
     pct = int(len(padded_star)*validation_frac)
     training_data = padded_star[:-pct]   # take all but the 15% last
@@ -551,12 +548,17 @@ def star_padding(stars):
         for arm in star:
             if len(arm) < 50:
                 padded_arm = np.pad(arm, (0, 50-len(arm)),
-                                    mode='constant', constant_values=-5)
+                                    mode='constant', constant_values=0)
                 padded_star.append(padded_arm)
             else:
                 padded_star.append(arm)
 
         padded_stars.append(padded_star)
+
+    padded_stars = np.concatenate(padded_stars).reshape((-1,8,50,1))
+    
+    # format inputs
+    padded_stars = np.nan_to_num(padded_stars)
 
     return padded_stars
 

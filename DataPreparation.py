@@ -611,7 +611,7 @@ def get_coords(x0, y0, contextlength, separate=False):
         return([N_list, NE_list, E_list, SE_list, S_list, SW_list, W_list, NW_list])
 
 
-def star_padding(star):
+def star_padding(stars):
     """
     Pads out contextual stars 
 

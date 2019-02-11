@@ -656,9 +656,7 @@ class DataPreparer():
 
         confidence_flags = confidence_flags.T
 
-        pixel_inputs = np.column_stack((pixel_channels, confidence_flags))
-
-        inputs = np.vstack((pixel_inputs, confidence_flags))
+        inputs = np.column_stack((pixel_channels, confidence_flags))
 
         return(inputs.T)
 

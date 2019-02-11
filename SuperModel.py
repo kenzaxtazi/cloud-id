@@ -5,16 +5,17 @@
 # Licence version 3 (GPLv3)
 ##############################################
 
-import FFN
-import CNN
+from FFN import FFN
+from CNN import CNN
 import DataPreparation as dp
 import ModelApplication as app
 import ModelEvaluation as me
 import DataLoader as DL
 import Visualisation as Vis
+import os
 
 class SuperModel():
-    def __init__(self, name, FFN1, FFN2, CNN):
+    def __init__(self, name, FFN1=None, FFN2=None, CNN=None):
         self.name = name
         self.FFN1 = FFN1
         self.FFN2 = FFN2
@@ -45,3 +46,29 @@ class SuperModel():
         final_predictions = (np.sort(final_predictions_with_indices))[:, 0]
 
         return final_predictions
+
+    def Save(self):
+        os.mkdir('Models/' + self.name)
+        self.FFN1.Save('Models/' + self.name + '/FFN1_' + self.FFN1.name)
+        self.FFN2.Save('Models/' + self.name + '/FFN2_' + self.FFN2.name)
+        self.CNN.Save('Models/' + self.name + '/CNN_' + self.CNN.name)
+        with open('Models/' + self.name + '/Info.txt') as file:
+            file.write('FFN1: ' + self.FFN1.name + '\n')
+            file.write('FFN2: ' + self.FFN2.name + '\n')
+            file.write('CNN: ' + self.CNN.name)
+    
+    def Load(self):
+        try:
+            os.chdir('Models/' + self.name)
+        except FileNotFoundError:
+            raise Exception('File does not exist')
+
+        self.FFN1 = FFN('FFN1')
+        self.FFN1.Load()
+
+        self.FFN2 = FFN('FFN2')
+        self.FFN2.Load()
+
+        self.CNN = CNN('CNN')
+        self.CNN.Load()
+

@@ -1,6 +1,6 @@
 
 ##############################################
-# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
 # This software is distributed under the terms of the GNU General Public
 # Licence version 3 (GPLv3)
 ##############################################
@@ -14,12 +14,24 @@ import DataLoader as DL
 import Visualisation as Vis
 import os
 
+
 class SuperModel():
     def __init__(self, name, FFN1=None, FFN2=None, CNN=None):
         self.name = name
         self.FFN1 = FFN1
         self.FFN2 = FFN2
         self.CNN = CNN
+        self._isLoaded = False
+
+    @property
+    def isLoaded(self):
+        self._isLoaded = (
+            self.FFN1.isLoaded and self.FFN2.isLoaded and self.CNN.isLoaded)
+        return(self._isLoaded)
+
+    @isLoaded.setter
+    def isLoaded(self, value):
+        self._isLoaded = value
 
     def predict_file(self, Sreference):
 
@@ -28,7 +40,8 @@ class SuperModel():
 
         # exclude indices when predicting
         predictions1 = self.FFN1.Predict(ftestdata)
-        augm_data = np.column_stack((predictions1, indices))  # merge with indices
+        augm_data = np.column_stack(
+            (predictions1, indices))  # merge with indices
 
         gooddata = [x for x in augm_data if not(0.4 <= x[0] < 0.6)]
         poordata = [x for x in augm_data if (0.4 <= x[0] < 0.6)]
@@ -56,7 +69,7 @@ class SuperModel():
             file.write('FFN1: ' + self.FFN1.name + '\n')
             file.write('FFN2: ' + self.FFN2.name + '\n')
             file.write('CNN: ' + self.CNN.name)
-    
+
     def Load(self):
         try:
             os.chdir('Models/' + self.name)
@@ -71,4 +84,3 @@ class SuperModel():
 
         self.CNN = CNN('CNN')
         self.CNN.Load()
-

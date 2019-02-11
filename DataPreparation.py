@@ -237,24 +237,27 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     # Load one month from context dataframe
     C4 = PixelLoader(context_directory)
 
-    l4 = L4[['RowIndex', 'ColIndex', 'Sfilename', 'Feature_Classification_Flags']].values
+    l4 = L4[['RowIndex', 'ColIndex', 'Sfilename',
+             'Feature_Classification_Flags']].values
     c4 = C4[['Pos', 'Sfilename', 'Star_array']].values
 
-    context_locations = (np.concatenate(c4[:,0])).reshape(-1,2)
-    filenames = c4[:,1]
-    stars = c4[:,2]
+    context_locations = (np.concatenate(c4[:, 0])).reshape(-1, 2)
+    filenames = c4[:, 1]
+    stars = c4[:, 2]
     padded_star = star_padding(stars)
 
-    truth = []
-
     print('matching datasets')
-    for i in tqdm(range(len(context_locations))):
-        file = l4[l4[:,2] == filenames[i]]
-        star_row = file[file[:,0] == context_locations[i,0]]
-        star_column = star_row[star_row[:,1] == context_locations[i,1]]
-        truth.append(star_column[0,3])
 
-    truth = (np.concatenate(truth)).shape(-1,2)
+    Cpos = C4['Pos'].values
+    CRows = [i[0] for i in Cpos]
+    CCols = [i[1] for i in Cpos]
+
+    C4['RowIndex'] = CRows
+    C4['ColIndex'] = CCols
+
+    merged = pd.merge(L4, C4, on=['Sfilename', 'RowIndex', 'ColIndex'])
+
+    truth = merged['Feature_Classification_Flags'].values
 
     pct = int(len(padded_star)*validation_frac)
     training_data = padded_star[:-pct, :]   # take all but the 15% last
@@ -632,7 +635,7 @@ def star_padding(stars):
 
     for star in tqdm(stars):
 
-        padded_star=[]
+        padded_star = []
 
         for arm in star:
             if len(arm) < 50:
@@ -647,6 +650,8 @@ def star_padding(stars):
     return padded_stars
 
 # Class to add useful methods to pd DataFrame
+
+
 @pd.api.extensions.register_dataframe_accessor("dp")
 class DataPreparer():
     def __init__(self, pandas_obj):

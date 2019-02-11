@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Nov 28 12:53:29 2018
 
-@author: tomzh
-"""
+##############################################
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# This software is distributed under the terms of the GNU General Public
+# Licence version 3 (GPLv3)
+##############################################
+
 from Collocation2 import match_directory
 import os
 from SaveMatchedPixels import get_file_pairs, process_all, add_dist_col, add_time_col

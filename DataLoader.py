@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Oct 21 15:46:43 2018
 
-@author: tomzh
-"""
+##############################################
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# This software is distributed under the terms of the GNU General Public
+# Licence version 3 (GPLv3)
+##############################################
+
 import os
 import platform
 import random as rdm

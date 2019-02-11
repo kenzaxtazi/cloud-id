@@ -1,12 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Nov 19 14:37:40 2018
 
-@author: kenzatazi
-"""
-
-# Evaluating the model
+##############################################
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# This software is distributed under the terms of the GNU General Public
+# Licence version 3 (GPLv3)
+##############################################
 
 import matplotlib.pyplot as plt
 from sklearn import metrics

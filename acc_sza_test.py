@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Dec 21 16:27:14 2018
 
-@author: kenzatazi
-"""
+##############################################
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
+# This software is distributed under the terms of the GNU General Public
+# Licence version 3 (GPLv3)
+##############################################
+
 import os
 import pandas as pd
 import numpy as np

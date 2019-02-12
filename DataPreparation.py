@@ -588,7 +588,7 @@ class DataPreparer():
         return(self._obj)
 
     def prepare_random(self, seed):
-        if seed == None:
+        if seed is None:
             seed = np.random.randint(0, 2**32, dtype='uint32')
             np.random.seed(seed)
         else:
@@ -599,12 +599,12 @@ class DataPreparer():
         with open('Temp/NumpySeeds.txt', 'a') as file:
             file.write(timestamp + ': ' + str(seed) + '\n')
 
-    def shuffle_random(self, validation_frac=0.15, seed=None):
+    def shuffle_random(self, seed=None):
         self.prepare_random(seed)
         self._obj = self._obj.sample(frac=1)
         return(self._obj)
 
-    def shuffle_by_file(self, validation_frac=0.15, seed=None):
+    def shuffle_by_file(self, seed=None):
         self.prepare_random(seed)
         Sfiles = list(set(self._obj['Sfilename']))
         np.random.shuffle(Sfiles)
@@ -616,7 +616,7 @@ class DataPreparer():
     def get_training_data(self, input_type=24, validation_frac=0.15):
         self.remove_nan()
         self.remove_anomalous()
-        self.shuffle_by_file(validation_frac)
+        self.shuffle_by_file()
 
         pixel_channels = (self._obj[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in',
                                      'satellite_zenith_angle', 'solar_zenith_angle', 'latitude_an', 'longitude_an']].values).astype(float)

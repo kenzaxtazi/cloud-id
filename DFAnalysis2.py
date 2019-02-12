@@ -1,6 +1,6 @@
 
 ##############################################
-# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
 # This software is distributed under the terms of the GNU General Public
 # Licence version 3 (GPLv3)
 ##############################################
@@ -44,7 +44,7 @@ def make_confidence_hist(path, model='Net3_S_FFN', model_network='Network2', Max
     """
     df = df_model_agreement(path, MaxDist, MaxTime, model, model_network)
 
-    bad = df[df['Agree'] == False]
+    bad = df[df['Agree'] is False]
 
     bconfidence = bad['Label_Confidence'].values
     tconfidence = df['Label_Confidence'].values
@@ -113,7 +113,7 @@ def df_model_agreement(path, MaxDist, MaxTime, model, model_network):
 
 def get_bad_classifications(df):
     """Given a processed dataframe which has model predictions, produce dataframe with poorly classified pixels"""
-    bad = df[(df['Agree'] == False) | (
+    bad = df[(df['Agree'] is False) | (
         (df['Label_Confidence'] < 0.7) & (df['Label_Confidence'] > 0.3))]
     return(bad)
 
@@ -200,7 +200,7 @@ def get_contextual_dataframe(df, contextlength=25, download_missing=False, num_v
 
 
 def make_Context_df(coords, Sfile, Spath, para_num):
-    if coords == None:
+    if coords is None:
         return(pd.DataFrame())
 
     rows = [i[0] for i in coords]
@@ -233,8 +233,8 @@ def make_Context_df(coords, Sfile, Spath, para_num):
         matched pixels in an SLSTR file
         """
         # Prepare second index system for data on 1km instead of 0.5km grid
-        hrows = [int(i/2) for i in rows]
-        hcols = [int(i/2) for i in cols]
+        hrows = [int(i / 2) for i in rows]
+        hcols = [int(i / 2) for i in cols]
         if Sattribute in ['S7_in', 'S8_in', 'S9_in', 'bayes_in', 'cloud_in', 'satellite_zenith_angle', 'solar_zenith_angle']:
             data = scn[Sattribute].values[hrows, hcols]
         else:

@@ -256,11 +256,9 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     truth = merged['Feature_Classification_Flags'].values
 
     # split data into validation and training
-<<<<<<< HEAD
-    pct = int(len(padded_star)*validation_frac)
-=======
+
     pct = int(len(padded_star) * validation_frac)
->>>>>>> 1504e07d1504845da0df806ccf6def2544c6edf8
+
     training_data = padded_star[:-pct]   # take all but the 15% last
     validation_data = padded_star[-pct:]   # take the last 15% of pixels
     training_truth_flags = truth[:-pct]

@@ -1,6 +1,6 @@
 
 ##############################################
-# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
 # This software is distributed under the terms of the GNU General Public
 # Licence version 3 (GPLv3)
 ##############################################
@@ -41,7 +41,7 @@ def grid_interpolate(q0, q1):
     else:
         for row in range(min(row0, row1), max(row0, row1) + 1):
             for col in range(min(col0, col1), max(col0, col1) + 1):
-                truecol = col0 + ((col1 - col0)/(row1 - row0)) * (row - row0)
+                truecol = col0 + ((col1 - col0) / (row1 - row0)) * (row - row0)
                 if abs(truecol - col) <= 0.5:
                     out.append([row, col])
     return(out[1:-1])
@@ -139,7 +139,7 @@ def process_pair(Spath, Cpath, interpolate=True):
         """
     # Find collocated pixels
     coords = collocate(Spath, Cpath)
-    if coords == None:
+    if coords is None:
         return(pd.DataFrame())
     rows = [int(i[0]) for i in coords]
     cols = [int(i[1]) for i in coords]
@@ -161,19 +161,19 @@ def process_pair(Spath, Cpath, interpolate=True):
             Ctruth = np.where(SC > 1, True, False)
 
         for i in range(len(Cindices) - 1):
-            if Ctruth[i] == Ctruth[i+1] and abs(Cindices[i+1] - Cindices[i]) == 1:
+            if Ctruth[i] == Ctruth[i + 1] and abs(Cindices[i + 1] - Cindices[i]) == 1:
                 # Interpolate to find SLSTR pixels between the two already collocated
                 pos0 = [rows[i], cols[i]]
-                pos1 = [rows[i+1], cols[i+1]]
+                pos1 = [rows[i + 1], cols[i + 1]]
                 Sindices1 = grid_interpolate(pos0, pos1)
 
-                for j in Sindices1[int(len(Sindices1)/2):]:
+                for j in Sindices1[int(len(Sindices1) / 2):]:
                     coords1.append([j[0], j[1], Cindices[i]])
-                for j in Sindices1[:int(len(Sindices1)/2)]:
-                    coords1.append([j[0], j[1], Cindices[i+1]])
+                for j in Sindices1[:int(len(Sindices1) / 2)]:
+                    coords1.append([j[0], j[1], Cindices[i + 1]])
 
     def make_df(coords):
-        if coords == None:
+        if coords is None:
             return(pd.DataFrame())
         rows = [int(i[0]) for i in coords]
         cols = [int(i[1]) for i in coords]
@@ -197,8 +197,8 @@ def process_pair(Spath, Cpath, interpolate=True):
             matched pixels in an SLSTR file
             """
             # Prepare second index system for data on 1km instead of 0.5km grid
-            hrows = [int(i/2) for i in rows]
-            hcols = [int(i/2) for i in cols]
+            hrows = [int(i / 2) for i in rows]
+            hcols = [int(i / 2) for i in cols]
             if Sattribute in ['S7_in', 'S8_in', 'S9_in', 'bayes_in', 'cloud_in', 'satellite_zenith_angle', 'solar_zenith_angle']:
                 data = scn[Sattribute].values[hrows, hcols]
             else:

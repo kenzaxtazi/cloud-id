@@ -1,6 +1,6 @@
 
 ##############################################
-# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
 # This software is distributed under the terms of the GNU General Public
 # Licence version 3 (GPLv3)
 ##############################################
@@ -10,7 +10,7 @@ import DataLoader as DL
 import Visualisation as Vis
 from FFN import FFN
 
-model = FFN('Net1_FFN_v4', 'Network1', 22)
+model = FFN('Net1_FFN_v4')
 model.Load()
 
 

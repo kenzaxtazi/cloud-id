@@ -6,18 +6,15 @@
 ##############################################
 
 import datetime
-import os
 
-import matplotlib.pyplot as plt
-import sklearn.utils
 import tflearn
-from tensorflow import reset_default_graph
+
 from tflearn.layers.core import dropout, fully_connected, input_data
 from tflearn.layers.estimator import regression
 
 import DataPreparation as dp
 import ModelApplication as app
-import ModelEvaluation as me
+
 import DataLoader as DL
 import Visualisation as Vis
 
@@ -34,7 +31,7 @@ class FFN():
 
     def networkSetup(self):
         """Setup network for the model. Specify network configuration by setting the networkConfig attribute"""
-        if self.networkConfig == None:  # No network configuration specified
+        if self.networkConfig is None:  # No network configuration specified
             self.Network0()  # Use default network
         else:
             # Use network function specified by networkConfig
@@ -158,7 +155,7 @@ class FFN():
             if len(settings) == 1:
                 self.networkConfig == settings[0]
                 print(self.networkConfig)
-            
+
             elif len(settings) == 2:
                 self.networkConfig = settings[0].strip()
                 self.para_num = settings[1].strip()
@@ -174,6 +171,7 @@ class FFN():
 
     def Predict_label(self, X):
         return(self.model.predict_label(X))
+
 
 if __name__ == '__main__':
     # Pixel Loading

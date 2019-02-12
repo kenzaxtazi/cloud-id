@@ -1,13 +1,12 @@
 
 ##############################################
-# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
 # This software is distributed under the terms of the GNU General Public
 # Licence version 3 (GPLv3)
 ##############################################
 
 import matplotlib.pyplot as plt
 from sklearn import metrics
-import tensorflow as tf
 import numpy as np
 
 
@@ -56,15 +55,15 @@ def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
         bayes_mask = bayes_mask.astype(int)
         tn, fp, fn, tp = (metrics.confusion_matrix(
             validation_truth[:, 0], bayes_mask, labels=(0, 1))).ravel()
-        plt.scatter(float(fp)/float(tn+fp), float(tp)/float(fn+tp), marker='o', label= 'Bayesian mask')
-    
+        plt.scatter(float(fp) / float(tn + fp), float(tp) / float(fn + tp), marker='o', label='Bayesian mask')
+
     if emp_mask is not None:
         validation_truth = validation_truth.astype(int)
         emp_mask = emp_mask.astype(int)
         tn, fp, fn, tp = (metrics.confusion_matrix(
             validation_truth[:, 0], emp_mask, labels=(0, 1))).ravel()
-        plt.scatter(float(fp)/float(tn+fp), float(tp)/float(fn+tp), marker='*', label='Empirical mask')
-    
+        plt.scatter(float(fp) / float(tn + fp), float(tp) / float(fn + tp), marker='*', label='Empirical mask')
+
     plt.legend()
 
 
@@ -95,6 +94,6 @@ def precision_vs_recall(model, validation_data, validation_truth):
 def confusion_matrix(model, validation_data, validation_truth):
     """ Returns a confusion matrix"""
 
-    l = model.predict_label(validation_data)
-    m = metrics.confusion_matrix(validation_truth[:, 0], l, labels=(0, 1))
+    predictions = model.predict_label(validation_data)
+    m = metrics.confusion_matrix(validation_truth[:, 0], predictions, labels=(0, 1))
     return m

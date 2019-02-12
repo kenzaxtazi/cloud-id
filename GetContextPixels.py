@@ -1,12 +1,11 @@
 
 ##############################################
-# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
 # This software is distributed under the terms of the GNU General Public
 # Licence version 3 (GPLv3)
 ##############################################
 
 import DFAnalysis2 as DFA
-
 
 
 df = DFA.df_model_agreement('/home/hep/trz15/Matched_Pixels2/Calipso/P4',

@@ -5,14 +5,13 @@
 # Licence version 3 (GPLv3)
 ##############################################
 
-from FFN import FFN
-from CNN import CNN
-import DataPreparation as dp
-import ModelApplication as app
-import ModelEvaluation as me
-import DataLoader as DL
-import Visualisation as Vis
 import os
+
+import numpy as np
+
+import DataPreparation as dp
+from cnn import CNN
+from FFN import FFN
 
 
 class SuperModel():
@@ -46,7 +45,7 @@ class SuperModel():
         gooddata = [x for x in augm_data if not(0.4 <= x[0] < 0.6)]
         poordata = [x for x in augm_data if (0.4 <= x[0] < 0.6)]
 
-        ctestdata = dp.context_getinputs(scene, poordata)
+        ctestdata = dp.cnn_getinputs(Sreference, poordata)
         predictions2 = self.CNN.predict(
             ctestdata[0])   # May require .model.predict
 

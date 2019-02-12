@@ -1,6 +1,6 @@
 
 ##############################################
-# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
 # This software is distributed under the terms of the GNU General Public
 # Licence version 3 (GPLv3)
 ##############################################
@@ -35,17 +35,19 @@ def FTPdownload(ftpobj, path, destination):
     try:
         ftpobj.retrbinary("RETR " + str(path),
                           open(str(foldername), "wb").write)
-    except:
+    except Exception as e:
         print("Permission Error")
+        print(e)
         print(foldername)
         try:
             os.remove(foldername)
-        except:
+        except FileNotFoundError:
             pass
         return(1)
     os.chdir(startdir)
     print('Download complete')
     return(0)
+
 
 def NASA_download(NASA_FTP_directory, calipso_directory="", CATS_directory=""):
     """Download Calipso or CATS files from NASA"""

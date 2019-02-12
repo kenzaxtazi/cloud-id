@@ -1,16 +1,16 @@
 
 ##############################################
-# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
 # This software is distributed under the terms of the GNU General Public
 # Licence version 3 (GPLv3)
 ##############################################
 
-from Collocation2 import match_directory
 import os
-from SaveMatchedPixels import get_file_pairs, process_all, add_dist_col, add_time_col
-from tqdm import tqdm
-from FileDownloader import download_matches, NASA_download
 
+from Collocation2 import match_directory
+from FileDownloader import NASA_download, download_matches
+from SaveMatchedPixels import (add_dist_col, add_time_col, get_file_pairs,
+                               process_all)
 
 Home_directory = "/home/hep/trz15/Masters_Project"
 NASA_FTP_directory = "528836af-a8ec-45eb-8391-8d24324fe1b6"
@@ -38,10 +38,12 @@ elif CATS_directory != "":
 print("File matching complete")
 
 # Download the files found by match_directory
-failed_downloads = download_matches(MatchesFilename, SLSTR_target_directory, creds_path)
+failed_downloads = download_matches(
+    MatchesFilename, SLSTR_target_directory, creds_path)
 
 # Find matching pixels and store in pkl file
-Cpaths, Spaths = get_file_pairs(SLSTR_target_directory, MatchesFilename, failed_downloads, calipso_directory, CATS_directory)
+Cpaths, Spaths = get_file_pairs(
+    SLSTR_target_directory, MatchesFilename, failed_downloads, calipso_directory, CATS_directory)
 df = process_all(Spaths, Cpaths, pkl_output_name)
 df['Profile_Time'] += 725846390.0
 df = add_dist_col(df)

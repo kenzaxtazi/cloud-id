@@ -1,6 +1,6 @@
 
 ##############################################
-# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
 # This software is distributed under the terms of the GNU General Public
 # Licence version 3 (GPLv3)
 ##############################################
@@ -18,7 +18,7 @@ import cartopy.crs as ccrs
 def norm(band):
     """ Normalises the bands for the false color image"""
     band_min, band_max = band.min(), band.max()
-    return ((band - band_min)/(band_max - band_min))
+    return ((band - band_min) / (band_max - band_min))
 
 
 def FalseColour(Sreference, plot=True):
@@ -202,15 +202,15 @@ def plot_poles(latitude, longitude, data):
 
 
 def simple_mask(pmask, S1):
-    """ 
-    Creates plot for the probability mask 
+    """
+    Creates plot for the probability mask
 
     Parameters
     ----------
     pmask: 2D array
         Array of probabilities to plot.
 
-    S1: 2D array 
+    S1: 2D array
         Array of radiances to plot.
     """
     plt.imshow(S1, 'gray')
@@ -219,7 +219,7 @@ def simple_mask(pmask, S1):
 
 
 def false_color_image(band1, band2, band3, plot=True):
-    """ 
+    """
     Creates a false colour image
 
     Parameters
@@ -240,7 +240,7 @@ def false_color_image(band1, band2, band3, plot=True):
     """
     rgb = np.dstack((norm(band1), norm(band2), norm(band3)))
 
-    if plot == True:
+    if plot is True:
         plt.figure()
         plt.imshow(rgb)
         plt.title('False colour image')

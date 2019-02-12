@@ -1,6 +1,6 @@
 
 ##############################################
-# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu                                        
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
 # This software is distributed under the terms of the GNU General Public
 # Licence version 3 (GPLv3)
 ##############################################
@@ -8,19 +8,14 @@
 import datetime
 import os
 
-#CNNimport matplotlib.pyplot as plt
-import sklearn.utils
 import tflearn
-from tensorflow import reset_default_graph
+from tflearn.layers.conv import conv_2d, max_pool_2d
 from tflearn.layers.core import dropout, fully_connected, input_data
 from tflearn.layers.estimator import regression
-from tflearn.layers.conv import conv_2d, max_pool_2d
 
+import DataLoader as DL
 import DataPreparation as dp
 import ModelApplication as app
-import ModelEvaluation as me
-import DataLoader as DL
-#import Visualisation as Vis
 
 
 class CNN():
@@ -36,7 +31,7 @@ class CNN():
 
     def networkSetup(self):
         """Setup network for the model. Specify network configuration by setting the networkConfig attribute"""
-        if self.networkConfig == None:  # No network configuration specified
+        if self.networkConfig is None:  # No network configuration specified
             self.Network0()  # Use default network
         else:
             # Use network function specified by networkConfig
@@ -152,5 +147,5 @@ if __name__ == '__main__':
     # bmask = DL.extract_mask(Sfile, 'cloud_an', 64)
     bmask = DL.extract_mask(scenes, 'bayes_in', 2)
 
-    #Vis.MaskComparison(Sfile, mask1, bmask, True, 1000)
-    #Vis.simple_mask(mask1, S1)
+    # Vis.MaskComparison(Sfile, mask1, bmask, True, 1000)
+    # Vis.simple_mask(mask1, S1)

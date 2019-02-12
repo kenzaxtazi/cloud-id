@@ -160,7 +160,7 @@ class FFN():
                 self.networkConfig = settings[0].strip()
                 self.para_num = int(settings[1].strip())
                 print(self.networkConfig)
-                print('Number of inputs: ' + self.para_num)
+                print('Number of inputs: ' + str(self.para_num))
         self.networkSetup()
         self.Setup()
         self.model.load('Models/' + self.name)

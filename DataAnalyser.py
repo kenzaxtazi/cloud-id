@@ -24,16 +24,20 @@ class DataAnalyser():
     def __init__(self, pandas_obj):
         self._obj = pandas_obj
 
-    def model_agreement(self, model, MaxDist=None, MaxTime=None, num_inputs=24):
+    def model_agreement(self, model, MaxDist=None, MaxTime=None):
         # Add useful columns to dataframe
         if MaxDist is not None:
             self._obj = self._obj[self._obj['Distance'] < MaxDist]
         if MaxTime is not None:
             self._obj = self._obj[abs(self._obj['TimeDiff']) < MaxTime]
 
-        inputs = self._obj.dp.get_inputs(num_inputs)
         model = FFN(model)
         model.Load()
+
+        num_inputs = model.para_num
+
+        inputs = self._obj.dp.get_inputs(num_inputs)
+
 
         output_labels = model.model.predict_label(inputs)
         output_con = model.model.predict(inputs)

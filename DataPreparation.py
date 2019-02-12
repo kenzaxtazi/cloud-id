@@ -674,7 +674,7 @@ class DataPreparer():
 
         inputs = np.column_stack((pixel_channels, confidence_flags))
 
-        return(inputs.T)
+        return(inputs)
 
     def make_attrib_hist(self, column='latitude_an'):
         out = self._obj[column]

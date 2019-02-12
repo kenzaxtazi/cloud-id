@@ -158,7 +158,7 @@ class FFN():
 
             elif len(settings) == 2:
                 self.networkConfig = settings[0].strip()
-                self.para_num = settings[1].strip()
+                self.para_num = int(settings[1].strip())
                 print(self.networkConfig)
                 print('Number of inputs: ' + self.para_num)
         self.networkSetup()

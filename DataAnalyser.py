@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 ##############################################
 # (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
@@ -6,8 +5,6 @@
 # Licence version 3 (GPLv3)
 ##############################################
 
-=======
->>>>>>> 1504e07d1504845da0df806ccf6def2544c6edf8
 import os
 
 import matplotlib.pyplot as plt

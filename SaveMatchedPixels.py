@@ -325,7 +325,7 @@ def add_time_col(df):
             return(diff2.seconds * -1)
         else:
             return(diff1.seconds)
-    df['TimeDiff'] = df.progress_apply(lambda row: time_diff(row), axis=1)
+    df['TimeDiff'] = df.progress_apply(time_diff, axis=1)
 
     return(df)
 
@@ -339,5 +339,5 @@ def add_dist_col(df):
         dist = geodesic((row['latitude_an'], row['longitude_an']),
                         (row['Latitude'], row['Longitude'])).m
         return(dist)
-    df['Distance'] = df.progress_apply(lambda row: get_dist(row), axis=1)
+    df['Distance'] = df.progress_apply(get_dist, axis=1)
     return(df)

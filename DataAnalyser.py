@@ -38,7 +38,6 @@ class DataAnalyser():
 
         inputs = self._obj.dp.get_inputs(num_inputs)
 
-
         output_labels = model.model.predict_label(inputs)
         output_con = model.model.predict(inputs)
 
@@ -78,7 +77,7 @@ class DataAnalyser():
         """
         self._obj = self.model_agreement(model, MaxDist, MaxTime)
 
-        wrong = self._obj[self._obj['Agree'] is False]
+        wrong = self._obj[self._obj['Agree'] == False]
 
         bconfidence = wrong['Label_Confidence'].values
         tconfidence = self._obj['Label_Confidence'].values

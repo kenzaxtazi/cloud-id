@@ -147,7 +147,7 @@ class FFN():
         self.model.save("Models/" + self.name)
         with open("Models/" + self.name + '.txt', 'w') as file:
             file.write(self.networkConfig + '\n')
-            file.write(self.para_num)
+            file.write(str(self.para_num))
 
     def Load(self):
         with open('Models/' + self.name + '.txt', 'r') as file:

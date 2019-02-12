@@ -7,7 +7,7 @@
 
 import os
 
-from Collocation2 import match_directory
+from Collocation import match_directory
 from FileDownloader import NASA_download, download_matches
 from SaveMatchedPixels import (add_dist_col, add_time_col, get_file_pairs,
                                process_all)

@@ -21,7 +21,7 @@ from geopy.distance import geodesic
 from tqdm import tqdm
 
 import DataLoader as DL
-from Collocation2 import collocate
+from Collocation import collocate
 
 
 def grid_interpolate(q0, q1):

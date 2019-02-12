@@ -1,5 +1,6 @@
 import unittest
-from Collocation2 import collocate
+
+from Collocation import collocate
 
 
 class TestCollocationMethod(unittest.TestCase):

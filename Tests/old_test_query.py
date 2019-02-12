@@ -1,6 +1,6 @@
 import unittest
-from Collocation2 import find_SLSTR_data
-import os
+
+from Collocation import find_SLSTR_data
 
 
 class TestQueryMethod(unittest.TestCase):

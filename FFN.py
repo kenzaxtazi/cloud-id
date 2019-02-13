@@ -28,15 +28,8 @@ class FFN():
         self.para_num = para_num
         self.LR = LR
         self.isLoaded = False
-
-    def networkSetup(self):
-        """Setup network for the model. Specify network configuration by setting the networkConfig attribute"""
-        if self.networkConfig is None:  # No network configuration specified
-            self.Network0()  # Use default network
-        else:
-            # Use network function specified by networkConfig
-            networkFunc = getattr(self, self.networkConfig)
-            networkFunc()
+        self._model = None
+        self._network = None
 
     def Network0(self):
         # Networks layers
@@ -65,8 +58,8 @@ class FFN():
         softmax = fully_connected(dropout4, 1, activation='softmax')
 
         # gives the paramaters to optimise the network
-        self.network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
-                                  loss='categorical_crossentropy', name='targets')
+        self._network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
+                                   loss='categorical_crossentropy', name='targets')
         self.networkConfig = 'Network0'
 
     def Network1(self):
@@ -96,8 +89,8 @@ class FFN():
         softmax = fully_connected(dropout4, 2, activation='softmax')
 
         # gives the paramaters to optimise the network
-        self.network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
-                                  loss='categorical_crossentropy', name='targets')
+        self._network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
+                                   loss='categorical_crossentropy', name='targets')
         self.networkConfig = 'Network1'
 
     def Network2(self):
@@ -127,20 +120,40 @@ class FFN():
         softmax = fully_connected(dropout4, 2, activation='softmax')
 
         # gives the paramaters to optimise the network
-        self.network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
-                                  loss='categorical_crossentropy', name='targets')
+        self._network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
+                                   loss='categorical_crossentropy', name='targets')
         self.networkConfig = 'Network2'
 
-    def Setup(self):
-        self.model = tflearn.DNN(
+    @property
+    def network(self):
+        if self._network:
+            return self._network
+
+        if self.networkConfig is None:
+            print('Using default network configuration, Network0')
+            self.Network0()
+        else:
+            # Use network function specified by networkConfig
+            networkFunc = getattr(self, self.networkConfig)
+            networkFunc()
+        return self._network
+
+    @property
+    def model(self):
+        if self._model:
+            return self._model
+
+        self._model = tflearn.DNN(
             self.network, tensorboard_verbose=0, tensorboard_dir='./Temp/tflearn_logs')
 
-    def Train(self, training_data, training_truth, validation_data, validation_truth):
+        return self._model
+
+    def Train(self, training_data, training_truth, validation_data, validation_truth, n_epoch=16):
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        MODEL_NAME = 'Models/ffn_withancillarydata_' + timestamp
-        self.model.fit(training_data, training_truth, n_epoch=16,
+        run_id = 'Models/' + str(self.name) + '_' + timestamp
+        self.model.fit(training_data, training_truth, n_epoch=n_epoch,
                        validation_set=(validation_data, validation_truth),
-                       snapshot_step=10000, show_metric=True, run_id=MODEL_NAME)
+                       snapshot_step=10000, show_metric=True, run_id=run_id)
         self.isLoaded = True
 
     def Save(self):
@@ -149,22 +162,25 @@ class FFN():
             file.write(self.networkConfig + '\n')
             file.write(str(self.para_num))
 
-    def Load(self):
+    def Load(self, verbose=True):
         with open('Models/' + self.name + '.txt', 'r') as file:
             settings = file.readlines()
             if len(settings) == 1:
-                self.networkConfig == settings[0]
-                print(self.networkConfig)
+                self.networkConfig = settings[0]
 
             elif len(settings) == 2:
                 self.networkConfig = settings[0].strip()
                 self.para_num = int(settings[1].strip())
-                print(self.networkConfig)
-                print('Number of inputs: ' + str(self.para_num))
-        self.networkSetup()
-        self.Setup()
+
         self.model.load('Models/' + self.name)
         self.isLoaded = True
+        if verbose:
+            print('##############################################')
+            print('Loading successful')
+            print('Model: ' + self.name)
+            print('Network type: ' + self.networkConfig)
+            print('Number of inputs: ' + str(self.para_num))
+            print('##############################################')
 
     def Predict(self, X):
         return(self.model.predict(X))
@@ -177,17 +193,10 @@ if __name__ == '__main__':
     # Pixel Loading
     df = dp.PixelLoader('./SatelliteData/SLSTR/Pixels3')
 
-    training_data, validation_data, training_truth, validation_truth = df.dp.get_training_data(
-        22)
+    tdata, vdata, ttruth, vtruth = df.dp.get_training_data(22)
 
-    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    MODEL_NAME = 'Models/ffn_withancillarydata_' + timestamp
-
-    model = FFN('Net1_FFN_v4', 'Network1', 22)
-    model.networkSetup()
-    model.Setup()
-    model.Train(training_data, training_truth,
-                validation_data, validation_truth)
+    model = FFN('Test', 'Network1', 22)
+    model.Train(tdata, ttruth, vdata, vtruth)
     model.Save()
 
     Sfile = "./SatelliteData/SLSTR/Dataset1/S3A_SL_1_RBT____20180822T000619_20180822T000919_20180822T015223_0179_035_016_3240_SVL_O_NR_003.SEN3"

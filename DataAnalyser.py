@@ -24,6 +24,10 @@ class DataAnalyser():
     def __init__(self, pandas_obj):
         self._obj = pandas_obj
 
+    def _model_applied(self):
+        if 'Agree' not in self._obj.columns:
+            raise AttributeError('No model has been applied to this dataframe. See df.da.model_agreement')
+
     def model_agreement(self, model, MaxDist=None, MaxTime=None):
         # Add useful columns to dataframe
         if MaxDist is not None:
@@ -53,11 +57,13 @@ class DataAnalyser():
 
     def get_bad_classifications(self):
         """Given a processed dataframe which has model predictions, produce dataframe with poorly classified pixels"""
+        self._model_applied()
+
         bad = self._obj[(self._obj['Agree'] is False) | (
             (self._obj['Label_Confidence'] < 0.7) & (self._obj['Label_Confidence'] > 0.3))]
         return(bad)
 
-    def make_confidence_hist(self, model='Net1_FFN_v4', MaxDist=500, MaxTime=1200):
+    def make_confidence_hist(self):
         """
         Makes a histogram of the model confidence for correctly and incorrectly classified pixels in a given directory or .pkl file.
 
@@ -75,7 +81,7 @@ class DataAnalyser():
             Maximum accepted time difference between collocated pixels in dataframe to consider
             Default is 1200
         """
-        self._obj = self.model_agreement(model, MaxDist, MaxTime)
+        self._model_applied()
 
         wrong = self._obj[self._obj['Agree'] == False]  # Is false causes key error
 
@@ -90,7 +96,7 @@ class DataAnalyser():
         plt.xlim([0, 1])
         plt.show()
 
-    def plot_pixels(self, model='Net1_FFN_v4', MaxDist=500, MaxTime=1200):
+    def plot_pixels(self, datacol='Agree'):
         """
         Plots the correctly and incorrectly classified pixels in a given directory or .pkl file.
 
@@ -108,10 +114,11 @@ class DataAnalyser():
             Maximum accepted time difference between collocated pixels in dataframe to consider
             Default is 1200
         """
-        self._obj = self.model_agreement(model, MaxDist, MaxTime)
+        if datacol in ['Agree', 'CTruth', 'Labels', 'Label_Confidence']:
+            self._model_applied()
 
         Vis.plot_poles(self._obj['latitude_an'].values,
-                       self._obj['longitude_an'].values, self._obj['Agree'].values)
+                       self._obj['longitude_an'].values, self._obj[datacol].values)
 
     def get_contextual_dataframe(self, contextlength=50, download_missing=False):
         """Given a dataframe of poorly classified pixels, produce dataframe with neighbouring S1 pixel values"""

@@ -7,15 +7,14 @@
 
 import datetime
 
+import numpy as np
 import tflearn
-
 from tflearn.layers.core import dropout, fully_connected, input_data
 from tflearn.layers.estimator import regression
 
+import DataLoader as DL
 import DataPreparation as dp
 import ModelApplication as app
-
-import DataLoader as DL
 import Visualisation as Vis
 
 
@@ -30,6 +29,12 @@ class FFN():
         self.isLoaded = False
         self._model = None
         self._network = None
+
+    def __str__(self):
+        out = ('Model: ' + self.name + '\n'
+               + 'Network type: ' + str(self.networkConfig) + '\n'
+               + 'Number of inputs: ' + str(self.para_num))
+        return(out)
 
     def Network0(self):
         # Networks layers
@@ -126,7 +131,7 @@ class FFN():
 
     @property
     def network(self):
-        if self._network:
+        if self._network is not None:
             return self._network
 
         if self.networkConfig is None:
@@ -163,6 +168,10 @@ class FFN():
             file.write(str(self.para_num))
 
     def Load(self, verbose=True):
+        if self.isLoaded:
+            raise AssertionError(
+                'Graph already loaded. Consider loading into new object.')
+
         with open('Models/' + self.name + '.txt', 'r') as file:
             settings = file.readlines()
             if len(settings) == 1:
@@ -187,6 +196,27 @@ class FFN():
 
     def Predict_label(self, X):
         return(self.model.predict_label(X))
+
+    def apply_mask(self, Sreference):
+        if self.isLoaded is False:
+            raise AssertionError(
+                'Model is neither loaded nor trained, cannot make predictions')
+
+        inputs = dp.getinputs(Sreference, input_type=self.para_num)
+
+        returnlist = []
+
+        label = self.model.predict_label(inputs)
+        lmask = np.array(label)
+        lmask = lmask[:, 0].reshape(2400, 3000)
+        returnlist.append(lmask)
+
+        prob = self.model.predict(inputs)
+        pmask = np.array(prob)
+        pmask = pmask[:, 0].reshape(2400, 3000)
+        returnlist.append(pmask)
+
+        return returnlist
 
 
 if __name__ == '__main__':

@@ -259,10 +259,10 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
     # split data into validation and training
 
-    pct = int(len(interpolated_padded_star) * validation_frac)
+    pct = int(len(interpolated_padded_stars) * validation_frac)
 
-    training_data = interpolated_padded_star[:-pct]   # take all but the 15% last
-    validation_data = interpolated_padded_star[-pct:]   # take the last 15% of pixels
+    training_data = interpolated_padded_stars[:-pct]   # take all but the 15% last
+    validation_data = interpolated_padded_stars[-pct:]   # take the last 15% of pixels
     training_truth_flags = truth[:-pct]
     validation_truth_flags = truth[-pct:]
 

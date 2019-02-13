@@ -77,7 +77,7 @@ class DataAnalyser():
         """
         self._obj = self.model_agreement(model, MaxDist, MaxTime)
 
-        wrong = self._obj[self._obj['Agree'] == False]
+        wrong = self._obj[self._obj['Agree'] == False]  # Is false causes key error
 
         bconfidence = wrong['Label_Confidence'].values
         tconfidence = self._obj['Label_Confidence'].values

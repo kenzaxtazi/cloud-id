@@ -242,7 +242,8 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     stars = c4[:, 2]
     padded_star = star_padding(stars)
 
-    interpolated_padded_stars = (pd.Series(padded_star).interpolate(method='linear')).values
+    interpolated_padded_stars = (
+        pd.Series(padded_star).interpolate(method='linear')).values
 
     print('matching datasets')
 
@@ -261,8 +262,10 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
     pct = int(len(interpolated_padded_stars) * validation_frac)
 
-    training_data = interpolated_padded_stars[:-pct]   # take all but the 15% last
-    validation_data = interpolated_padded_stars[-pct:]   # take the last 15% of pixels
+    # take all but the 15% last
+    training_data = interpolated_padded_stars[:-pct]
+    # take the last 15% of pixels
+    validation_data = interpolated_padded_stars[-pct:]
     training_truth_flags = truth[:-pct]
     validation_truth_flags = truth[-pct:]
 
@@ -585,6 +588,10 @@ class DataPreparer():
         self._obj = self._obj[abs(self._obj['TimeDiff']) < MaxTime]
         return(self._obj)
 
+    def remove_night(self):
+        self._obj = self._obj[self._obj['confidance_an'] & 1024 == 1024]
+        return(self._obj)
+
     def prepare_random(self, seed):
         if seed is None:
             seed = np.random.randint(0, 2**32, dtype='uint32')
@@ -615,6 +622,7 @@ class DataPreparer():
         self.remove_nan()
         self.remove_anomalous()
         self.shuffle_by_file()
+        self.remove_night()
 
         pixel_channels = (self._obj[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in',
                                      'satellite_zenith_angle', 'solar_zenith_angle', 'latitude_an', 'longitude_an']].values).astype(float)

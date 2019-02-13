@@ -1,18 +1,24 @@
 import unittest
-from ModelApplication import apply_mask
-import numpy as np
+
 from FFN import FFN
+from ModelApplication import apply_mask
+
 
 class TestMaskingMethod(unittest.TestCase):
 
-    def test_mask(self):
-        Sfilename = "./SatelliteData/SLSTR/2018/08/S3A_SL_1_RBT____20180806T081914_20180806T082214_20180807T131253_0179_034_178_1620_LN2_O_NT_003.SEN3"
+    @classmethod
+    def setUpClass(self):
+        self.model = FFN('Net1_FFN')
+        self.model.Load()
+        self.TestFile = "./SatelliteData/SLSTR/2018/08/S3A_SL_1_RBT____20180806T081914_20180806T082214_20180807T131253_0179_034_178_1620_LN2_O_NT_003.SEN3"
 
-        model = FFN('Net1_FFN')
-        model.Load()
+    def test_mask_ModelAPP(self):
+        mask = apply_mask(self.model.model, self.TestFile, 24)[0]
 
+        self.assertEqual(mask.shape, (2400, 3000))
 
-        mask = apply_mask(model.model, Sfilename, 24)[0]
+    def test_mask_FFNMethod(self):
+        mask = self.model.apply_mask(self.TestFile)[0]
 
         self.assertEqual(mask.shape, (2400, 3000))
 

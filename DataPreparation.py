@@ -560,6 +560,7 @@ def star_padding(stars):
         for arm in star:
             if len(arm) < 50:
                 padded_arm = np.pad(arm, (0, 50 - len(arm)), mode='edge')
+                print('length of padded arm ', len(paddded_arm))
                 padded_star.append(padded_arm)
             else:
                 padded_star.append(arm)

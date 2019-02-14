@@ -315,7 +315,8 @@ def cnn_getinputs(Sreference, positions=None):
 
         star_coords = get_coords(row, column, contextlength=50)
     else:
-        star_coords = get_coords(positions[:, 0], positions[:, 1], contextlength=50)
+        star_coords = get_coords(
+            positions[:, 0], positions[:, 1], contextlength=50)
 
     star = S1[star_coords]
 
@@ -553,17 +554,44 @@ def star_padding(stars):
 
     print('padding stars')
 
+    duplicate = False
+
     for star in tqdm(stars):
 
         padded_star = []
+        arm_number = 0
 
         for arm in star:
+
+            # keeps track of the arm so we know which arm should be duplicated if needed
+            arm_number += 1 
+            
             if len(arm) < 50:
-                padded_arm = np.pad(arm, (0, 50 - len(arm)), mode='edge')
-                print('length of padded arm ', len(paddded_arm))
-                padded_star.append(padded_arm)
+
+                if len(arm) > 0:
+                    padded_arm = np.pad(arm, (0, 50 - len(arm)), mode='edge')
+                    padded_star.append(padded_arm)
+                    if duplicate == True:
+                        padded_star.append(padded_arm)
+                        duplicate = False
+                else:
+                    if arm_number > 1:
+                        padded_star.append(padded_arm)
+                    else:
+                        duplicate = True
+
             else:
-                padded_star.append(arm)
+                padded_arm = arm
+                padded_star.append(padded_arm)
+                if duplicate == True:
+                    padded_star.append(padded_arm)
+                    duplicate = False
+            
+            if len(padded_arm) != 50:
+                print(len(padded_arm))
+
+        if arm_number < 8:
+            print('arm_number', arm_number)
 
         padded_stars.append(padded_star)
 

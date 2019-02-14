@@ -7,7 +7,7 @@
 
 import datetime
 import os
-
+import pandas
 import tflearn
 from tflearn.layers.conv import conv_2d, max_pool_2d
 from tflearn.layers.core import dropout, fully_connected, input_data
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     # one month at a time
     training_data, validation_data, training_truth, validation_truth = dp.cnn_prep_data(
         location_directory='/home/hep/trz15/Matched_Pixels2/Calipso/P4',
-        context_directory='/home/hep/trz15/Matched_Pixels2/Calipso/Context')
+        context_directory='/home/hep/trz15/Matched_Pixels2/Calipso/Context5')
 
     # MACHINE LEARNING MODEL
 

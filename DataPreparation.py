@@ -591,7 +591,7 @@ class DataPreparer():
         return(self._obj)
 
     def remove_night(self):
-        self._obj = self._obj[self._obj['confidance_an'] & 1024 == 1024]
+        self._obj = self._obj[self._obj['confidence_an'] & 1024 == 1024]
         return(self._obj)
 
     def prepare_random(self, seed):

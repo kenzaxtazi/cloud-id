@@ -125,7 +125,7 @@ if __name__ == '__main__':
 
     # one month at a time
     training_data, validation_data, training_truth, validation_truth = dp.cnn_prep_data(
-        location_directory='/home/hep/trz15/Matched_Pixels2/Calipso/P4',
+        location_directory='/home/hep/trz15/Matched_Pixels2/Calipso/Pixels4',
         context_directory='/home/hep/trz15/Matched_Pixels2/Calipso/Context5')
 
     # MACHINE LEARNING MODEL

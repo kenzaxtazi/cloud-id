@@ -313,9 +313,11 @@ def cnn_getinputs(Sreference, positions=None):
         row = np.repeat(np.arange(2400), 3000)
         column = np.tile(np.arange(3000), 2400)
 
-        star = get_coords(row, column, contextlength=50)
+        star_coords = get_coords(row, column, contextlength=50)
     else:
-        star = get_coords(positions[:, 0], positions[:, 1], contextlength=50)
+        star_coords = get_coords(positions[:, 0], positions[:, 1], contextlength=50)
+
+    star = S1[star_coords]
 
     return star
 

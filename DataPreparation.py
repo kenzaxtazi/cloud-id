@@ -236,11 +236,12 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     L4 = PixelLoader(location_directory)
     # Load one month from context dataframe
     C4 = PixelLoader(context_directory)
-
+    
+    (C4['Star_array']).interpolate 
     c4 = C4[['Pos', 'Sfilename', 'Star_array']].values
 
     stars = c4[:, 2]
-    padded_star = star_padding(stars)
+    padded_stars = star_padding(stars)
 
     print('matching datasets')
 
@@ -257,12 +258,12 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
     # split data into validation and training
 
-    pct = int(len(interpolated_padded_stars) * validation_frac)
+    pct = int(len(padded_stars) * validation_frac)
 
     # take all but the 15% last
-    training_data = interpolated_padded_stars[:-pct]
+    training_data = padded_stars[:-pct]
     # take the last 15% of pixels
-    validation_data = interpolated_padded_stars[-pct:]
+    validation_data = padded_stars[-pct:]
     training_truth_flags = truth[:-pct]
     validation_truth_flags = truth[-pct:]
 
@@ -592,12 +593,7 @@ def star_padding(stars):
 
         padded_stars.append(padded_star)
 
-    padded_stars = np.concatenate(padded_stars).reshape((-1))
-
-    interpolated_stars = (
-        pd.Series(padded_star).interpolate(method='linear')).values
-
-    shaped_stars = interpolated_stars.reshape((-1, 8, 50, 1))
+    padded_stars = np.concatenate(padded_stars).reshape((-1, 8, 50, 1))
 
     return shaped_stars
 

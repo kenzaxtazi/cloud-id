@@ -237,10 +237,8 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     # Load one month from context dataframe
     C4 = PixelLoader(context_directory)
     
-    (C4['Star_array']).interpolate()
-    c4 = C4[['Pos', 'Sfilename', 'Star_array']].values
-
-    stars = c4[:, 2]
+    c4 = C4['Star_array']).interpolate()
+    stars = c4.values
     padded_stars = star_padding(stars)
 
     print('matching datasets')

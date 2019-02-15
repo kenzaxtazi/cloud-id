@@ -237,7 +237,7 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     # Load one month from context dataframe
     C4 = PixelLoader(context_directory)
     
-    (C4['Star_array']).interpolate 
+    (C4['Star_array']).interpolate()
     c4 = C4[['Pos', 'Sfilename', 'Star_array']].values
 
     stars = c4[:, 2]
@@ -595,7 +595,7 @@ def star_padding(stars):
 
     padded_stars = np.concatenate(padded_stars).reshape((-1, 8, 50, 1))
 
-    return shaped_stars
+    return padded_stars
 
 # Class to add useful methods to pd DataFrame
 

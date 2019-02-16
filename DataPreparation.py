@@ -236,10 +236,10 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     L4 = PixelLoader(location_directory)
     # Load one month from context dataframe
     C4 = PixelLoader(context_directory)
-    
-    c4 = C4['Star_array'].interpolate()
-    stars = c4.values
+
+    stars = C4['Star_array'].values
     padded_stars = star_padding(stars)
+    interp_stars = nan_interpolater(padded_stars)
 
     print('matching datasets')
 
@@ -256,12 +256,11 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
     # split data into validation and training
 
-    pct = int(len(padded_stars) * validation_frac)
-
+    pct = int(len(interp_stars) * validation_frac)
     # take all but the 15% last
-    training_data = padded_stars[:-pct]
+    training_data = interp_stars[:-pct]
     # take the last 15% of pixels
-    validation_data = padded_stars[-pct:]
+    validation_data = interp_stars[-pct:]
     training_truth_flags = truth[:-pct]
     validation_truth_flags = truth[-pct:]
 
@@ -594,6 +593,20 @@ def star_padding(stars):
     padded_stars = np.concatenate(padded_stars).reshape((-1, 8, 50, 1))
 
     return padded_stars
+
+
+def nan_interpolater(A):
+    ''' Interpolate the nans in the star '''
+
+    ok = -np.isnan(A)
+    xp = ok.ravel().nonzero()[0]
+    fp = A[-np.isnan(A)]
+    x = np.isnan(A).ravel().nonzero()[0]
+
+    A[np.isnan(A)] = np.interp(x, xp, fp)
+
+    return A
+
 
 # Class to add useful methods to pd DataFrame
 

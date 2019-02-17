@@ -338,25 +338,21 @@ class DataAnalyser():
 
         for i in range(len(surftype_list)):
 
-            if len(surftype_list[i]) > 0:
-                a = np.concatenate(surftype_list[i])
-                b = a.reshape(-1, 3)
+            b = surftype_list[i]
 
+            if len(b) > 0:
                 acc = me.get_accuracy(model.model, b[:, 0], b[:, 1])
-                labels = (np.concatenate(b[:, 1])).reshape((-1, 2))
-                masks = (np.concatenate(b[:, 2])).reshape((-1, 2))
-
-                bayes_mask = masks[:, 0]
-                emp_mask = masks[:, 1]
+                bayes_mask = b[:, 2]
+                emp_mask = b[:, 3]
                 bayes_mask[bayes_mask > 1.0] = 1.0
                 emp_mask[emp_mask > 1.0] = 1.0
 
-                bayes_acc = 1 - np.mean(np.abs(labels[:, 0] - bayes_mask))
-                emp_acc = 1 - np.mean(np.abs(labels[:, 0] - emp_mask))
+                bayes_acc = 1 - np.mean(np.abs(b[:, 1] - bayes_mask))
+                emp_acc = 1 - np.mean(np.abs(b[:, 1] - emp_mask))
                 me.ROC_curve(model.model, b[:, 0], b[:, 1],
                              bayes_mask=bayes_mask, emp_mask=emp_mask, name=names[i])
                 accuracies.append([acc, bayes_acc, emp_acc])
-                N.append(len(surftype_list[i]))
+                N.append(len(b))
 
             else:
                 accuracies.append([0, 0, 0])
@@ -376,7 +372,8 @@ class DataAnalyser():
         stars = plt.scatter(t, accuracies[:, 2], marker='*', zorder=3)
         plt.xticks(rotation=90)
         plt.legend([bars, circles, stars], ['Model accuracy',
-                                            'Bayesian mask accuracy', 'Empirical mask accuracy'])
+                                            'Bayesian mask accuracy',
+                                            'Empirical mask accuracy'])
         plt.show()
 
     def reproducibility(self, model, number_of_runs=15):
@@ -393,4 +390,3 @@ class DataAnalyser():
         std = np.std(accuracies)
 
         return average, std
-

@@ -36,7 +36,7 @@ def PixelLoader(directory):
     return(out)
 
 
-def getinputs(Sreference, input_type=24):
+def getinputsFFN(Sreference, input_type=24):
     """
     For a given SLSTR file, produce a correctly formatted input array for
     tflearn model

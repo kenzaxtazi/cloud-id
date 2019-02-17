@@ -33,7 +33,7 @@ def apply_mask(model, Sfile, input_type=24, modeltype='ffn', positions=None):
         Mask predicted by model for Sfile
     """
     if modeltype == 'ffn':
-        inputs = dp.getinputs(Sfile, input_type)
+        inputs = dp.getinputsFFN(Sfile, input_type)
     if modeltype == 'cnn':
         inputs = dp.cnn_getinputs(Sfile, positions)
 

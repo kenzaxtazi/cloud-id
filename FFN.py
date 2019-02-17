@@ -12,10 +12,7 @@ import tflearn
 from tflearn.layers.core import dropout, fully_connected, input_data
 from tflearn.layers.estimator import regression
 
-import DataLoader as DL
 import DataPreparation as dp
-import ModelApplication as app
-import Visualisation as Vis
 
 
 class FFN():
@@ -204,7 +201,7 @@ class FFN():
             raise AssertionError(
                 'Model is neither loaded nor trained, cannot make predictions')
 
-        inputs = dp.getinputs(Sreference, input_type=self.para_num)
+        inputs = dp.getinputsFFN(Sreference, input_type=self.para_num)
 
         returnlist = []
 
@@ -230,12 +227,3 @@ if __name__ == '__main__':
     model = FFN('Test', 'Network1', 22)
     model.Train(tdata, ttruth, vdata, vtruth)
     model.Save()
-
-    Sfile = "./SatelliteData/SLSTR/Dataset1/S3A_SL_1_RBT____20180822T000619_20180822T000919_20180822T015223_0179_035_016_3240_SVL_O_NR_003.SEN3"
-
-    mask1 = app.apply_mask(model.model, Sfile, 22)[0]
-
-    # bmask = DL.extract_mask(Sfile, 'cloud_an', 64)
-    bmask = DL.extract_mask(Sfile, 'bayes_in', 2)
-
-    Vis.MaskComparison(Sfile, mask1, bmask, True, 1000)

@@ -242,11 +242,6 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     stars = c4[:, 2]
     padded_stars = star_padding(stars)
 
-    # interpolated_padded_stars = (
-    #     pd.Series(padded_star).interpolate(method='linear')).values
-
-    # interpolated_padded_stars = np.nan_to_num(padded_star)
-
     print('matching datasets')
 
     Cpos = C4['Pos'].values
@@ -596,18 +591,6 @@ def star_padding(stars):
     padded_stars = np.concatenate(padded_stars).reshape((-1, 8, 50, 1))
 
     return padded_stars
-
-
-def nan_interpolater(A):
-    ''' Interpolate the nans in the star '''
-
-    A = pd.Series(A.flatten())
-    A.interpolate()
-    A = A.values
-    A = A.reshape(-1, 8, 50, 1)
-
-    return A
-
 
 # Class to add useful methods to pd DataFrame
 

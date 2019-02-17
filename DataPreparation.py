@@ -237,9 +237,15 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     # Load one month from context dataframe
     C4 = PixelLoader(context_directory)
 
-    stars = C4['Star_array'].values
+    c4 = C4[['Pos', 'Sfilename', 'Star_array']].values
+
+    stars = c4[:, 2]
     padded_stars = star_padding(stars)
-    interp_stars = nan_interpolater(padded_stars)
+
+    # interpolated_padded_stars = (
+    #     pd.Series(padded_star).interpolate(method='linear')).values
+
+    # interpolated_padded_stars = np.nan_to_num(padded_star)
 
     print('matching datasets')
 
@@ -252,15 +258,18 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
 
     merged = pd.merge(L4, C4, on=['Sfilename', 'RowIndex', 'ColIndex'])
 
+    merged = merged.sample(frac=1)
+
     truth = merged['Feature_Classification_Flags'].values
 
     # split data into validation and training
 
-    pct = int(len(interp_stars) * validation_frac)
+    pct = int(len(padded_stars) * validation_frac)
+
     # take all but the 15% last
-    training_data = interp_stars[:-pct]
+    training_data = padded_stars[:-pct]
     # take the last 15% of pixels
-    validation_data = interp_stars[-pct:]
+    validation_data = padded_stars[-pct:]
     training_truth_flags = truth[:-pct]
     validation_truth_flags = truth[-pct:]
 
@@ -562,31 +571,25 @@ def star_padding(stars):
             arm_number += 1
 
             if len(arm) < 50:
-
-                if len(arm) > 0:
-                    padded_arm = np.pad(arm, (0, 50 - len(arm)), mode='edge')
-                    padded_star.append(padded_arm)
-                    if duplicate == True:
-                        padded_star.append(padded_arm)
-                        duplicate = False
+                if len(arm) == 0:
+                    # Should probably be adjacent pixel value
+                    padded_arm = np.array([0] * 50)
                 else:
-                    if arm_number > 1:
-                        padded_star.append(padded_arm)
-                    else:
-                        duplicate = True
-
+                    padded_arm = np.pad(arm, (0, 50 - len(arm)), mode='edge')
             else:
                 padded_arm = arm
+
+            if np.mean(np.isnan(padded_arm)) == 1:
+                padded_star.append(np.array([0] * 50))
+
+            else:
+                ok = ~np.isnan(padded_arm)
+                xp = ok.nonzero()[0]
+                fp = padded_arm[~np.isnan(padded_arm)]
+                x = np.isnan(padded_arm).nonzero()[0]
+
+                padded_arm[np.isnan(padded_arm)] = np.interp(x, xp, fp)
                 padded_star.append(padded_arm)
-                if duplicate == True:
-                    padded_star.append(padded_arm)
-                    duplicate = False
-
-            if len(padded_arm) != 50:
-                print(len(arm))
-
-        if arm_number < 8:
-            print('arm_number', arm_number)
 
         padded_stars.append(padded_star)
 

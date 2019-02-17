@@ -29,6 +29,7 @@ class FFN():
         self.isLoaded = False
         self._model = None
         self._network = None
+        self.run_id = None
 
     def __str__(self):
         out = ('Model: ' + self.name + '\n'
@@ -155,10 +156,10 @@ class FFN():
 
     def Train(self, training_data, training_truth, validation_data, validation_truth, n_epoch=16):
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        run_id = 'Models/' + str(self.name) + '_' + timestamp
+        self.run_id = 'Models/' + str(self.name) + '_' + timestamp
         self.model.fit(training_data, training_truth, n_epoch=n_epoch,
                        validation_set=(validation_data, validation_truth),
-                       snapshot_step=10000, show_metric=True, run_id=run_id)
+                       snapshot_step=10000, show_metric=True, run_id=self.run_id)
         self.isLoaded = True
 
     def Save(self):
@@ -166,6 +167,7 @@ class FFN():
         with open("Models/" + self.name + '.txt', 'w') as file:
             file.write(self.networkConfig + '\n')
             file.write(str(self.para_num))
+            file.write(self.run_id)
 
     def Load(self, verbose=True):
         if self.isLoaded:
@@ -177,7 +179,7 @@ class FFN():
             if len(settings) == 1:
                 self.networkConfig = settings[0]
 
-            elif len(settings) == 2:
+            elif len(settings) >= 2:
                 self.networkConfig = settings[0].strip()
                 self.para_num = int(settings[1].strip())
 

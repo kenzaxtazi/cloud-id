@@ -72,8 +72,8 @@ class CNN():
         softmax = fully_connected(convnet, 2, activation='softmax')
 
         # gives the paramaters to optimise the network
-        self.network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
-                                  loss='categorical_crossentropy', name='targets')
+        self._network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
+                                   loss='categorical_crossentropy', name='targets')
         self.networkConfig = 'NetworkA'
 
     @property
@@ -100,7 +100,7 @@ class CNN():
 
         return self._model
 
-    def Train(self, training_data, training_truth, validation_data, validation_truth, n_epoch=100):
+    def Train(self, training_data, training_truth, validation_data, validation_truth, n_epoch=25):
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         self.run_id = 'Models/' + str(self.name) + '_' + timestamp
         self.model.fit(training_data, training_truth, n_epoch=n_epoch,

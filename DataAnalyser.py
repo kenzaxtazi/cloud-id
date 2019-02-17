@@ -1,4 +1,3 @@
-
 ##############################################
 # (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
 # This software is distributed under the terms of the GNU General Public
@@ -16,6 +15,8 @@ import DataLoader as DL
 import DataPreparation as dp
 import FileDownloader as FD
 import Visualisation as Vis
+import ModelEvaluation as me
+
 from FFN import FFN
 
 
@@ -26,7 +27,8 @@ class DataAnalyser():
 
     def _model_applied(self):
         if 'Agree' not in self._obj.columns:
-            raise AttributeError('No model has been applied to this dataframe. See df.da.model_agreement')
+            raise AttributeError(
+                'No model has been applied to this dataframe. See df.da.model_agreement')
 
     def model_agreement(self, model, MaxDist=None, MaxTime=None):
         # Add useful columns to dataframe
@@ -83,7 +85,8 @@ class DataAnalyser():
         """
         self._model_applied()
 
-        wrong = self._obj[self._obj['Agree'] == False]  # Is false causes key error
+        # Is false causes key error
+        wrong = self._obj[self._obj['Agree'] == False]
 
         bconfidence = wrong['Label_Confidence'].values
         tconfidence = self._obj['Label_Confidence'].values
@@ -200,3 +203,209 @@ class DataAnalyser():
             out = out.append(newdf, ignore_index=True, sort=True)
 
         return(out)
+
+    def accuracy_timediff(self, model, validation_frac=0.15):
+
+        model_timestamp_path = 'Models/' + model.name + txt
+        seed_timestamp_path = 'Temp/numpyseeds.txt'
+
+        seed = # TO DO
+
+        dp.DataPreparer.remove_nan()
+        dp.DataPreparer.remove_anomalous()
+        dp.DataPreparer.shuffle_by_file(seed=seed)
+        dp.DataPreparer.remove_night()
+
+        tdata, vdata, ttruth, vtruth = dp.DataPreparer.get_training_data()
+
+        times = self._obj['TimeDiff']
+        time_array = times.values
+        pct = int(len(time_array) * validation_frac)
+        validation_times = time_array[-pct:]
+
+        time_slices = np.linspace(0, 1401, 15)
+        accuracies = []
+        N = []
+
+    for t in time_slices:
+        new_validation_data = []
+        new_validation_truth = []
+
+        # slices
+        for i in range(len(validation_data)):
+            if abs(times[i]) > t:
+                if abs(times[i]) < t + 100:
+                    new_validation_data.append(validation_data[i])
+                    new_validation_truth.append(validation_truth[i])
+
+        new_validation_data = np.array(new_validation_data)
+        new_validation_truth = np.array(new_validation_truth)
+
+        if len(new_validation_data) > 0:
+
+            new_validation_data = new_validation_data.reshape(-1, para_num)
+            # Print accuracy
+            acc = me.get_accuracy(
+                model.model, new_validation_data, new_validation_truth)
+            accuracies.append(acc)
+
+            # apply model to test images to generate masks
+            '''
+            for scn in scenes:
+                app.apply_mask(model, scn)
+                plt.show()
+            '''
+            N.append(len(new_validation_data))
+
+        else:
+            accuracies.append(0)
+            N.append(0)
+
+    plt.figure('Accuracy vs time difference')
+    plt.title('Accuracy as a function of time difference')
+    plt.xlabel('Absolute time difference (s)')
+    plt.ylabel('Accuracy')
+    plt.bar(time_slices, accuracies, width=100, align='edge',
+            color='lightcyan', edgecolor='lightseagreen', yerr=(np.array(accuracies) / np.array(N))**(0.5))
+    plt.show()
+
+    def accuracy_sza(self, model):
+
+        model_timestamp_path = 'Models/' + model.name + txt
+        seed_timestamp_path = 'Temp/numpyseeds.txt'
+
+        seed =  # TODO
+
+        dp.DataPreparer.remove_nan()
+        dp.DataPreparer.remove_anomalous()
+        dp.DataPreparer.shuffle_by_file(seed=)
+        dp.DataPreparer.remove_night()
+
+        tdata, vdata, ttruth, vtruth = dp.DataPreparer.get_training_data()
+
+        angle_slices = np.linspace(3, 55, 18)
+        accuracies = []
+        N = []
+
+        for a in angle_slices:
+
+            new_validation_data = []
+            new_validation_truth = []
+
+            # slices
+            for i in range(len(validation_data)):
+                if abs(vdata[i, 9]) > a:
+                    if abs(vdata[i, 9]) < a + 3:
+                        new_validation_data.append(vdata[i])
+                        new_validation_truth.append(vtruth[i])
+
+            new_validation_data = np.array(new_validation_data)
+            new_validation_truth = np.array(new_validation_truth)
+
+            if len(new_validation_data) > 0:
+
+                new_validation_data = new_validation_data.reshape(-1, para_num)
+                acc = me.get_accuracy(
+                    model.model, new_validation_data, new_validation_truth)
+                accuracies.append(acc)
+                N.append(len(new_validation_data))
+
+            else:
+                accuracies.append(0)
+                N.append(0)
+
+        plt.figure('Accuracy vs satellite zenith angle')
+        plt.title('Accuracy as a function of satellite zenith angle')
+        plt.xlabel('Satellite zenith angle (deg)')
+        plt.ylabel('Accuracy')
+        plt.bar(angle_slices, accuracies, width=3, align='edge', color='lavenderblush',
+                edgecolor='thistle', yerr=(np.array(accuracies) / np.array(N))**(0.5))
+        plt.show()
+
+    def accuracy_stype(self, model, modelseed):
+
+        model_timestamp_path = 'Models/' + model.name + txt
+        seed_timestamp_path = 'Temp/numpyseeds.txt'
+
+        seed =  # TODO
+
+        dp.DataPreparer.remove_nan()
+        dp.DataPreparer.remove_anomalous()
+        dp.DataPreparer.shuffle_by_file(seed=)
+        dp.DataPreparer.remove_night()
+
+        tdata, vdata, ttruth, vtruth = dp.DataPreparer.get_training_data()
+
+        extras = self._obj['confidence_an', 'bayes_in', 'cloud_an']
+        extras_array = extras.values
+        pct = int(len(stype) * validation_frac)
+        validation_extras = extras_array[-pct:]
+
+        valida
+
+        surftype_list = dp.surftype_class(vdata, vtruth, masks=np.column_stack(
+            (bayes_values, emp_values)))
+
+        accuracies = []
+        N = []
+
+        names = ['Coastline', 'Ocean', 'Tidal', 'Land', 'Inland water',
+                 'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Sun glint', 'Snow']
+
+        for i in range(len(surftype_list)):
+
+            if len(surftype_list[i]) > 0:
+                a = np.concatenate(surftype_list[i])
+                b = a.reshape(-1, 3)
+
+                acc = me.get_accuracy(model.model, b[:, 0], b[:, 1])
+                labels = (np.concatenate(b[:, 1])).reshape((-1, 2))
+                masks = (np.concatenate(b[:, 2])).reshape((-1, 2))
+
+                bayes_mask = masks[:, 0]
+                emp_mask = masks[:, 1]
+                bayes_mask[bayes_mask > 1.0] = 1.0
+                emp_mask[emp_mask > 1.0] = 1.0
+
+                bayes_acc = 1 - np.mean(np.abs(labels[:, 0] - bayes_mask))
+                emp_acc = 1 - np.mean(np.abs(labels[:, 0] - emp_mask))
+                me.ROC_curve(model.model, b[:, 0], b[:, 1],
+                             bayes_mask=bayes_mask, emp_mask=emp_mask, name=names[i])
+                accuracies.append([acc, bayes_acc, emp_acc])
+                N.append(len(surftype_list[i]))
+
+            else:
+                accuracies.append([0, 0, 0])
+                N.append(0)
+
+        accuracies = (np.concatenate(np.array(accuracies))).reshape(-1, 3)
+
+        t = np.arange(len(names))
+
+        plt.figure('Accuracy vs surface type')
+        plt.title('Accuracy as a function of surface type')
+        plt.ylabel('Accuracy')
+        bars = plt.bar(t, accuracies[:, 0], width=0.5, align='center', color='honeydew',
+                       edgecolor='palegreen', yerr=(np.array(accuracies[:, 0]) / np.array(N))**(0.5),
+                       tick_label=names, zorder=1)
+        circles = plt.scatter(t, accuracies[:, 1], marker='o', zorder=2)
+        stars = plt.scatter(t, accuracies[:, 2], marker='*', zorder=3)
+        plt.xticks(rotation=90)
+        plt.legend([bars, circles, stars], ['Model accuracy',
+                                            'Bayesian mask accuracy', 'Empirical mask accuracy'])
+        plt.show()
+
+    def reproducibility(self, model, number_of_runs=15):
+
+        accuracies = []
+
+        for i in range(number_of_runs):
+            tdata, vdata, ttruth, vtruth = dp.DataPreparer.get_training_data()
+            model.Train(tdata, ttruth, vdata, vtruth)
+            acc = me.get_accuracy(model, vdata, vtruth, para_num=24)
+            acurracies.append(acc)
+
+        average = np.mean(accuracies)
+        std = np.std(accuracies)
+
+        return average, std

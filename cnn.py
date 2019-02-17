@@ -21,7 +21,7 @@ import ModelApplication as app
 class CNN():
     """Object for handling TFLearn DNN models with added support for saving / loading different network configurations"""
 
-    def __init__(self, name, networkConfig=None, LR=1e-3, img_length=8, img_width=50):
+    def __init__(self, name, networkConfig=None, LR=1e-4, img_length=8, img_width=50):
         self.name = name
         self.networkConfig = networkConfig
         self.LR = LR
@@ -86,7 +86,7 @@ class CNN():
     def Train(self, training_data, training_truth, validation_data, validation_truth):
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         MODEL_NAME = 'Models/CNN' + timestamp
-        self.model.fit(training_data, training_truth, n_epoch=1,
+        self.model.fit(training_data, training_truth, n_epoch=100,
                        validation_set=(validation_data, validation_truth),
                        snapshot_step=10000, show_metric=True, run_id=MODEL_NAME)
         self.isLoaded = True
@@ -125,8 +125,8 @@ if __name__ == '__main__':
 
     # one month at a time
     training_data, validation_data, training_truth, validation_truth = dp.cnn_prep_data(
-        location_directory='/home/hep/trz15/Matched_Pixels2/Calipso/Pixels4',
-        context_directory='/home/hep/trz15/Matched_Pixels2/Calipso/Context5')
+        location_directory='./SatelliteData/SLSTR/Pixels4/',
+        context_directory='./SatelliteData/SLSTR/PCon5')
 
     # MACHINE LEARNING MODEL
 

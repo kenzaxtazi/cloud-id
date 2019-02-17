@@ -539,7 +539,7 @@ def star_padding(stars):
         contextual data for a target pixel, in the shape of a star
 
     Returns
-    ____
+    ____         
     padded_star: 8x50 array
         padded contextual data for a target pixel, in the shape of a star
 
@@ -635,7 +635,7 @@ class DataPreparer():
         self._obj = self._obj.sort_values(['Temp'])
         self._obj = self._obj.drop(['Temp'], axis=1)
 
-    def get_training_data(self, input_type=24, validation_frac=0.15):
+    def get_ffn_training_data(self, input_type=24, validation_frac=0.15):
         self.remove_nan()
         self.remove_anomalous()
         self.shuffle_by_file()
@@ -683,6 +683,41 @@ class DataPreparer():
         return_list = [training_data, validation_data, training_truth,
                        validation_truth]
         return return_list
+
+    def get_cnn_training_data(self, validation_frac=0.15):
+        self.remove_nan()
+        self.remove_anomalous()
+        self.shuffle_by_file()
+        self.remove_night()
+
+        stars = self._obj['Star_array'].values
+        padded_stars = star_padding(stars)
+
+        truth = self._obj['Feature_Classification_Flags'].values
+
+        # split data into validation and training
+
+        pct = int(len(padded_stars) * validation_frac)
+
+        # take all but the 15% last
+        training_data = padded_stars[:-pct]
+        # take the last 15% of pixels
+        validation_data = padded_stars[-pct:]
+        training_truth_flags = truth[:-pct]
+        validation_truth_flags = truth[-pct:]
+
+        # turn binary truth flags into one hot code
+        training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
+        reverse_training_cloudtruth = 1 - training_cloudtruth
+        training_truth = np.vstack(
+            (training_cloudtruth, reverse_training_cloudtruth)).T
+
+        validation_cloudtruth = (validation_truth_flags.astype(int) & 2) / 2
+        reverse_validation_cloudtruth = 1 - validation_cloudtruth
+        validation_truth = np.vstack(
+            (validation_cloudtruth, reverse_validation_cloudtruth)).T
+
+        return training_data, validation_data, training_truth, validation_truth
 
     def get_inputs(self, input_type=24):
 

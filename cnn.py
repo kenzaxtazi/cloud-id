@@ -123,10 +123,10 @@ if __name__ == '__main__':
     if os.path.exists('D:'):
         scenes = []
 
+    df = dp.PixelLoader('./SatelliteData/SLSTR/Pixels5')
+
     # one month at a time
-    training_data, validation_data, training_truth, validation_truth = dp.cnn_prep_data(
-        location_directory='./SatelliteData/SLSTR/Pixels4/',
-        context_directory='./SatelliteData/SLSTR/PCon5')
+    training_data, validation_data, training_truth, validation_truth = df.dp.get_cnn_training_data()
 
     # MACHINE LEARNING MODEL
 

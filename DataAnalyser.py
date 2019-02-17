@@ -204,19 +204,14 @@ class DataAnalyser():
 
         return(out)
 
-    def accuracy_timediff(self, model, validation_frac=0.15):
-
-        model_timestamp_path = 'Models/' + model.name + txt
-        seed_timestamp_path = 'Temp/numpyseeds.txt'
-
-        seed = # TO DO
+    def accuracy_timediff(self, model, seed, validation_frac=0.15, para_num=24):
 
         dp.DataPreparer.remove_nan()
         dp.DataPreparer.remove_anomalous()
-        dp.DataPreparer.shuffle_by_file(seed=seed)
+        dp.DataPreparer.shuffle_by_file(seed)
         dp.DataPreparer.remove_night()
 
-        tdata, vdata, ttruth, vtruth = dp.DataPreparer.get_training_data()
+        _, vdata, _, vtruth = dp.DataPreparer.get_ffn_training_data(seed=seed)
 
         times = self._obj['TimeDiff']
         time_array = times.values
@@ -227,61 +222,56 @@ class DataAnalyser():
         accuracies = []
         N = []
 
-    for t in time_slices:
-        new_validation_data = []
-        new_validation_truth = []
+        for t in time_slices:
+            new_validation_data = []
+            new_validation_truth = []
 
-        # slices
-        for i in range(len(validation_data)):
-            if abs(times[i]) > t:
-                if abs(times[i]) < t + 100:
-                    new_validation_data.append(validation_data[i])
-                    new_validation_truth.append(validation_truth[i])
+            # slices
+            for i in range(len(vdata)):
+                if abs(validation_times[i]) > t:
+                    if abs(validation_times[i]) < t + 100:
+                        new_validation_data.append(vdata[i])
+                        new_validation_truth.append(vtruth[i])
 
-        new_validation_data = np.array(new_validation_data)
-        new_validation_truth = np.array(new_validation_truth)
+            new_validation_data = np.array(new_validation_data)
+            new_validation_truth = np.array(new_validation_truth)
 
-        if len(new_validation_data) > 0:
+            if len(new_validation_data) > 0:
 
-            new_validation_data = new_validation_data.reshape(-1, para_num)
-            # Print accuracy
-            acc = me.get_accuracy(
-                model.model, new_validation_data, new_validation_truth)
-            accuracies.append(acc)
+                new_validation_data = new_validation_data.reshape(-1, para_num)
+                # Print accuracy
+                acc = me.get_accuracy(
+                    model.model, new_validation_data, new_validation_truth)
+                accuracies.append(acc)
 
-            # apply model to test images to generate masks
-            '''
-            for scn in scenes:
-                app.apply_mask(model, scn)
-                plt.show()
-            '''
-            N.append(len(new_validation_data))
+                # apply model to test images to generate masks
+                '''
+                for scn in scenes:
+                    app.apply_mask(model, scn)
+                    plt.show()
+                '''
+                N.append(len(new_validation_data))
 
-        else:
-            accuracies.append(0)
-            N.append(0)
+            else:
+                accuracies.append(0)
+                N.append(0)
 
-    plt.figure('Accuracy vs time difference')
-    plt.title('Accuracy as a function of time difference')
-    plt.xlabel('Absolute time difference (s)')
-    plt.ylabel('Accuracy')
-    plt.bar(time_slices, accuracies, width=100, align='edge',
-            color='lightcyan', edgecolor='lightseagreen', yerr=(np.array(accuracies) / np.array(N))**(0.5))
-    plt.show()
+        plt.figure('Accuracy vs time difference')
+        plt.title('Accuracy as a function of time difference')
+        plt.xlabel('Absolute time difference (s)')
+        plt.ylabel('Accuracy')
+        plt.bar(time_slices, accuracies, width=100, align='edge',
+                color='lightcyan', edgecolor='lightseagreen', yerr=(np.array(accuracies) / np.array(N))**(0.5))
+        plt.show()
 
-    def accuracy_sza(self, model):
-
-        model_timestamp_path = 'Models/' + model.name + txt
-        seed_timestamp_path = 'Temp/numpyseeds.txt'
-
-        seed =  # TODO
+    def accuracy_sza(self, model, seed, para_num=24):
 
         dp.DataPreparer.remove_nan()
         dp.DataPreparer.remove_anomalous()
-        dp.DataPreparer.shuffle_by_file(seed=)
+        dp.DataPreparer.shuffle_by_file(seed)
         dp.DataPreparer.remove_night()
 
-        tdata, vdata, ttruth, vtruth = dp.DataPreparer.get_training_data()
+        _, vdata, _, vtruth = dp.DataPreparer.get_ffn_training_data()
 
         angle_slices = np.linspace(3, 55, 18)
         accuracies = []
@@ -293,7 +283,7 @@ class DataAnalyser():
             new_validation_truth = []
 
             # slices
-            for i in range(len(validation_data)):
+            for i in range(len(vdata)):
                 if abs(vdata[i, 9]) > a:
                     if abs(vdata[i, 9]) < a + 3:
                         new_validation_data.append(vdata[i])
@@ -322,35 +312,29 @@ class DataAnalyser():
                 edgecolor='thistle', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
 
-    def accuracy_stype(self, model, modelseed):
-
-        model_timestamp_path = 'Models/' + model.name + txt
-        seed_timestamp_path = 'Temp/numpyseeds.txt'
-
-        seed =  # TODO
+    def accuracy_stype(self, model, seed, validation_frac=0.15):
 
         dp.DataPreparer.remove_nan()
         dp.DataPreparer.remove_anomalous()
-        dp.DataPreparer.shuffle_by_file(seed=)
+        dp.DataPreparer.shuffle_by_file(seed)
         dp.DataPreparer.remove_night()
 
-        tdata, vdata, ttruth, vtruth = dp.DataPreparer.get_training_data()
+        _, vdata, _, vtruth = dp.DataPreparer.get_ffn_training_data(seed=seed)
 
         extras = self._obj['confidence_an', 'bayes_in', 'cloud_an']
         extras_array = extras.values
-        pct = int(len(stype) * validation_frac)
+        pct = int(len(extras_array) * validation_frac)
         validation_extras = extras_array[-pct:]
 
-        valida
-
-        surftype_list = dp.surftype_class(vdata, vtruth, masks=np.column_stack(
-            (bayes_values, emp_values)))
+        surftype_list = dp.surftype_class(vdata, vtruth, stypes=validation_extras[:, 0],
+                                          bmask=validation_extras[:, 1],
+                                          emask=validation_extras[:, 2])
 
         accuracies = []
         N = []
 
         names = ['Coastline', 'Ocean', 'Tidal', 'Land', 'Inland water',
-                 'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Sun glint', 'Snow']
+                 'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Snow']
 
         for i in range(len(surftype_list)):
 
@@ -400,12 +384,13 @@ class DataAnalyser():
         accuracies = []
 
         for i in range(number_of_runs):
-            tdata, vdata, ttruth, vtruth = dp.DataPreparer.get_training_data()
+            tdata, vdata, ttruth, vtruth = dp.DataPreparer.get_ffn_training_data()
             model.Train(tdata, ttruth, vdata, vtruth)
             acc = me.get_accuracy(model, vdata, vtruth, para_num=24)
-            acurracies.append(acc)
+            accuracies.append(acc)
 
         average = np.mean(accuracies)
         std = np.std(accuracies)
 
         return average, std
+

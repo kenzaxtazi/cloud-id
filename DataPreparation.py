@@ -539,7 +539,7 @@ def star_padding(stars):
         contextual data for a target pixel, in the shape of a star
 
     Returns
-    ____         
+    -----------
     padded_star: 8x50 array
         padded contextual data for a target pixel, in the shape of a star
 

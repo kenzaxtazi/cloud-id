@@ -565,8 +565,6 @@ def star_padding(stars):
 
     print('padding stars')
 
-    duplicate = False
-
     for star in tqdm(stars):
 
         padded_star = []

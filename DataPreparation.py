@@ -477,13 +477,8 @@ def star_padding(stars):
     for star in tqdm(stars):
 
         padded_star = []
-        arm_number = 0
 
         for arm in star:
-
-            # keeps track of the arm so we know which arm should be duplicated if needed
-            arm_number += 1
-
             if len(arm) < 50:
                 if len(arm) == 0:
                     # Should probably be adjacent pixel value
@@ -503,6 +498,9 @@ def star_padding(stars):
                 x = np.isnan(padded_arm).nonzero()[0]
 
                 padded_arm[np.isnan(padded_arm)] = np.interp(x, xp, fp)
+
+                padded_arm[padded_arm < 0] = 0
+
                 padded_star.append(padded_arm)
 
         padded_stars.append(padded_star)
@@ -519,6 +517,11 @@ class DataPreparer():
     def __init__(self, pandas_obj):
         # self._validate(pandas_obj)
         self._obj = pandas_obj
+
+    def mask_negative(self):
+        Data = ['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in']
+        for col in Data:
+            self._obj[col][self._obj[col] < 0] = 0
 
     def remove_nan(self):
         if 'confidence_in' in self._obj.columns:
@@ -562,6 +565,7 @@ class DataPreparer():
         self._obj = self._obj.drop(['Temp'], axis=1)
 
     def get_ffn_training_data(self, input_type=24, validation_frac=0.15):
+        self.mask_negative
         self.remove_nan()
         self.remove_anomalous()
         self.shuffle_by_file()

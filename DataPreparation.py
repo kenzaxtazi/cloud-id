@@ -598,12 +598,12 @@ def star_padding(stars):
 def nan_interpolater(A):
     ''' Interpolate the nans in the star '''
 
-    B= pd.Series(A.flatten())
-    B.interpolate()
-    C= B.values
-    D= C.reshape(-1,8,50,1)
+    A = pd.Series(A.flatten())
+    A.interpolate()
+    A = A.values
+    A = A.reshape(-1, 8, 50, 1)
 
-    return D
+    return A
 
 
 # Class to add useful methods to pd DataFrame

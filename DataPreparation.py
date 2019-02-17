@@ -203,46 +203,6 @@ def pkl_prep_data(directory, input_type=24, validation_frac=0.15, bayesian=False
     return return_list
 
 
-def cnn_getinputs(Sreference, positions=None):
-    """
-    Download and prepares pixel contextual information for a given SLSTR file to get the Supermodel prediction.
-
-    Parameters
-    -----------
-    Sreferenc: string
-        path to dowload SLST files from.
-    data: multi dimensional array
-        0: probability from first model
-        1: indice from image
-
-    Returns
-    ---------
-    star: array
-        data for CNN
-    """
-
-    if type(Sreference) == str:
-        scn = DL.scene_loader(Sreference)
-    else:
-        scn = Sreference
-
-    scn.load(['S1_an'])
-    S1 = np.nan_to_num(scn['S1_an'].values)  # @TODO: Use or remove
-
-    if positions is None:
-        row = np.repeat(np.arange(2400), 3000)
-        column = np.tile(np.arange(3000), 2400)
-
-        star_coords = get_coords(row, column, contextlength=50)
-    else:
-        star_coords = get_coords(
-            positions[:, 0], positions[:, 1], contextlength=50)
-
-    star = S1[star_coords]
-
-    return star
-
-
 def surftype_class(validation_data, validation_truth, masks=None):
     """
     Input: array of matched pixel information
@@ -564,11 +524,11 @@ class DataPreparer():
         self._obj = self._obj.sort_values(['Temp'])
         self._obj = self._obj.drop(['Temp'], axis=1)
 
-    def get_ffn_training_data(self, input_type=24, validation_frac=0.15):
+    def get_ffn_training_data(self, input_type=24, validation_frac=0.15, seed=None):
         self.mask_negative()
         self.remove_nan()
         self.remove_anomalous()
-        self.shuffle_by_file()
+        self.shuffle_by_file(seed)
         self.remove_night()
 
         pixel_channels = (self._obj[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in',
@@ -614,10 +574,10 @@ class DataPreparer():
                        validation_truth]
         return return_list
 
-    def get_cnn_training_data(self, validation_frac=0.15):
+    def get_cnn_training_data(self, validation_frac=0.15, seed=None):
         self.remove_nan()
         self.remove_anomalous()
-        self.shuffle_by_file()
+        self.shuffle_by_file(seed)
         self.remove_night()
 
         stars = self._obj['Star_array'].values

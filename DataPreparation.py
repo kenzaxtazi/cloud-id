@@ -565,7 +565,7 @@ class DataPreparer():
         self._obj = self._obj.drop(['Temp'], axis=1)
 
     def get_ffn_training_data(self, input_type=24, validation_frac=0.15):
-        self.mask_negative
+        self.mask_negative()
         self.remove_nan()
         self.remove_anomalous()
         self.shuffle_by_file()

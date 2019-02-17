@@ -139,7 +139,6 @@ def pkl_prep_data(directory, input_type=24, validation_frac=0.15, bayesian=False
         df = df.drop(['confidence_in'], axis=1)
         df = df.dropna()
 
-    # TODO need to shuffle after sperating data
     pixels = sklearn.utils.shuffle(df, random_state=seed)
 
     confidence_int = pixels['confidence_an'].values
@@ -237,13 +236,6 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     # Load one month from context dataframe
     C4 = PixelLoader(context_directory)
 
-    c4 = C4[['Pos', 'Sfilename', 'Star_array']].values
-
-    stars = c4[:, 2]
-    padded_stars = star_padding(stars)
-
-    print('matching datasets')
-
     Cpos = C4['Pos'].values
     CRows = [i[0] for i in Cpos]
     CCols = [i[1] for i in Cpos]
@@ -254,6 +246,9 @@ def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     merged = pd.merge(L4, C4, on=['Sfilename', 'RowIndex', 'ColIndex'])
 
     merged = merged.sample(frac=1)
+
+    stars = merged['Star_array'].values
+    padded_stars = star_padding(stars)
 
     truth = merged['Feature_Classification_Flags'].values
 
@@ -552,8 +547,6 @@ def star_padding(stars):
     padded_stars = []
 
     print('padding stars')
-
-    duplicate = False
 
     for star in tqdm(stars):
 

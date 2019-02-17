@@ -139,6 +139,7 @@ def pkl_prep_data(directory, input_type=24, validation_frac=0.15, bayesian=False
         df = df.drop(['confidence_in'], axis=1)
         df = df.dropna()
 
+    # TODO need to shuffle after sperating data
     pixels = sklearn.utils.shuffle(df, random_state=seed)
 
     confidence_int = pixels['confidence_an'].values
@@ -203,6 +204,84 @@ def pkl_prep_data(directory, input_type=24, validation_frac=0.15, bayesian=False
     return return_list
 
 
+def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
+    """
+    Prepares data for matched SLSTR and CALIOP pixels into training data,
+    validation data, training truth data, validation truth data for the supermodel.
+    Optionally ouputs bayes values for the validation set only.
+
+    Parameters
+    -----------
+    location_directory
+        direction with the pixel locations and truths
+
+    context_directory:
+        directory with context information
+
+    validation_frac: float between 0 and 1
+        the fraction of the dataset that is taken as validation
+
+    Returns
+    ---------
+    training_data: array
+
+    validation_data: array
+
+    training_truth: array
+
+    validation_truth: array
+    """
+
+    # Load collocated pixels from dataframe
+    L4 = PixelLoader(location_directory)
+    # Load one month from context dataframe
+    C4 = PixelLoader(context_directory)
+
+    c4 = C4[['Pos', 'Sfilename', 'Star_array']].values
+
+    stars = c4[:, 2]
+    padded_stars = star_padding(stars)
+
+    print('matching datasets')
+
+    Cpos = C4['Pos'].values
+    CRows = [i[0] for i in Cpos]
+    CCols = [i[1] for i in Cpos]
+
+    C4['RowIndex'] = CRows
+    C4['ColIndex'] = CCols
+
+    merged = pd.merge(L4, C4, on=['Sfilename', 'RowIndex', 'ColIndex'])
+
+    merged = merged.sample(frac=1)
+
+    truth = merged['Feature_Classification_Flags'].values
+
+    # split data into validation and training
+
+    pct = int(len(padded_stars) * validation_frac)
+
+    # take all but the 15% last
+    training_data = padded_stars[:-pct]
+    # take the last 15% of pixels
+    validation_data = padded_stars[-pct:]
+    training_truth_flags = truth[:-pct]
+    validation_truth_flags = truth[-pct:]
+
+    # turn binary truth flags into one hot code
+    training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
+    reverse_training_cloudtruth = 1 - training_cloudtruth
+    training_truth = np.vstack(
+        (training_cloudtruth, reverse_training_cloudtruth)).T
+
+    validation_cloudtruth = (validation_truth_flags.astype(int) & 2) / 2
+    reverse_validation_cloudtruth = 1 - validation_cloudtruth
+    validation_truth = np.vstack(
+        (validation_cloudtruth, reverse_validation_cloudtruth)).T
+
+    return training_data, validation_data, training_truth, validation_truth
+
+
 def cnn_getinputs(Sreference, positions=None):
     """
     Download and prepares pixel contextual information for a given SLSTR file to get the Supermodel prediction.
@@ -243,7 +322,9 @@ def cnn_getinputs(Sreference, positions=None):
     return star
 
 
-def surftype_class(validation_data, validation_truth, masks=None):
+def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
+                   stypes_excluded=['summary_pointing', 'summary_cloud', 'sun_glint',
+                                    'unfilled', 'spare1', 'spare2']):
     """
     Input: array of matched pixel information
     Output: arrays of matched pixel information for each surface type
@@ -252,98 +333,108 @@ def surftype_class(validation_data, validation_truth, masks=None):
     pixel information array. This function is specifically used in the
     acc_stype_test.py script
     """
+
+    flag_names = ['coastline', 'ocean', 'tidal', 'land', 'inland_water', 'unfilled',
+                  'spare1', 'spare2', 'cosmetic', 'duplicate', 'day', 'twilight',
+                  'sun_glint', 'snow', 'summary_cloud', 'summary_pointing']
+
+    indices_to_exclude = flag_names.index(stypes_excluded)
+
     coastline = []
     ocean = []
     tidal = []
     land = []
     inland_water = []
+    unfilled = []
+    spare1 = []
+    spare2 = []
     cosmetic = []
     duplicate = []
     day = []
     twilight = []
     sun_glint = []
     snow = []
+    summary_cloud = []
+    summary_pointing = []
 
     # sorting data point into surface type categories from the one-hot encoding
-    # added in the previous step
-    if masks is not None:
-        for i in range(len(validation_data)):
-            if int(validation_data[i, 13]) == 1:
-                coastline.append(
-                    np.array([validation_data[i], validation_truth[i], masks[i]]))
-            if int(validation_data[i, 14]) == 1:
-                ocean.append(
-                    np.array([validation_data[i], validation_truth[i], masks[i]]))
-            if int(validation_data[i, 15]) == 1:
-                tidal.append(
-                    np.array([validation_data[i], validation_truth[i], masks[i]]))
-            if int(validation_data[i, 16]) == 1:
-                land.append(
-                    np.array([validation_data[i], validation_truth[i], masks[i]]))
-            if int(validation_data[i, 17]) == 1:
-                inland_water.append(
-                    np.array([validation_data[i], validation_truth[i], masks[i]]))
-            if int(validation_data[i, 18]) == 1:
-                cosmetic.append(
-                    np.array([validation_data[i], validation_truth[i], masks[i]]))
-            if int(validation_data[i, 19]) == 1:
-                duplicate.append(
-                    np.array([validation_data[i], validation_truth[i], masks[i]]))
-            if int(validation_data[i, 20]) == 1:
-                day.append(
-                    np.array([validation_data[i], validation_truth[i], masks[i]]))
-            if int(validation_data[i, 21]) == 1:
-                twilight.append(
-                    np.array([validation_data[i], validation_truth[i], masks[i]]))
-            if int(validation_data[i, 22]) == 1:
-                sun_glint.append(np.array(
-                    [validation_data[i], validation_truth[i], masks[i]]))
-            if int(validation_data[i, 23]) == 1:
-                snow.append(
-                    np.array([validation_data[i], validation_truth[i], masks[i]]))
 
-    if masks is None:
-        for i in range(len(validation_data)):
-            if int(validation_data[i, 13]) == 1:
-                coastline.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i, 14]) == 1:
-                ocean.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i, 15]) == 1:
-                tidal.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i, 16]) == 1:
-                land.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i, 17]) == 1:
-                inland_water.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i, 18]) == 1:
-                cosmetic.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i, 19]) == 1:
-                duplicate.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i, 20]) == 1:
-                day.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i, 21]) == 1:
-                twilight.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i, 22]) == 1:
-                sun_glint.append([validation_data[i], validation_truth[i]])
-            if int(validation_data[i, 23]) == 1:
-                snow.append([validation_data[i], validation_truth[i]])
+    for i in range(len(validation_data)):
+        if int(stypes[i, 0]) == 1:
+            coastline.append(
+                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
+        if int(stypes[i, 1]) == 1:
+            ocean.append(
+                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
+        if int(stypes[i, 2]) == 1:
+            tidal.append(
+                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
+        if int(stypes[i, 3]) == 1:
+            land.append(
+                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
+        if int(stypes[i, 4]) == 1:
+            inland_water.append(
+                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
+        if int(stypes[i, 5]) == 1:
+            unfilled.append(
+                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
+        if int(stypes[i, 6]) == 1:
+            spare1.append(
+                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
+        if int(stypes[i, 7]) == 1:
+            spare2.append(
+                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
+        if int(stypes[i, 8]) == 1:
+            cosmetic.append(
+                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
+        if int(stypes[i, 9]) == 1:
+            duplicate.append(
+                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
+        if int(stypes[i, 10]) == 1:
+            day.append(
+                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
+        if int(stypes[i, 11]) == 1:
+            twilight.append(
+                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
+        if int(stypes[i, 12]) == 1:
+            sun_glint.append(
+                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
+        if int(stypes[i, 13]) == 1:
+            snow.append(
+                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
+        if int(stypes[i, 14]) == 1:
+            summary_cloud.append(
+                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
+        if int(stypes[i, 15]) == 1:
+            summary_pointing.append(
+                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
 
-        coastline = np.array(coastline)
-        ocean = np.array(ocean)
-        tidal = np.array(tidal)
-        land = np.array(land)
-        inland_water = np.array(inland_water)
-        cosmetic = np.array(cosmetic)
-        duplicate = np.array(duplicate)
-        day = np.array(day)
-        twilight = np.array(twilight)
-        sun_glint = np.array(sun_glint)
-        snow = np.array(snow)
+    coastline = np.concatenate(coastline).reshape(-1, 4)
+    ocean = np.concatenate(ocean).reshape(-1, 4)
+    tidal = np.concatenate(tidal).reshape(-1, 4)
+    land = np.concatenate(land).reshape(-1, 4)
+    inland_water = np.concatenate(inland_water).reshape(-1, 4)
+    unfilled = np.concatenate(unfilled).reshape(-1, 4)
+    spare1 = np.concatenate(spare1).reshape(-1, 4)
+    spare2 = np.concatenate(spare2).reshape(-1, 4)
+    cosmetic = np.concatenate(cosmetic).reshape(-1, 4)
+    duplicate = np.concatenate(duplicate).reshape(-1, 4)
+    day = np.concatenate(day).reshape(-1, 4)
+    twilight = np.concatenate(twilight).reshape(-1, 4)
+    sun_glint = np.concatenate(sun_glint).reshape(-1, 4)
+    snow = np.concatenate(snow).reshape(-1, 4)
+    summary_cloud = np.concatenate(summary_cloud).reshape(-1, 4)
+    summary_pointing = np.concatenate(summary_pointing).reshape(-1, 4)
 
-        # the output is ready to be fed into a for loop to calculate model accuracy
-        # as a function of surface type
+    # the output is ready to be fed into a for loop to calculate model accuracy
+    # as a function of surface type
 
-    return [coastline, ocean, tidal, land, inland_water, cosmetic,
-            duplicate, day, twilight, sun_glint, snow]
+    stype_list = [coastline, ocean, tidal, land, inland_water, unfilled, spare1, spare2, cosmetic,
+                  duplicate, day, twilight, sun_glint, snow, summary_cloud, summary_pointing]
+
+    new_list = stype_list.pop(indices_to_exclude)
+
+    return new_list
 
 
 def bits_from_int(array, num_inputs=24):
@@ -465,7 +556,7 @@ def star_padding(stars):
         contextual data for a target pixel, in the shape of a star
 
     Returns
-    -----------
+    ____
     padded_star: 8x50 array
         padded contextual data for a target pixel, in the shape of a star
 
@@ -473,6 +564,8 @@ def star_padding(stars):
     padded_stars = []
 
     print('padding stars')
+
+    duplicate = False
 
     for star in tqdm(stars):
 
@@ -561,7 +654,7 @@ class DataPreparer():
         self._obj = self._obj.sort_values(['Temp'])
         self._obj = self._obj.drop(['Temp'], axis=1)
 
-    def get_ffn_training_data(self, input_type=24, validation_frac=0.15):
+    def get_training_data(self, input_type=24, validation_frac=0.15):
         self.remove_nan()
         self.remove_anomalous()
         self.shuffle_by_file()
@@ -609,41 +702,6 @@ class DataPreparer():
         return_list = [training_data, validation_data, training_truth,
                        validation_truth]
         return return_list
-
-    def get_cnn_training_data(self, validation_frac=0.15):
-        self.remove_nan()
-        self.remove_anomalous()
-        self.shuffle_by_file()
-        self.remove_night()
-
-        stars = self._obj['Star_array'].values
-        padded_stars = star_padding(stars)
-
-        truth = self._obj['Feature_Classification_Flags'].values
-
-        # split data into validation and training
-
-        pct = int(len(padded_stars) * validation_frac)
-
-        # take all but the 15% last
-        training_data = padded_stars[:-pct]
-        # take the last 15% of pixels
-        validation_data = padded_stars[-pct:]
-        training_truth_flags = truth[:-pct]
-        validation_truth_flags = truth[-pct:]
-
-        # turn binary truth flags into one hot code
-        training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
-        reverse_training_cloudtruth = 1 - training_cloudtruth
-        training_truth = np.vstack(
-            (training_cloudtruth, reverse_training_cloudtruth)).T
-
-        validation_cloudtruth = (validation_truth_flags.astype(int) & 2) / 2
-        reverse_validation_cloudtruth = 1 - validation_cloudtruth
-        validation_truth = np.vstack(
-            (validation_cloudtruth, reverse_validation_cloudtruth)).T
-
-        return training_data, validation_data, training_truth, validation_truth
 
     def get_inputs(self, input_type=24):
 

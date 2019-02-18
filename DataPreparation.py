@@ -269,9 +269,7 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     summary_cloud = []
     summary_pointing = []
 
-    stypes = bits_from_int(stypes, num_inputs=24):
-    print('type', type(stypes))
-    print('shape', stypes.shape())
+    stypes = bits_from_int(stypes, num_inputs=24) # bit mask to one-hot encoding
 
     # sorting data point into surface type categories from the one-hot encoding
 
@@ -291,25 +289,24 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
         if int(stypes[i, 4]) == 1:
             inland_water.append(
                 [validation_data[i], validation_truth[i], bmask[i], emask[i]])
-        if int(stypes[i, 8]) == 1:
+        if int(stypes[i, 5]) == 1:
             cosmetic.append(
                 [validation_data[i], validation_truth[i], bmask[i], emask[i]])
-        if int(stypes[i, 9]) == 1:
+        if int(stypes[i, 6]) == 1:
             duplicate.append(
                 [validation_data[i], validation_truth[i], bmask[i], emask[i]])
-        if int(stypes[i, 10]) == 1:
+        if int(stypes[i, 7]) == 1:
             day.append(
                 [validation_data[i], validation_truth[i], bmask[i], emask[i]])
-        if int(stypes[i, 11]) == 1:
+        if int(stypes[i, 8]) == 1:
             twilight.append(
                 [validation_data[i], validation_truth[i], bmask[i], emask[i]])
-        if int(stypes[i, 12]) == 1:
+        if int(stypes[i, 9]) == 1:
             sun_glint.append(
                 [validation_data[i], validation_truth[i], bmask[i], emask[i]])
-        if int(stypes[i, 13]) == 1:
+        if int(stypes[i, 10]) == 1:
             snow.append(
                 [validation_data[i], validation_truth[i], bmask[i], emask[i]])
-        if int(stypes[i, 14]) == 1:
 
     coastline = np.concatenate(coastline).reshape(-1, 4)
     ocean = np.concatenate(ocean).reshape(-1, 4)
@@ -331,8 +328,8 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     # the output is ready to be fed into a for loop to calculate model accuracy
     # as a function of surface type
 
-    stype_list = [coastline, ocean, tidal, land, inland_water, unfilled, spare1, spare2, cosmetic,
-                  duplicate, day, twilight, sun_glint, snow, summary_cloud, summary_pointing]
+    stype_list = [coastline, ocean, tidal, land, inland_water, cosmetic,
+                  duplicate, day, twilight, sun_glint, snow]
 
     new_list = stype_list.pop(indices_to_exclude)
 

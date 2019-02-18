@@ -211,7 +211,7 @@ class DataAnalyser():
         self._obj.dp.shuffle_by_file(seed)
         self._obj.dp.remove_night()
 
-        _, vdata, _, vtruth = dp.DataPreparer.get_ffn_training_data(seed=seed)
+        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(seed=seed)
 
         times = self._obj['TimeDiff']
         time_array = times.values
@@ -271,7 +271,7 @@ class DataAnalyser():
         self._obj.dp.shuffle_by_file(seed)
         self._obj.dp.remove_night()
 
-        _, vdata, _, vtruth = dp.DataPreparer.get_ffn_training_data()
+        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data()
 
         angle_slices = np.linspace(3, 55, 18)
         accuracies = []
@@ -318,8 +318,8 @@ class DataAnalyser():
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
         self._obj.dp.remove_night()
-        
-        _, vdata, _, vtruth = dp.DataPreparer.get_ffn_training_data(seed=seed)
+
+        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(seed=seed)
 
         extras = self._obj['confidence_an', 'bayes_in', 'cloud_an']
         extras_array = extras.values
@@ -381,7 +381,7 @@ class DataAnalyser():
         accuracies = []
 
         for i in range(number_of_runs):
-            tdata, vdata, ttruth, vtruth = dp.DataPreparer.get_ffn_training_data()
+            tdata, vdata, ttruth, vtruth = self._obj.dp.get_ffn_training_data()
             model.Train(tdata, ttruth, vdata, vtruth)
             acc = me.get_accuracy(model, vdata, vtruth, para_num=24)
             accuracies.append(acc)

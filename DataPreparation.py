@@ -266,7 +266,7 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
 
     stypes = bits_from_int(stypes, num_inputs=24)  # bit mask to one-hot encoding
     stypes = np.concatenate(stypes).reshape((-1,11))
-    
+
     # sorting data point into surface type categories from the one-hot encoding
 
     for i in range(len(validation_data)):
@@ -309,17 +309,12 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     tidal = np.concatenate(tidal).reshape(-1, 4)
     land = np.concatenate(land).reshape(-1, 4)
     inland_water = np.concatenate(inland_water).reshape(-1, 4)
-    unfilled = np.concatenate(unfilled).reshape(-1, 4)
-    spare1 = np.concatenate(spare1).reshape(-1, 4)
-    spare2 = np.concatenate(spare2).reshape(-1, 4)
     cosmetic = np.concatenate(cosmetic).reshape(-1, 4)
     duplicate = np.concatenate(duplicate).reshape(-1, 4)
     day = np.concatenate(day).reshape(-1, 4)
     twilight = np.concatenate(twilight).reshape(-1, 4)
     sun_glint = np.concatenate(sun_glint).reshape(-1, 4)
     snow = np.concatenate(snow).reshape(-1, 4)
-    summary_cloud = np.concatenate(summary_cloud).reshape(-1, 4)
-    summary_pointing = np.concatenate(summary_pointing).reshape(-1, 4)
 
     # the output is ready to be fed into a for loop to calculate model accuracy
     # as a function of surface type

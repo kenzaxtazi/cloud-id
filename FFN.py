@@ -164,14 +164,14 @@ class FFN():
             self.model.save(path)
             with open(path + '.txt', 'w') as file:
                 file.write(self.networkConfig + '\n')
-                file.write(str(self.para_num))
-                file.write(self.run_id)
+                file.write(str(self.para_num) + '\n')
+                file.write(str(self.run_id))
         else:
             self.model.save("Models/" + self.name)
             with open("Models/" + self.name + '.txt', 'w') as file:
                 file.write(self.networkConfig + '\n')
-                file.write(str(self.para_num))
-                file.write(self.run_id)
+                file.write(str(self.para_num) + '\n')
+                file.write(str(self.run_id))
 
     def Load(self, path=None, verbose=True):
         if self.isLoaded:

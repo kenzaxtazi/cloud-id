@@ -108,27 +108,47 @@ class CNN():
                        snapshot_step=10000, show_metric=True, run_id=self.run_id)
         self.isLoaded = True
 
-    def Save(self):
-        self.model.save("Models/" + self.name)
-        with open("Models/" + self.name + '.txt', 'w') as file:
-            file.write(self.networkConfig + '\n')
-            file.write(str(self.img_length))
-            file.write(str(self.img_width))
-            file.write(self.run_id)
+    def Save(self, path=None):
+        if path:
+            self.model.save(path)
+            with open(path + '.txt', 'w') as file:
+                file.write(self.networkConfig + '\n')
+                file.write(str(self.img_length) + '\n')
+                file.write(str(self.img_width) + '\n')
+                file.write(str(self.run_id))
+        else:
+            self.model.save("Models/" + self.name)
+            with open("Models/" + self.name + '.txt', 'w') as file:
+                file.write(self.networkConfig + '\n')
+                file.write(str(self.img_length) + '\n')
+                file.write(str(self.img_width) + '\n')
+                file.write(str(self.run_id))
 
-    def Load(self, verbose=True):
+    def Load(self, path=None, verbose=True):
         if self.isLoaded:
             raise AssertionError(
                 'Graph already loaded. Consider loading into new object.')
 
-        with open('Models/' + self.name + '.txt', 'r') as file:
-            settings = file.readlines()
-            self.networkConfig = settings[0].strip()
-            self.img_length = int(settings[1].strip())
-            self.img_width = int(settings[2].strip())
+        if path:
+            with open(path + '.txt', 'r') as file:
+                settings = file.readlines()
+                self.networkConfig = settings[0].strip()
+                self.img_length = int(settings[1].strip())
+                self.img_width = int(settings[2].strip())
 
-        self.model.load('Models/' + self.name)
+            self.model.load(path)
+
+        else:
+            with open('Models/' + self.name + '.txt', 'r') as file:
+                settings = file.readlines()
+                self.networkConfig = settings[0].strip()
+                self.img_length = int(settings[1].strip())
+                self.img_width = int(settings[2].strip())
+
+            self.model.load('Models/' + self.name)
+
         self.isLoaded = True
+
         if verbose:
             print('##############################################')
             print('Loading successful')

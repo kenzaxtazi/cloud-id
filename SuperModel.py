@@ -8,6 +8,7 @@
 import os
 
 import numpy as np
+import tensorflow as tf
 
 import DataPreparation as dp
 from CNN import CNN
@@ -78,22 +79,24 @@ class SuperModel():
         os.mkdir('Models/' + self.name)
         self.FFN.Save('Models/' + self.name + '/FFN_' + self.FFN.name)
         self.CNN.Save('Models/' + self.name + '/CNN_' + self.CNN.name)
-        with open('Models/' + self.name + '/Info.txt') as file:
+        with open('Models/' + self.name + '/Info.txt', 'w') as file:
             file.write('FFN: ' + self.FFN.name + '\n')
             file.write('CNN: ' + self.CNN.name)
 
     def Load(self):
         try:
-            with open('Models/' + self.name + '/Info.txt') as file:
+            with open('Models/' + self.name + '/Info.txt', 'r') as file:
                 settings = file.readlines()
                 if len(settings) == 2:
-                    self.FFN.name = settings[0].strip().split(' ')[1]
-                    self.CNN.name = settings[1].strip().split(' ')[1]
+                    self.FFNname = settings[0].strip().split(' ')[1]
+                    self.CNNname = settings[1].strip().split(' ')[1]
         except FileNotFoundError:
             raise Exception('File does not exist')
 
-        self.FFN = FFN(self.FFN.name)
+        self.FFN = FFN(self.FFNname)
         self.FFN.Load('Models/' + self.name + '/FFN_' + self.FFN.name)
 
-        self.CNN = CNN(self.CNN.name)
+        tf.reset_default_graph()
+
+        self.CNN = CNN(self.CNNname)
         self.CNN.Load('Models/' + self.name + '/CNN_' + self.CNN.name)

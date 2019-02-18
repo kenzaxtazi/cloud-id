@@ -321,7 +321,7 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     # as a function of surface type
 
     stype_list = np.array([coastline, ocean, tidal, land, inland_water, cosmetic,
-                  duplicate, day, twilight, sun_glint, snow])
+                           duplicate, day, twilight, sun_glint, snow])
 
     new_list = np.delete(stype_list, indices_to_exclude)
 

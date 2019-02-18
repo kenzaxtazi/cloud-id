@@ -88,6 +88,35 @@ def getinputsFFN(Sreference, input_type=24):
     return(inputs.T)
 
 
+def getinputsCNN(Sreference, indices):
+    row = (indices / 3000).astype(int)
+    col = (indices % 3000).astype(int)
+    if type(Sreference) == str:
+        scn = DL.scene_loader(Sreference)
+    else:
+        scn = Sreference
+
+    scn.load(['S1_an'])
+    S1 = np.nan_to_num(scn['S1_an'].values)
+    data = []
+
+    for i in range(len(row)):
+        coords = get_coords(row[i], col[i], 50, True)
+        star = []
+        for arm in coords:
+            if len(arm) > 0:
+                arm = np.array(arm)
+                arm_row = arm[:, 0]
+                arm_col = arm[:, 1]
+                arm_data = S1[arm_row, arm_col]
+                star.append(arm_data)
+            else:
+                star.append([])
+        data.append(star)
+
+    return data
+
+
 def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
     """
     Prepares data for matched SLSTR and CALIOP pixels into training data,

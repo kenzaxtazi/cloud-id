@@ -1,0 +1,2 @@
+FFN: Net1_FFN_v7
+CNN: CNN_NetA

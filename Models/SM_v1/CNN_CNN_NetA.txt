@@ -1,0 +1,4 @@
+NetworkA
+8
+50
+None

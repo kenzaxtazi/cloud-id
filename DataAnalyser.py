@@ -206,10 +206,10 @@ class DataAnalyser():
 
     def accuracy_timediff(self, model, seed, validation_frac=0.15, para_num=24):
 
-        dp.DataPreparer.remove_nan()
-        dp.DataPreparer.remove_anomalous()
-        dp.DataPreparer.shuffle_by_file(seed)
-        dp.DataPreparer.remove_night()
+        self._obj.dp.remove_nan()
+        self._obj.dp.remove_anomalous()
+        self._obj.dp.shuffle_by_file(seed)
+        self._obj.dp.remove_night()
 
         _, vdata, _, vtruth = dp.DataPreparer.get_ffn_training_data(seed=seed)
 
@@ -266,10 +266,10 @@ class DataAnalyser():
 
     def accuracy_sza(self, model, seed, para_num=24):
 
-        dp.DataPreparer.remove_nan()
-        dp.DataPreparer.remove_anomalous()
-        dp.DataPreparer.shuffle_by_file(seed)
-        dp.DataPreparer.remove_night()
+        self._obj.dp.remove_nan()
+        self._obj.dp.remove_anomalous()
+        self._obj.dp.shuffle_by_file(seed)
+        self._obj.dp.remove_night()
 
         _, vdata, _, vtruth = dp.DataPreparer.get_ffn_training_data()
 
@@ -314,11 +314,11 @@ class DataAnalyser():
 
     def accuracy_stype(self, model, seed, validation_frac=0.15):
 
-        dp.DataPreparer.remove_nan()
-        dp.DataPreparer.remove_anomalous()
-        dp.DataPreparer.shuffle_by_file(seed)
-        dp.DataPreparer.remove_night()
-
+        self._obj.dp.remove_nan()
+        self._obj.dp.remove_anomalous()
+        self._obj.dp.shuffle_by_file(seed)
+        self._obj.dp.remove_night()
+        
         _, vdata, _, vtruth = dp.DataPreparer.get_ffn_training_data(seed=seed)
 
         extras = self._obj['confidence_an', 'bayes_in', 'cloud_an']

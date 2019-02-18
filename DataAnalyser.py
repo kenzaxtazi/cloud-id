@@ -321,7 +321,7 @@ class DataAnalyser():
 
         _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(seed=seed, input_type=para_num)
 
-        extras = self._obj['confidence_an', 'bayes_in', 'cloud_an']
+        extras = self._obj[['confidence_an', 'bayes_in', 'cloud_an']]
         extras_array = extras.values
         pct = int(len(extras_array) * validation_frac)
         validation_extras = extras_array[-pct:]

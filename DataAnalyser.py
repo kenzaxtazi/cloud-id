@@ -296,7 +296,7 @@ class DataAnalyser():
 
                 new_validation_data = new_validation_data.reshape(-1, para_num)
                 acc = me.get_accuracy(
-                    model.model, new_validation_data, new_validation_truth)
+                    model.model, new_validation_data, new_validation_truth, para_num=para_num)
                 accuracies.append(acc)
                 N.append(len(new_validation_data))
 

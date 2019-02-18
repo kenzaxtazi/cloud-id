@@ -10,7 +10,7 @@ from sklearn import metrics
 import numpy as np
 
 
-def get_accuracy(model, validation_data, validation_truth, para_num=24):
+def get_accuracy(model, validation_data, validation_truth, para_num=22):
     """ returns model accuracy """
 
     validation_data = np.concatenate(validation_data)

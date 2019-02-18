@@ -323,10 +323,11 @@ class DataAnalyser():
 
         extras = self._obj[['confidence_an', 'bayes_in', 'cloud_an']]
         extras_array = extras.values
+        print(extras_array.shape())
         pct = int(len(extras_array) * validation_frac)
         validation_extras = extras_array[-pct:]
 
-        surftype_list = dp.surftype_class(vdata, vtruth, stypes=validation_extras[:, 0],
+        surftype_list = dp.surftype_class(vdata, vtruth, stypes=validation_extras[ 0],
                                           bmask=validation_extras[:, 1],
                                           emask=validation_extras[:, 2])
 

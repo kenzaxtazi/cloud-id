@@ -204,14 +204,14 @@ class DataAnalyser():
 
         return(out)
 
-    def accuracy_timediff(self, model, seed, validation_frac=0.15, para_num=24):
+    def accuracy_timediff(self, model, seed, validation_frac=0.15, para_num=22):
 
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
         self._obj.dp.remove_night()
 
-        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(seed=seed)
+        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(seed=seed, input_type=para_num)
 
         times = self._obj['TimeDiff']
         time_array = times.values
@@ -264,14 +264,14 @@ class DataAnalyser():
                 color='lightcyan', edgecolor='lightseagreen', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
 
-    def accuracy_sza(self, model, seed, para_num=24):
+    def accuracy_sza(self, model, seed, para_num=22):
 
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
         self._obj.dp.remove_night()
 
-        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data()
+        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(self, input_type=para_num)
 
         angle_slices = np.linspace(3, 55, 18)
         accuracies = []
@@ -312,14 +312,14 @@ class DataAnalyser():
                 edgecolor='thistle', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
 
-    def accuracy_stype(self, model, seed, validation_frac=0.15):
+    def accuracy_stype(self, model, seed, validation_frac=0.15, para_num=22):
 
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
         self._obj.dp.remove_night()
 
-        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(seed=seed)
+        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(seed=seed, num_inputs=para_num)
 
         extras = self._obj['confidence_an', 'bayes_in', 'cloud_an']
         extras_array = extras.values

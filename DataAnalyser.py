@@ -363,7 +363,7 @@ class DataAnalyser():
                 accuracies.append([0, 0, 0])
                 N.append(0)
 
-        accuracies = (np.concatenate(accuracies)).reshape(-1, 3)
+        accuracies = (np.concatenate(accuracies)).reshape((-1, 3))
 
         t = np.arange(len(names))
 

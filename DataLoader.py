@@ -22,8 +22,7 @@ def get_random_SLSTR():
     if os.path.exists('/vols/lhcb/egede/cloud'):
         q = os.listdir('/vols/lhcb/egede/cloud/SLSTR/2018')
         random_month = rdm.choice(q)
-        os.chdir('/vols/lhcb/egede/cloud/SLSTR/2018/' + random_month)
-        w = os.listdir()
+        w = os.listdir('/vols/lhcb/egede/cloud/SLSTR/2018/' + random_month)
         random_file = rdm.choice(w)
     return('/vols/lhcb/egede/cloud/SLSTR/2018/' + random_month + '/' + random_file)
 

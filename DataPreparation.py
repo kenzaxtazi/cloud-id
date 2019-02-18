@@ -11,7 +11,6 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import sklearn.utils
 from tqdm import tqdm
 
 
@@ -223,7 +222,8 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
                   'spare1', 'spare2', 'cosmetic', 'duplicate', 'day', 'twilight',
                   'sun_glint', 'snow', 'summary_cloud', 'summary_pointing']
 
-    indices_to_exclude = flag_names.index(stypes_excluded)
+    if len(stypes_excluded) > 0:
+        indices_to_exclude = [flag_names.index(x) for x in stypes_excluded]
 
     coastline = []
     ocean = []
@@ -495,7 +495,8 @@ class DataPreparer():
         self._obj = pandas_obj
 
     def mask_negative(self):
-        Data = ['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in']
+        Data = ['S1_an', 'S2_an', 'S3_an', 'S4_an',
+                'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in']
         for col in Data:
             self._obj[col][self._obj[col] < 0] = 0
 

@@ -204,14 +204,14 @@ class DataAnalyser():
 
         return(out)
 
-    def accuracy_timediff(self, model, seed, validation_frac=0.15, para_num=24):
+    def accuracy_timediff(self, model, seed, validation_frac=0.15, para_num=22):
 
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
         self._obj.dp.remove_night()
 
-        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(seed=seed)
+        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(seed=seed, input_type=para_num)
 
         times = self._obj['TimeDiff']
         time_array = times.values
@@ -264,14 +264,14 @@ class DataAnalyser():
                 color='lightcyan', edgecolor='lightseagreen', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
 
-    def accuracy_sza(self, model, seed, para_num=24):
+    def accuracy_sza(self, model, seed, para_num=22):
 
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
         self._obj.dp.remove_night()
 
-        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data()
+        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(seed=seed, input_type=para_num)
 
         angle_slices = np.linspace(3, 55, 18)
         accuracies = []
@@ -296,7 +296,7 @@ class DataAnalyser():
 
                 new_validation_data = new_validation_data.reshape(-1, para_num)
                 acc = me.get_accuracy(
-                    model.model, new_validation_data, new_validation_truth)
+                    model.model, new_validation_data, new_validation_truth, para_num=para_num)
                 accuracies.append(acc)
                 N.append(len(new_validation_data))
 
@@ -312,17 +312,19 @@ class DataAnalyser():
                 edgecolor='thistle', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
 
-    def accuracy_stype(self, model, seed, validation_frac=0.15):
+    def accuracy_stype(self, model, seed, validation_frac=0.15, para_num=22):
 
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
         self._obj.dp.remove_night()
 
-        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(seed=seed)
+        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(seed=seed, input_type=para_num)
 
-        extras = self._obj['confidence_an', 'bayes_in', 'cloud_an']
-        extras_array = extras.values
+        extras = self._obj[['confidence_an', 'bayes_in', 'cloud_an']]
+        extras_tuple = extras.values
+        extras_array= np.concatenate(extras_tuple).reshape(-1,3)
+        print(extras_array.shape)
         pct = int(len(extras_array) * validation_frac)
         validation_extras = extras_array[-pct:]
 
@@ -341,7 +343,7 @@ class DataAnalyser():
             b = surftype_list[i]
 
             if len(b) > 0:
-                acc = me.get_accuracy(model.model, b[:, 0], b[:, 1])
+                acc = me.get_accuracy(model.model, b[:, 0], b[:, 1], para_num=para_num)
                 bayes_mask = b[:, 2]
                 emp_mask = b[:, 3]
                 bayes_mask[bayes_mask > 1.0] = 1.0
@@ -376,14 +378,14 @@ class DataAnalyser():
                                             'Empirical mask accuracy'])
         plt.show()
 
-    def reproducibility(self, model, number_of_runs=15):
+    def reproducibility(self, model, number_of_runs=15, para_num=22):
 
         accuracies = []
 
         for i in range(number_of_runs):
-            tdata, vdata, ttruth, vtruth = self._obj.dp.get_ffn_training_data()
+            tdata, vdata, ttruth, vtruth = self._obj.dp.get_ffn_training_data(input_type=para_num)
             model.Train(tdata, ttruth, vdata, vtruth)
-            acc = me.get_accuracy(model, vdata, vtruth, para_num=24)
+            acc = me.get_accuracy(model, vdata, vtruth, para_num=para_num)
             accuracies.append(acc)
 
         average = np.mean(accuracies)

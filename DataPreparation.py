@@ -11,9 +11,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import sklearn.utils
 from tqdm import tqdm
-
 
 import DataLoader as DL
 
@@ -116,120 +114,6 @@ def getinputsCNN(Sreference, indices):
         data.append(star)
 
     return data
-
-def pkl_prep_data(directory, input_type=24, validation_frac=0.15, bayesian=False, empirical=False, TimeDiff=False, seed=None, MaxDist=500, MaxTime=1200, NaNFilter=True):
-    """
-    Prepares a set of data for training the FFN
-
-    Parameters
-    -----------
-    directory: string
-        path to dowload pickle files from.
-    validation_frac: float btw 0 and 1
-        The fraction of the complete dataset that is taken as validation data.
-    bayesian: boolean
-        If True, outputs bayesian mask values.
-    seed: int
-        Random generator seed to shuffle data.
-    MaxDist: int or float,
-        Maximum collocation distance.
-    MaxTime: int or float,
-        Maximum collocation time.
-
-    Returns
-    ---------
-    return_list: list
-        List of 5 elements including the training data, validation data, training truth,
-        validation truth and bayesian mask values or None.
-    """
-    # Record RNG seed to file, or set custom seed.
-    if seed is None:
-        seed = np.random.randint(0, 2**32, dtype='uint32')
-        np.random.seed(seed)
-    else:
-        print("Using predefined seed")
-        np.random.seed(seed)
-
-    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    with open('Temp/NumpySeeds.txt', 'a') as file:
-        file.write(timestamp + ': ' + str(seed) + '\n')
-
-    # Load collocated pixels from dataframe
-    df = PixelLoader(directory)
-
-    # Remove high timediff / distance pixels ...
-    df = df[df['Distance'] < MaxDist]
-    df = df[abs(df['TimeDiff']) < MaxTime]
-
-    if NaNFilter is True:
-        # Remove pixels where channels have NAN values
-        # S4 channel is most likely to have a NAN value
-        df = df.drop(['confidence_in'], axis=1)
-        df = df.dropna()
-
-    # TODO need to shuffle after sperating data
-    pixels = sklearn.utils.shuffle(df, random_state=seed)
-
-    confidence_int = pixels['confidence_an'].values
-
-    confidence_flags = bits_from_int(confidence_int, input_type)
-
-    confidence_flags = confidence_flags.T
-
-    pixel_indices = pixels.index.values
-
-    pixel_channels = (pixels[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
-                              'S7_in', 'S8_in', 'S9_in', 'satellite_zenith_angle',
-                              'solar_zenith_angle', 'latitude_an', 'longitude_an']].values).astype(float)
-    pixel_channels = np.nan_to_num(pixel_channels)
-
-    pixel_inputs = np.column_stack((pixel_channels, confidence_flags))
-
-    pixel_outputs = pixels[[
-        'Feature_Classification_Flags', 'bayes_in', 'cloud_an', 'TimeDiff']].values
-
-    pix = np.column_stack((pixel_inputs, pixel_outputs))
-    pix = np.column_stack((pix, pixel_indices))
-
-    pix = pix.astype(float)
-
-    pct = int(len(pix) * validation_frac)
-    training = pix[:-pct, :]   # take all but the 15% last
-    validation = pix[-pct:, :]   # take the last 15% of pixels
-
-    training_data = training[:, :24]
-    training_truth_flags = training[:, 24]
-    validation_data = validation[:, :24]
-    validation_truth_flags = validation[:, 24]
-
-    if bayesian is True:
-        bayes_values = validation[:, 25]
-    else:
-        bayes_values = None
-
-    if empirical is True:
-        empirical_values = validation[:, 26]
-    else:
-        empirical_values = None
-
-    if TimeDiff is True:
-        times = validation[:, -2]
-    else:
-        times = None
-
-    training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
-    reverse_training_cloudtruth = 1 - training_cloudtruth
-    training_truth = np.vstack(
-        (training_cloudtruth, reverse_training_cloudtruth)).T
-
-    validation_cloudtruth = (validation_truth_flags.astype(int) & 2) / 2
-    reverse_validation_cloudtruth = 1 - validation_cloudtruth
-    validation_truth = np.vstack(
-        (validation_cloudtruth, reverse_validation_cloudtruth)).T
-
-    return_list = [training_data, validation_data, training_truth,
-                   validation_truth, bayes_values, empirical_values, times]
-    return return_list
 
 
 def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
@@ -366,7 +250,8 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
                   'spare1', 'spare2', 'cosmetic', 'duplicate', 'day', 'twilight',
                   'sun_glint', 'snow', 'summary_cloud', 'summary_pointing']
 
-    indices_to_exclude = flag_names.index(stypes_excluded)
+    if len(stypes_excluded) > 0:
+        indices_to_exclude = [flag_names.index(x) for x in stypes_excluded]
 
     coastline = []
     ocean = []
@@ -384,6 +269,10 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     snow = []
     summary_cloud = []
     summary_pointing = []
+
+    stypes = np.concatenate(stypes).reshape((-1, 16))
+    print('type', type(stypes))
+    print('shape', stypes.shape())
 
     # sorting data point into surface type categories from the one-hot encoding
 
@@ -638,7 +527,8 @@ class DataPreparer():
         self._obj = pandas_obj
 
     def mask_negative(self):
-        Data = ['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in']
+        Data = ['S1_an', 'S2_an', 'S3_an', 'S4_an',
+                'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in']
         for col in Data:
             self._obj[col][self._obj[col] < 0] = 0
 
@@ -683,7 +573,7 @@ class DataPreparer():
         self._obj = self._obj.sort_values(['Temp'])
         self._obj = self._obj.drop(['Temp'], axis=1)
 
-    def get_ffn_training_data(self, input_type=24, validation_frac=0.15, seed=None):
+    def get_ffn_training_data(self, input_type=22, validation_frac=0.15, seed=None):
         self.mask_negative()
         self.remove_nan()
         self.remove_anomalous()

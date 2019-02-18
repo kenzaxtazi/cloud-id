@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+
 import DataLoader as DL
 
 
@@ -85,35 +86,6 @@ def getinputsFFN(Sreference, input_type=24):
         inputs = np.reshape(inputs, (24, 7200000))
 
     return(inputs.T)
-
-
-def getinputsCNN(Sreference, indices):
-    row = (indices / 3000).astype(int)
-    col = (indices % 3000).astype(int)
-    if type(Sreference) == str:
-        scn = DL.scene_loader(Sreference)
-    else:
-        scn = Sreference
-
-    scn.load(['S1_an'])
-    S1 = np.nan_to_num(scn['S1_an'].values)
-    data = []
-
-    for i in range(len(row)):
-        coords = get_coords(row[i], col[i], 50, True)
-        star = []
-        for arm in coords:
-            if len(arm) > 0:
-                arm = np.array(arm)
-                arm_row = arm[:, 0]
-                arm_col = arm[:, 1]
-                arm_data = S1[arm_row, arm_col]
-                star.append(arm_data)
-            else:
-                star.append([])
-        data.append(star)
-
-    return data
 
 
 def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
@@ -235,8 +207,7 @@ def cnn_getinputs(Sreference, positions=None):
 
 
 def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
-                   stypes_excluded=['summary_pointing', 'summary_cloud', 'sun_glint',
-                                    'unfilled', 'spare1', 'spare2']):
+                   stypes_excluded=['sun_glint']):
     """
     Input: array of matched pixel information
     Output: arrays of matched pixel information for each surface type
@@ -246,9 +217,8 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     acc_stype_test.py script
     """
 
-    flag_names = ['coastline', 'ocean', 'tidal', 'land', 'inland_water', 'unfilled',
-                  'spare1', 'spare2', 'cosmetic', 'duplicate', 'day', 'twilight',
-                  'sun_glint', 'snow', 'summary_cloud', 'summary_pointing']
+    flag_names = ['coastline', 'ocean', 'tidal', 'land', 'inland_water', 'cosmetic', 'duplicate', 'day', 'twilight',
+                  'sun_glint', 'snow']
 
     if len(stypes_excluded) > 0:
         indices_to_exclude = [flag_names.index(x) for x in stypes_excluded]
@@ -270,7 +240,7 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     summary_cloud = []
     summary_pointing = []
 
-    stypes = np.concatenate(stypes).reshape((-1, 16))
+    stypes = bits_from_int(stypes, num_inputs=24):
     print('type', type(stypes))
     print('shape', stypes.shape())
 
@@ -292,15 +262,6 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
         if int(stypes[i, 4]) == 1:
             inland_water.append(
                 [validation_data[i], validation_truth[i], bmask[i], emask[i]])
-        if int(stypes[i, 5]) == 1:
-            unfilled.append(
-                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
-        if int(stypes[i, 6]) == 1:
-            spare1.append(
-                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
-        if int(stypes[i, 7]) == 1:
-            spare2.append(
-                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
         if int(stypes[i, 8]) == 1:
             cosmetic.append(
                 [validation_data[i], validation_truth[i], bmask[i], emask[i]])
@@ -320,11 +281,6 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
             snow.append(
                 [validation_data[i], validation_truth[i], bmask[i], emask[i]])
         if int(stypes[i, 14]) == 1:
-            summary_cloud.append(
-                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
-        if int(stypes[i, 15]) == 1:
-            summary_pointing.append(
-                [validation_data[i], validation_truth[i], bmask[i], emask[i]])
 
     coastline = np.concatenate(coastline).reshape(-1, 4)
     ocean = np.concatenate(ocean).reshape(-1, 4)

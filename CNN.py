@@ -134,7 +134,7 @@ class CNN():
             print('Loading successful')
             print('Model: ' + self.name)
             print('Network type: ' + self.networkConfig)
-            print('Context shape: ' + str(self.img_length) + ',' + self.img_width)
+            print('Context shape: ' + str(self.img_length) + ',' + str(self.img_width))
             print('##############################################')
 
 

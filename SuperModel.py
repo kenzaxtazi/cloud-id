@@ -34,30 +34,34 @@ class SuperModel():
 
     def predict_file(self, Sreference):
 
-        ftestdata = dp.getinputsFFN(Sreference, input_type=24)  # include indices
-        indices = np.arange(7200000)
+        ffninputs = dp.getinputsFFN(
+            Sreference, input_type=22)  # include indices
 
-        # exclude indices when predicting
-        predictions1 = self.FFN1.Predict(ftestdata)
-        augm_data = np.column_stack(
-            (predictions1, indices))  # merge with indices
+        predictions1 = self.FFN1.Predict(ffninputs)[:, 0]
+        labels1 = self.FFN1.model.predict_label(ffninputs)[:, 0]
 
-        gooddata = [x for x in augm_data if not(0.4 <= x[0] < 0.6)]
-        poordata = [x for x in augm_data if (0.4 <= x[0] < 0.6)]
+        # boolean mask of bad predictions
+        bad = abs(predictions1 - 0.5) < 0.25
+        goodindices = ~np.nonzero(bad)
+        badindices = np.nonzero(bad)
+        cnninputs = dp.getinputsCNN(Sreference, badindices)
+        cnninputs = dp.star_padding(cnninputs)
 
-        ctestdata = dp.cnn_getinputs(Sreference, poordata)
-        predictions2 = self.CNN.predict(
-            ctestdata[0])   # May require .model.predict
+        predictions2 = self.CNN.model.predict(cnninputs)[:, 0]
+        labels2 = self.CNN.model.predict_label(cnninputs)[:, 0]
 
-        predictions3 = self.FFN2.predict(
-            np.column_stack((augm_data[:, 0], predictions2)))
+        finallabels = np.zeros(7200000)
+        finallabels[goodindices] = labels1
+        finallabels[badindices] = labels2
 
-        fixeddata = np.column_stack((predictions3, poordata[:, -1]))
+        finalpredictions = np.zeros(7200000)
+        finalpredictions[goodindices] = predictions1
+        finalpredictions[badindices] = predictions2
 
-        final_predictions_with_indices = np.concatenate(gooddata, fixeddata)
-        final_predictions = (np.sort(final_predictions_with_indices))[:, 0]
+        finallabels.reshape((2400, 3000))
+        finalpredictions.reshape((2400, 3000))
 
-        return final_predictions
+        return finallabels, finalpredictions
 
     def Save(self):
         os.mkdir('Models/' + self.name)

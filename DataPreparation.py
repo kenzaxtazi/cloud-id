@@ -257,20 +257,16 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     tidal = []
     land = []
     inland_water = []
-    unfilled = []
-    spare1 = []
-    spare2 = []
     cosmetic = []
     duplicate = []
     day = []
     twilight = []
     sun_glint = []
     snow = []
-    summary_cloud = []
-    summary_pointing = []
 
-    stypes = bits_from_int(stypes, num_inputs=24) # bit mask to one-hot encoding
-
+    stypes = bits_from_int(stypes, num_inputs=24)  # bit mask to one-hot encoding
+    stypes = np.concatenate(stypes).reshape((-1,11))
+    
     # sorting data point into surface type categories from the one-hot encoding
 
     for i in range(len(validation_data)):

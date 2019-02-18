@@ -10,22 +10,21 @@ import os
 import numpy as np
 
 import DataPreparation as dp
-from cnn import CNN
+from CNN import CNN
 from FFN import FFN
 
 
 class SuperModel():
-    def __init__(self, name, FFN1=None, FFN2=None, CNN=None):
+    def __init__(self, name, FFN=None, CNN=None):
         self.name = name
-        self.FFN1 = FFN1
-        self.FFN2 = FFN2
+        self.FFN = FFN
         self.CNN = CNN
         self._isLoaded = False
 
     @property
     def isLoaded(self):
         self._isLoaded = (
-            self.FFN1.isLoaded and self.FFN2.isLoaded and self.CNN.isLoaded)
+            self.FFN.isLoaded and self.CNN.isLoaded)
         return(self._isLoaded)
 
     @isLoaded.setter
@@ -37,53 +36,64 @@ class SuperModel():
         ffninputs = dp.getinputsFFN(
             Sreference, input_type=22)  # include indices
 
-        predictions1 = self.FFN1.Predict(ffninputs)[:, 0]
-        labels1 = self.FFN1.model.predict_label(ffninputs)[:, 0]
+        predictions1 = self.FFN.Predict(ffninputs)[:, 0]
+        labels1 = self.FFN.model.predict_label(ffninputs)[:, 0]
 
         # boolean mask of bad predictions
         bad = abs(predictions1 - 0.5) < 0.25
-        goodindices = ~np.nonzero(bad)
-        badindices = np.nonzero(bad)
+        goodindices = np.where(bad == False)[0]
+        badindices = np.where(bad == True)[0]
         cnninputs = dp.getinputsCNN(Sreference, badindices)
         cnninputs = dp.star_padding(cnninputs)
 
-        predictions2 = self.CNN.model.predict(cnninputs)[:, 0]
-        labels2 = self.CNN.model.predict_label(cnninputs)[:, 0]
+        # Feeding all of the inputs at once can cause a memory error
+        # Instead split into chunks of 10,000
+
+        chunkedcnninputs = [cnninputs[i: i + 10000]
+                            for i in range(0, len(cnninputs), 10000)]
+
+        predictions2 = []
+        labels2 = []
+
+        for i in range(len(chunkedcnninputs)):
+            predictions2.extend(self.CNN.model.predict(
+                chunkedcnninputs[i])[:, 0])
+            labels2.extend(self.CNN.model.predict_label(
+                chunkedcnninputs[i])[:, 0])
 
         finallabels = np.zeros(7200000)
-        finallabels[goodindices] = labels1
+        finallabels[goodindices] = labels1[goodindices]
         finallabels[badindices] = labels2
 
         finalpredictions = np.zeros(7200000)
-        finalpredictions[goodindices] = predictions1
+        finalpredictions[goodindices] = predictions1[goodindices]
         finalpredictions[badindices] = predictions2
 
-        finallabels.reshape((2400, 3000))
-        finalpredictions.reshape((2400, 3000))
+        finallabels = finallabels.reshape((2400, 3000))
+        finalpredictions = finalpredictions.reshape((2400, 3000))
 
         return finallabels, finalpredictions
 
     def Save(self):
         os.mkdir('Models/' + self.name)
-        self.FFN1.Save('Models/' + self.name + '/FFN1_' + self.FFN1.name)
-        self.FFN2.Save('Models/' + self.name + '/FFN2_' + self.FFN2.name)
+        self.FFN.Save('Models/' + self.name + '/FFN_' + self.FFN.name)
         self.CNN.Save('Models/' + self.name + '/CNN_' + self.CNN.name)
         with open('Models/' + self.name + '/Info.txt') as file:
-            file.write('FFN1: ' + self.FFN1.name + '\n')
-            file.write('FFN2: ' + self.FFN2.name + '\n')
+            file.write('FFN: ' + self.FFN.name + '\n')
             file.write('CNN: ' + self.CNN.name)
 
     def Load(self):
         try:
-            os.chdir('Models/' + self.name)
+            with open('Models/' + self.name + '/Info.txt') as file:
+                settings = file.readlines()
+                if len(settings) == 2:
+                    self.FFN.name = settings[0].strip().split(' ')[1]
+                    self.CNN.name = settings[1].strip().split(' ')[1]
         except FileNotFoundError:
             raise Exception('File does not exist')
 
-        self.FFN1 = FFN('FFN1')
-        self.FFN1.Load()
+        self.FFN = FFN(self.FFN.name)
+        self.FFN.Load('Models/' + self.name + '/FFN_' + self.FFN.name)
 
-        self.FFN2 = FFN('FFN2')
-        self.FFN2.Load()
-
-        self.CNN = CNN('CNN')
-        self.CNN.Load()
+        self.CNN = CNN(self.CNN.name)
+        self.CNN.Load('Models/' + self.name + '/CNN_' + self.CNN.name)

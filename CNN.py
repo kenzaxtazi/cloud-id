@@ -32,7 +32,7 @@ class CNN():
     def __str__(self):
         out = ('Model: ' + self.name + '\n'
                + 'Network type: ' + str(self.networkConfig) + '\n'
-               + 'Context shape: ' + str(self.img_length) + ',' + self.img_width)
+               + 'Context shape: ' + str(self.img_length) + ',' + str(self.img_width))
         return(out)
 
     def NetworkA(self):

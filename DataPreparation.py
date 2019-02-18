@@ -242,9 +242,9 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     summary_cloud = []
     summary_pointing = []
 
-    stypes = concatenate(stypes).reshape(-1,16)
+    stypes = np.concatenate(stypes).reshape((-1, 16))
     print('type', type(stypes))
-    print('shape', shape(stypes))
+    print('shape', stypes.shape())
 
     # sorting data point into surface type categories from the one-hot encoding
 

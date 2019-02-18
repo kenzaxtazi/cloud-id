@@ -271,7 +271,7 @@ class DataAnalyser():
         self._obj.dp.shuffle_by_file(seed)
         self._obj.dp.remove_night()
 
-        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(self, input_type=22)
+        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data()
 
         angle_slices = np.linspace(3, 55, 18)
         accuracies = []

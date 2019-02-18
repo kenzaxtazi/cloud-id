@@ -264,8 +264,9 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     sun_glint = []
     snow = []
 
-    stypes = bits_from_int(stypes, num_inputs=24)  # bit mask to one-hot encoding
-    stypes = np.concatenate(stypes).reshape((-1,11))
+    # bit mask to one-hot encoding
+    stypes = bits_from_int(stypes, num_inputs=24)
+    stypes = np.concatenate(stypes).reshape((-1, 11))
 
     # sorting data point into surface type categories from the one-hot encoding
 
@@ -319,10 +320,10 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     # the output is ready to be fed into a for loop to calculate model accuracy
     # as a function of surface type
 
-    stype_list = [coastline, ocean, tidal, land, inland_water, cosmetic,
-                  duplicate, day, twilight, sun_glint, snow]
+    stype_list = np.array([coastline, ocean, tidal, land, inland_water, cosmetic,
+                  duplicate, day, twilight, sun_glint, snow])
 
-    new_list = stype_list.pop(indices_to_exclude)
+    new_list = np.delete(stype_list, indices_to_exclude)
 
     return new_list
 
@@ -352,8 +353,6 @@ def bits_from_int(array, num_inputs=24):
     out = (out > 0).astype(int)
     return(out)
 
-
-def surftype_processing(array):
     """
     Bitwise processing of SLSTR surface data. The different surface types are :
     1: coastline

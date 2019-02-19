@@ -403,7 +403,7 @@ class DataAnalyser():
 
             b = surftype_list[i]
 
-            print(b)
+            print(len(b))
 
             if len(b) > 0:
                 acc = me.get_accuracy(

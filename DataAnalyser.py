@@ -410,6 +410,8 @@ class DataAnalyser():
                 bayes_mask = dp.mask_to_one_hot(b[:, 2])
                 emp_mask = dp.mask_to_one_hot(b[:, 3])
 
+                print(b[:, 1])
+                print(bayes_mask)
                 bayes_acc = 1 - np.mean(np.abs(b[:, 1] - bayes_mask))[0]
                 emp_acc = 1 - np.mean(np.abs(b[:, 1] - emp_mask))[0]
                 me.ROC_curve(model.model, b[:, 0], b[:, 1],

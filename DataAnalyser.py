@@ -205,7 +205,27 @@ class DataAnalyser():
         return(out)
 
     def accuracy_timediff(self, model, seed, validation_frac=0.15, para_num=22):
+        """ 
+        Produces a histogram of accuraccy as a function of the time difference between 
+        the data take by SLSTR and CALIOP instruments
 
+        Parameters
+        -----------
+        model: model object
+
+        seed: int
+            the seed used to randomly shuffle the data for that model 
+
+        validation_frac: float
+            the fraction of data kept for validation when preparing the model's training data
+
+        para_num: int
+            the number of inputs take by the model
+
+        Returns
+        ---------
+        None 
+        """
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
@@ -266,7 +286,26 @@ class DataAnalyser():
         plt.show()
 
     def accuracy_sza(self, model, seed, para_num=22):
+        """ 
+        Produces a histogram of accuraccy as a function of solar zenith angle
 
+        Parameters
+        -----------
+        model: model object
+
+        seed: int
+            the seed used to randomly shuffle the data for that model 
+
+        validation_frac: float
+            the fraction of data kept for validation when preparing the model's training data
+
+        para_num: int
+            the number of inputs take by the model
+
+        Returns
+        ---------
+        None 
+        """
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
@@ -315,6 +354,26 @@ class DataAnalyser():
         plt.show()
 
     def accuracy_stype(self, model, seed, validation_frac=0.15, para_num=22):
+        """ 
+        Produces a histogram of accuraccy as a function of surface type
+
+        Parameters
+        -----------
+        model: model object
+
+        seed: int
+            the seed used to randomly shuffle the data for that model 
+
+        validation_frac: float
+            the fraction of data kept for validation when preparing the model's training data
+
+        para_num: int
+            the number of inputs take by the model
+
+        Returns
+        ---------
+        None 
+        """
 
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
@@ -347,7 +406,7 @@ class DataAnalyser():
             if len(b) > 0:
                 acc = me.get_accuracy(
                     model.model, b[:, 0], b[:, 1], para_num=para_num)
-                
+
                 bayes_mask = dp.mask_to_one_hot(b[:, 2])
                 emp_mask = dp.mask_to_one_hot(b[:, 3])
 
@@ -381,8 +440,33 @@ class DataAnalyser():
                                             'Empirical mask accuracy'])
         plt.show()
 
-    def reproducibility(self, model, number_of_runs=15, para_num=22):
+    def reproducibility(self, model, number_of_runs=15, validation_frac=0.15, para_num=22):
+        """ 
+        Return the average and standard deviation of a same model but different 
+        order of the data it is presented. These outputs quantify the 
+        reproducibilty  of the model. 
 
+        Parameters
+        -----------
+        model: model object
+
+        number of runs: int
+            number of time to run  
+
+        validation_frac: float
+            the fraction of data kept for validation when preparing the model's training data
+
+        para_num: int
+            the number of inputs take by the model
+
+        Returns
+        ---------
+        average: float,
+            average accuracy of the model 
+
+        std: float
+            standard deviation of the model 
+        """
         accuracies = []
 
         for i in range(number_of_runs):

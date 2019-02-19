@@ -410,7 +410,7 @@ class DataAnalyser():
                 bayes_mask = dp.mask_to_one_hot(b[:, 2])
                 emp_mask = dp.mask_to_one_hot(b[:, 3])
 
-                b[:, 1] = np.concatenate(b[:, 1]).shape((-1, 2))
+                b[:, 1] = np.concatenate(np.array(b[:, 1])).shape((-1, 2))
                 bayes_mask = np.concatenate(bayes_mask).shape((-1, 2))
                 emp_mask = np.concatenate(emp_mask).shape((-1, 2))
 

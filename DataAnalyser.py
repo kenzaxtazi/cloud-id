@@ -410,9 +410,10 @@ class DataAnalyser():
                 bayes_mask = dp.mask_to_one_hot(b[:, 2])
                 emp_mask = dp.mask_to_one_hot(b[:, 3])
 
-                b[:, 1] = np.concatenate(list(b[:, 1])).shape((-1, 2))
-                bayes_mask = np.concatenate(bayes_mask).shape((-1, 2))
-                emp_mask = np.concatenate(emp_mask).shape((-1, 2))
+
+                b[:, 1] = np.concatenate(b[:, 1]).reshape((-1, 2))
+                bayes_mask = np.concatenate(bayes_mask).reshape((-1, 2))
+                emp_mask = np.concatenate(emp_mask).reshape((-1, 2))
 
                 bayes_acc = 1 - np.mean(np.abs(b[:, 1] - bayes_mask))[0]
                 emp_acc = 1 - np.mean(np.abs(b[:, 1] - emp_mask))[0]

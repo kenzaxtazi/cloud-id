@@ -205,8 +205,8 @@ class DataAnalyser():
         return(out)
 
     def accuracy_timediff(self, model, seed, validation_frac=0.15, para_num=22):
-        """ 
-        Produces a histogram of accuraccy as a function of the time difference between 
+        """
+        Produces a histogram of accuraccy as a function of the time difference between
         the data take by SLSTR and CALIOP instruments
 
         Parameters
@@ -214,7 +214,7 @@ class DataAnalyser():
         model: model object
 
         seed: int
-            the seed used to randomly shuffle the data for that model 
+            the seed used to randomly shuffle the data for that model
 
         validation_frac: float
             the fraction of data kept for validation when preparing the model's training data
@@ -224,7 +224,7 @@ class DataAnalyser():
 
         Returns
         ---------
-        None 
+        None
         """
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
@@ -354,7 +354,7 @@ class DataAnalyser():
         plt.show()
 
     def accuracy_stype(self, model, seed, validation_frac=0.15, para_num=22):
-        """ 
+        """
         Produces a histogram of accuraccy as a function of surface type
 
         Parameters
@@ -407,8 +407,8 @@ class DataAnalyser():
                 acc = me.get_accuracy(
                     model.model, b[:, 0], b[:, 1], para_num=para_num)
 
-                bayes_mask = dp.mask_to_one_hot(b[:, 2], bits_to_apply=2)
-                emp_mask = dp.mask_to_one_hot(b[:, 3], bits_to_apply=2)
+                bayes_mask = dp.mask_to_one_hot(b[:, 2])
+                emp_mask = dp.mask_to_one_hot(b[:, 3])
 
                 bayes_acc = 1 - np.mean(np.abs(b[:, 1] - bayes_mask))[0]
                 emp_acc = 1 - np.mean(np.abs(b[:, 1] - emp_mask))[0]

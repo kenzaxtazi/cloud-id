@@ -401,7 +401,7 @@ def bits_from_int(array, num_inputs=24):
     return new_array
 
 
-def mask_to_one_hot(bitmask, bits_to_apply=2):
+def mask_to_one_hot(bitmask, bits_to_apply=[2]):
     """ 
     Returns one hot encoding for a cloud bitmask.
 

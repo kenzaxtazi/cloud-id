@@ -402,7 +402,7 @@ def bits_from_int(array, num_inputs=24):
     return new_array
 
 
-def mask_to_one_hot(bitmask, bits=8, applied_bit=None):
+def mask_to_one_hot(bitmask, bits_to_apply=2):
     """ 
     Returns one hot encoding for a cloud bitmask.
 
@@ -411,11 +411,8 @@ def mask_to_one_hot(bitmask, bits=8, applied_bit=None):
     bitmask: array of int,
         array of bitmasks to be transformed
 
-    bits: int,
-        length of the bitmask
-
-    applied_bit: None or list,
-        bitmasks to activate
+    bits_to_apply:
+        bitmasks to activate (see Header Information on the repository)
 
     Returns
     ---------
@@ -428,12 +425,12 @@ def mask_to_one_hot(bitmask, bits=8, applied_bit=None):
     bitmask = bitmask.astype(int)
 
     masks = []
-    for b in bits:
+    for b in bits_to_apply:
         mask = bitmask & b
         masks.append(mask)
 
     summed_mask = sum(masks)
-    summed_mask[for m in summed_mask >= 1] = 1
+    summed_mask[summed_mask > 1] = 1
     reversed_mask = 1 - summed_mask
 
     onehot = np.vstack((summed_mask, reversed_mask)).T
@@ -528,8 +525,9 @@ def star_padding(stars):
 
     return padded_stars
 
-# Class to add useful methods to pd DataFrame
 
+
+# Class to add useful methods to pd DataFrame
 
 @pd.api.extensions.register_dataframe_accessor("dp")
 class DataPreparer():

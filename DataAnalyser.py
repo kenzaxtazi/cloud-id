@@ -407,8 +407,8 @@ class DataAnalyser():
                 acc = me.get_accuracy(
                     model.model, b[:, 0], b[:, 1], para_num=para_num)
 
-                bayes_mask = dp.mask_to_one_hot(b[:, 2])
-                emp_mask = dp.mask_to_one_hot(b[:, 3])
+                bayes_mask = dp.mask_to_one_hot(b[:, 2], bits_to_apply=2)
+                emp_mask = dp.mask_to_one_hot(b[:, 3], bits_to_apply=2)
 
                 bayes_acc = 1 - np.mean(np.abs(b[:, 1] - bayes_mask))[0]
                 emp_acc = 1 - np.mean(np.abs(b[:, 1] - emp_mask))[0]
@@ -442,36 +442,36 @@ class DataAnalyser():
 
     def reproducibility(self, model, number_of_runs=15, validation_frac=0.15, para_num=22):
         """ 
-        Return the average and standard deviation of a same model but different 
-        order of the data it is presented. These outputs quantify the 
-        reproducibilty  of the model. 
+        Return the average and standard deviation of a same model but different
+        order of the data it is presented. These outputs quantify the
+        reproducibilty  of the model.
 
         Parameters
         -----------
         model: model object
 
         number of runs: int
-            number of time to run  
+            number of times to run the model. 
 
         validation_frac: float
-            the fraction of data kept for validation when preparing the model's training data
+            the fraction of data kept for validation when preparing the model's training data.
 
         para_num: int
-            the number of inputs take by the model
+            the number of inputs take by the model.
 
         Returns
         ---------
         average: float,
-            average accuracy of the model 
+            average accuracy of the model.
 
         std: float
-            standard deviation of the model 
+            standard deviation of the model.
         """
         accuracies = []
 
         for i in range(number_of_runs):
             tdata, vdata, ttruth, vtruth = self._obj.dp.get_ffn_training_data(
-                input_type=para_num)
+                validation_frac=validation_frac, input_type=para_num)
             model.Train(tdata, ttruth, vdata, vtruth)
             acc = me.get_accuracy(model, vdata, vtruth, para_num=para_num)
             accuracies.append(acc)

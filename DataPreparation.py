@@ -329,30 +329,6 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
 
 
 def bits_from_int(array, num_inputs=24):
-    array = array.astype(int)
-    coastline = array & 1
-    ocean = array & 2
-    tidal = array & 4
-    land = array & 8
-    inland_water = array & 16
-    cosmetic = array & 256
-    duplicate = array & 512
-    day = array & 1024
-    twilight = array & 2048
-    sun_glint = array & 4096
-    snow = array & 8192
-
-    dry_land = land * (1 - inland_water)
-    if num_inputs == 24:
-        out = np.array([coastline, ocean, tidal, land, inland_water, cosmetic,
-                        duplicate, day, twilight, sun_glint, snow])
-
-    if num_inputs == 22:
-        out = np.array([coastline, ocean, tidal, dry_land, inland_water, cosmetic,
-                        duplicate, day, twilight])
-    out = (out > 0).astype(int)
-    return(out)
-
     """
     Bitwise processing of SLSTR surface data. The different surface types are :
     1: coastline
@@ -376,6 +352,29 @@ def bits_from_int(array, num_inputs=24):
     Output: array of matched pixel information with processed surface type (one
     hot encoded)
     """
+    array = array.astype(int)
+    coastline = array & 1
+    ocean = array & 2
+    tidal = array & 4
+    land = array & 8
+    inland_water = array & 16
+    cosmetic = array & 256
+    duplicate = array & 512
+    day = array & 1024
+    twilight = array & 2048
+    sun_glint = array & 4096
+    snow = array & 8192
+
+    dry_land = land * (1 - inland_water)
+    if num_inputs == 24:
+        out = np.array([coastline, ocean, tidal, land, inland_water, cosmetic,
+                        duplicate, day, twilight, sun_glint, snow])
+
+    if num_inputs == 22:
+        out = np.array([coastline, ocean, tidal, dry_land, inland_water, cosmetic,
+                        duplicate, day, twilight])
+    out = (out > 0).astype(int)
+    return(out)
 
     # sorting data point into surface type categories using bitwise addition
     surftype_list = []
@@ -524,7 +523,6 @@ def star_padding(stars):
     padded_stars = np.concatenate(padded_stars).reshape((-1, 8, 50, 1))
 
     return padded_stars
-
 
 
 # Class to add useful methods to pd DataFrame

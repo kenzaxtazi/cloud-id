@@ -362,7 +362,7 @@ class DataAnalyser():
         model: model object
 
         seed: int
-            the seed used to randomly shuffle the data for that model 
+            the seed used to randomly shuffle the data for that model
 
         validation_frac: float
             the fraction of data kept for validation when preparing the model's training data
@@ -372,7 +372,7 @@ class DataAnalyser():
 
         Returns
         ---------
-        None 
+        None
         """
 
         self._obj.dp.remove_nan()

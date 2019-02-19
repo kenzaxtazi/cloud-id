@@ -402,6 +402,46 @@ def bits_from_int(array, num_inputs=24):
     return new_array
 
 
+def mask_to_one_hot(bitmask, bits=8, applied_bit=None):
+    """ 
+    Returns one hot encoding for a cloud bitmask.
+    
+    Parameters
+    -----------
+    bitmask: array of int,
+        array of bitmasks to be transformed
+
+    bits: int,
+        length of the bitmask
+
+    applied_bit: None or list,
+        bitmasks to activate
+
+    Returns
+    ---------
+    onehot: 1x2 array
+        [0, 1] == clear, 
+        [1, 0] == cloudy.
+    """
+
+    
+    bitmask = np.nan_to_num(bitmask)
+    bitmask = bitmask.astype(int)
+
+    masks = []
+    for b in bits: 
+        mask = bitmask & b
+        masks.append(mask)
+    
+    summed_mask = sum(masks)
+    summed_mask[m in summed_mask >= 1] = 1
+    reversed_mask = 1 - summed_mask 
+
+    onehot = np.vstack((summed_mask, reversed_mask)).T
+
+    return onehot
+    
+
 def get_coords(x0, y0, contextlength, separate=False):
     East_xs = np.linspace(x0 + 1, x0 + contextlength,
                           contextlength).astype(int)

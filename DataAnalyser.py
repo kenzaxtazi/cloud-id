@@ -347,10 +347,9 @@ class DataAnalyser():
             if len(b) > 0:
                 acc = me.get_accuracy(
                     model.model, b[:, 0], b[:, 1], para_num=para_num)
-                bayes_mask = b[:, 2]
-                emp_mask = b[:, 3]
-                bayes_mask[bayes_mask > 1.0] = 1.0
-                emp_mask[emp_mask > 1.0] = 1.0
+                
+                bayes_mask = dp.mask_to_one_hot(b[:, 2])
+                emp_mask = dp.mask_to_one_hot(b[:, 3])
 
                 bayes_acc = 1 - np.mean(np.abs(b[:, 1] - bayes_mask))[0]
                 emp_acc = 1 - np.mean(np.abs(b[:, 1] - emp_mask))[0]

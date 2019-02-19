@@ -268,7 +268,7 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     stypes = bits_from_int(stypes, num_inputs=24)
 
     print(stypes)
-    
+
     stypes = np.concatenate(stypes).reshape((-1, 11))
 
     # sorting data point into surface type categories from the one-hot encoding
@@ -332,29 +332,7 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
 
 
 def bits_from_int(array, num_inputs=24):
-    """
-    Bitwise processing of SLSTR surface data. The different surface types are :
-    1: coastline
-    2: ocean
-    4: tidal
-    8: land
-    16: inland_water
-    32: unfilled            -
-    64: spare               -
-    128: spare              -
-    256: cosmetic
-    512: duplicate
-    1024: day
-    2048: twilight
-    4096: sun_glint
-    8192: snow
-    16384: summary_cloud    -
-    32768: summary_pointing -
 
-    Input: array of matched pixel information
-    Output: array of matched pixel information with processed surface type (one
-    hot encoded)
-    """
     array = array.astype(int)
     coastline = array & 1
     ocean = array & 2
@@ -378,31 +356,6 @@ def bits_from_int(array, num_inputs=24):
                         duplicate, day, twilight])
     out = (out > 0).astype(int)
     return(out)
-
-    # sorting data point into surface type categories using bitwise addition
-    surftype_list = []
-
-    for d in array:
-        confidence = d[13]
-        bitmask = format(int(confidence), '#018b')
-        desired_bitmask = bitmask[4:6] + bitmask[6:10] + bitmask[13:]
-        a = np.array([i for i in desired_bitmask])
-        a = a.astype(int)
-        surftype_list.append(a)
-
-    surftype_list = np.array(surftype_list)
-
-    # the new array is created by taking the first 13 values of the array
-    # stiching the ones and zeros for the different surface types and then
-    # linking the final two values
-    if len(array[0]) > 14:
-        new_array = np.column_stack((array[:, :13], surftype_list,
-                                     array[:, 14:]))
-    else:
-        new_array = np.column_stack((array[:, :13], surftype_list))
-
-    return new_array
-
 
 def mask_to_one_hot(bitmask, bits_to_apply=[2]):
     """ 

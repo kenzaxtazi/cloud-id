@@ -352,8 +352,8 @@ class DataAnalyser():
                 bayes_mask[bayes_mask > 1.0] = 1.0
                 emp_mask[emp_mask > 1.0] = 1.0
 
-                bayes_acc = 1 - np.mean(np.abs(b[:, 1] - bayes_mask))
-                emp_acc = 1 - np.mean(np.abs(b[:, 1] - emp_mask))
+                bayes_acc = 1 - np.mean(np.abs(b[:, 1] - bayes_mask))[0]
+                emp_acc = 1 - np.mean(np.abs(b[:, 1] - emp_mask))[0]
                 me.ROC_curve(model.model, b[:, 0], b[:, 1],
                              bayes_mask=bayes_mask, emp_mask=emp_mask, name=names[i])
                 accuracies.append([acc, bayes_acc, emp_acc])

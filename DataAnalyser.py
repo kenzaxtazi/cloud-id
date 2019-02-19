@@ -403,6 +403,8 @@ class DataAnalyser():
 
             b = surftype_list[i]
 
+            print(b)
+
             if len(b) > 0:
                 acc = me.get_accuracy(
                     model.model, b[:, 0], b[:, 1], para_num=para_num)

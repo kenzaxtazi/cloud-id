@@ -321,7 +321,7 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     duplicate = np.concatenate(duplicate).reshape(-1, 4)
     day = np.concatenate(day).reshape(-1, 4)
     twilight = np.concatenate(twilight).reshape(-1, 4)
-    if len(sunglint)> 0:
+    if len(sun_glint)> 0:
         sun_glint = np.concatenate(sun_glint).reshape(-1, 4)
     snow = np.concatenate(snow).reshape(-1, 4)
 

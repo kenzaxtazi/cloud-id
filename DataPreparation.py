@@ -270,7 +270,7 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     stypes = bits_from_int(stypes, num_inputs=24)
     print(stypes[0])
 
-    stypes = np.concatenate(stypes).reshape((-1, 11))
+    stypes = np.concatenate(stypes).reshape((11, -1)).transpose()
     print(stypes[0])
     print(stypes[0,1])
     print(stypes[0,10])

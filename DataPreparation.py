@@ -356,7 +356,6 @@ def bits_from_int(array, num_inputs=24):
         out = np.array([coastline, ocean, tidal, dry_land, inland_water, cosmetic,
                         duplicate, day, twilight])
     out = (out > 0).astype(int)
-
     return(out)
 
 

@@ -21,7 +21,7 @@ def norm(band):
     return ((band - band_min) / (band_max - band_min))
 
 
-def FalseColour(Sreference, plot=True):
+def FalseColour(Sreference, plot=True, mask=None):
     """
     Produce false colour image for SLSTR file
 
@@ -59,6 +59,12 @@ def FalseColour(Sreference, plot=True):
     red = norm(S2)
     IR = norm(S3 + S4 + S5 + S6)
     blue = norm(0.8 * green - 0.1 * red - 0.1 * IR)
+
+    if mask is not None:
+        mask = mask.astype('bool')
+        red[mask] = 254 / 255
+        green[mask] = 253 / 255
+        blue[mask] = 185 / 255
 
     rgb = np.dstack((red, green, blue))
 

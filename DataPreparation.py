@@ -265,9 +265,9 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     snow = []
 
     # bit mask to one-hot encoding
+    print(stypes)
+    styoes = stypes.transpose()
     stypes = bits_from_int(stypes, num_inputs=24)
-
-    print(stypes[:5])
 
     stypes = np.concatenate(stypes).reshape((-1, 11))
 

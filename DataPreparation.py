@@ -216,31 +216,61 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     return new_list
 
 
-def bits_from_int(array, num_inputs=24):
+def bits_from_int(array, num_inputs=22):
+    """
+    Extract bitmask from integer arrays
 
+    Parameters
+    ----------
+    array: array
+        Raw values of confidence_an data from an SLSTR file
+
+    num_inputs: int, either 22 or 24
+        Total number of inputs for FFN model being used
+        Default is 22
+
+    Returns
+    ----------
+    out: array, shape ``(-1, num_inputs - 13)``
+        Boolean mask where each row shows which of the confidence_an
+        surface type flags are set for each pixel
+    """
     array = array.astype(int)
-    coastline = array & 1
-    ocean = array & 2
-    tidal = array & 4
-    land = array & 8
-    inland_water = array & 16
-    cosmetic = array & 256
-    duplicate = array & 512
-    day = array & 1024
-    twilight = array & 2048
-    sun_glint = array & 4096
-    snow = array & 8192
-
-    dry_land = land * (1 - inland_water)
-    if num_inputs == 24:
-        out = np.array([coastline, ocean, tidal, land, inland_water, cosmetic,
-                        duplicate, day, twilight, sun_glint, snow])
 
     if num_inputs == 22:
-        out = np.array([coastline, ocean, tidal, dry_land, inland_water, cosmetic,
-                        duplicate, day, twilight])
-    out = (out > 0).astype(int)
-    return(out)
+        return(
+            np.array([
+                array & 1,          # Coastline
+                array & 2,          # Ocean
+                array & 4,          # Tidal
+                array & 24 == 8,    # Dry land
+                array & 16,         # Inland water
+                array & 256,        # Cosmetic
+                array & 512,        # Duplicate
+                array & 1024,       # Day
+                array & 2048        # Twilight
+            ]).astype('bool')
+        )
+
+    if num_inputs == 24:
+        return(
+            np.array([
+                array & 1,          # Coastline
+                array & 2,          # Ocean
+                array & 4,          # Tidal
+                array & 8,          # Land
+                array & 16,         # Inland water
+                array & 256,        # Cosmetic
+                array & 512,        # Duplicate
+                array & 1024,       # Day
+                array & 2048,       # Twilight
+                array & 4096,       # Sun glint
+                array & 8192,       # Snow
+            ]).astype('bool')
+        )
+
+    else:
+        raise ValueError('Only recognised num_inputs values are 22 and 24')
 
 
 def mask_to_one_hot(bitmask, bits_to_apply=[2]):

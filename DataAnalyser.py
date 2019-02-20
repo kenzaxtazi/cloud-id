@@ -393,6 +393,8 @@ class DataAnalyser():
                                           bmask=validation_extras[:, 1],
                                           emask=validation_extras[:, 2])
 
+        print('average accuracy', me.get_accuracy(model.model, vdata, vtruth))
+
         accuracies = []
         N = []
 

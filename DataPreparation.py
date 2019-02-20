@@ -374,6 +374,7 @@ class DataPreparer():
     def __init__(self, pandas_obj):
         # self._validate(pandas_obj)
         self._obj = pandas_obj
+        self.seed = np.random.randint(0, 2**32, dtype='uint32')
 
     def mask_negative(self):
         Data = ['S1_an', 'S2_an', 'S3_an', 'S4_an',
@@ -398,15 +399,15 @@ class DataPreparer():
 
     def prepare_random(self, seed):
         if seed is None:
-            seed = np.random.randint(0, 2**32, dtype='uint32')
-            np.random.seed(seed)
+            np.random.seed(self.seed)
         else:
             print("Using predefined seed")
+            self.seed = seed
             np.random.seed(seed)
 
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         with open('Temp/NumpySeeds.txt', 'a') as file:
-            file.write(timestamp + ': ' + str(seed) + '\n')
+            file.write(timestamp + ': ' + str(self.seed) + '\n')
 
     def shuffle_random(self, seed=None):
         self.prepare_random(seed)
@@ -429,25 +430,22 @@ class DataPreparer():
         self.shuffle_by_file(seed)
         self.remove_night()
 
-        pixel_channels = (self._obj[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in',
-                                     'satellite_zenith_angle', 'solar_zenith_angle', 'latitude_an', 'longitude_an']].values).astype(float)
-        confidence_ints = self._obj['confidence_an'].values
+        pixel_channels = (
+            self._obj[[
+                'S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
+                'S7_in', 'S8_in', 'S9_in', 'satellite_zenith_angle',
+                'solar_zenith_angle', 'latitude_an', 'longitude_an'
+            ]].values
+        )
 
-        confidence_flags = bits_from_int(confidence_ints, input_type)
-
-        confidence_flags = confidence_flags.T
-
-        pixel_indices = self._obj.index.values
+        confidence_flags = bits_from_int(
+            self._obj['confidence_an'].values, input_type).T
 
         pixel_inputs = np.column_stack((pixel_channels, confidence_flags))
 
-        pixel_outputs = self._obj[[
-            'Feature_Classification_Flags', 'bayes_in', 'cloud_an', 'TimeDiff']].values
+        pixel_outputs = self._obj[['Feature_Classification_Flags']].values
 
-        pix = np.column_stack((pixel_inputs, pixel_outputs))
-        pix = np.column_stack((pix, pixel_indices))
-
-        pix = pix.astype('float')
+        pix = np.column_stack((pixel_inputs, pixel_outputs)).astype('float')
 
         pct = int(len(pix) * validation_frac)
         training = pix[:-pct, :]   # take all but the 15% last
@@ -459,18 +457,14 @@ class DataPreparer():
         validation_truth_flags = validation[:, input_type]
 
         training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
-        reverse_training_cloudtruth = 1 - training_cloudtruth
         training_truth = np.vstack(
-            (training_cloudtruth, reverse_training_cloudtruth)).T
+            (training_cloudtruth, 1 - training_cloudtruth)).T
 
         validation_cloudtruth = (validation_truth_flags.astype(int) & 2) / 2
-        reverse_validation_cloudtruth = 1 - validation_cloudtruth
         validation_truth = np.vstack(
-            (validation_cloudtruth, reverse_validation_cloudtruth)).T
+            (validation_cloudtruth, 1 - validation_cloudtruth)).T
 
-        return_list = [training_data, validation_data, training_truth,
-                       validation_truth]
-        return return_list
+        return [training_data, validation_data, training_truth, validation_truth]
 
     def get_cnn_training_data(self, validation_frac=0.15, seed=None):
         self.remove_nan()

@@ -267,7 +267,7 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     # bit mask to one-hot encoding
     stypes = bits_from_int(stypes, num_inputs=24)
 
-    print(stypes)
+    print(stypes[0:15])
 
     stypes = np.concatenate(stypes).reshape((-1, 11))
 
@@ -326,7 +326,8 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     stype_list = np.array([coastline, ocean, tidal, land, inland_water, cosmetic,
                            duplicate, day, twilight, sun_glint, snow])
 
-    new_list = np.delete(stype_list, indices_to_exclude)
+    if len(stypes_excluded) > 0:
+        new_list = np.delete(stype_list, indices_to_exclude)
 
     return new_list
 
@@ -355,7 +356,9 @@ def bits_from_int(array, num_inputs=24):
         out = np.array([coastline, ocean, tidal, dry_land, inland_water, cosmetic,
                         duplicate, day, twilight])
     out = (out > 0).astype(int)
+
     return(out)
+
 
 def mask_to_one_hot(bitmask, bits_to_apply=[2]):
     """ 

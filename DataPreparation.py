@@ -266,10 +266,14 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
 
     # bit mask to one-hot encoding
     print(stypes)
-    styoes = stypes.transpose()
+    stypes = stypes.transpose()
     stypes = bits_from_int(stypes, num_inputs=24)
+    print(stypes[0])
 
     stypes = np.concatenate(stypes).reshape((-1, 11))
+    print(stypes[0])
+    print(stypes[0,1])
+    print(stypes[0,10])
 
     # sorting data point into surface type categories from the one-hot encoding
 

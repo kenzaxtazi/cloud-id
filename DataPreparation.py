@@ -50,31 +50,28 @@ def getinputsFFN(Sreference, input_type=24):
               'latitude_an', 'longitude_an', 'satellite_zenith_angle',
               'solar_zenith_angle'])
 
-    S1 = np.nan_to_num(scn['S1_an'].values)
-    S2 = np.nan_to_num(scn['S2_an'].values)
-    S3 = np.nan_to_num(scn['S3_an'].values)
-    S4 = np.nan_to_num(scn['S4_an'].values)
-    S5 = np.nan_to_num(scn['S5_an'].values)
-    S6 = np.nan_to_num(scn['S6_an'].values)
-    S7 = DL.upscale_repeat(np.nan_to_num(scn['S7_in'].values))
-    S8 = DL.upscale_repeat(np.nan_to_num(scn['S8_in'].values))
-    S9 = DL.upscale_repeat(np.nan_to_num(scn['S9_in'].values))
-    salza = DL.upscale_repeat(np.nan_to_num(
-        scn['satellite_zenith_angle'].values))
-    solza = DL.upscale_repeat(np.nan_to_num(scn['solar_zenith_angle'].values))
-    lat = np.nan_to_num(scn['latitude_an'].values)
-    lon = np.nan_to_num(scn['longitude_an'].values)
+    inputs = np.array([
+        np.nan_to_num(scn['S1_an'].values),
+        np.nan_to_num(scn['S2_an'].values),
+        np.nan_to_num(scn['S3_an'].values),
+        np.nan_to_num(scn['S4_an'].values),
+        np.nan_to_num(scn['S5_an'].values),
+        np.nan_to_num(scn['S6_an'].values),
+        DL.upscale_repeat(np.nan_to_num(scn['S7_in'].values)),
+        DL.upscale_repeat(np.nan_to_num(scn['S8_in'].values)),
+        DL.upscale_repeat(np.nan_to_num(scn['S9_in'].values)),
+        DL.upscale_repeat(np.nan_to_num(scn['satellite_zenith_angle'].values)),
+        DL.upscale_repeat(np.nan_to_num(scn['solar_zenith_angle'].values)),
+        np.nan_to_num(scn['latitude_an'].values),
+        np.nan_to_num(scn['longitude_an'].values)
+    ])
 
     if input_type == 13:
-        inputs = np.array([S1, S2, S3, S4, S5, S6, S7, S8, S9, salza,
-                           solza, lat, lon])
         inputs = np.reshape(inputs, (13, 7200000))
         return(inputs.T)
 
     scn.load(['confidence_an'])
     confidence = np.nan_to_num(scn['confidence_an'].values)
-    inputs = np.array([S1, S2, S3, S4, S5, S6, S7,
-                       S8, S9, salza, solza, lat, lon])
     confidence_flags = bits_from_int(confidence, input_type)
 
     inputs = np.vstack((inputs, confidence_flags))
@@ -117,124 +114,6 @@ def getinputsCNN(Sreference, indices):
     return data
 
 
-def cnn_prep_data(location_directory, context_directory, validation_frac=0.15):
-    """
-    Prepares data for matched SLSTR and CALIOP pixels into training data,
-    validation data, training truth data, validation truth data for the supermodel.
-    Optionally ouputs bayes values for the validation set only.
-
-    Parameters
-    -----------
-    location_directory
-        direction with the pixel locations and truths
-
-    context_directory:
-        directory with context information
-
-    validation_frac: float between 0 and 1
-        the fraction of the dataset that is taken as validation
-
-    Returns
-    ---------
-    training_data: array
-
-    validation_data: array
-
-    training_truth: array
-
-    validation_truth: array
-    """
-
-    # Load collocated pixels from dataframe
-    L4 = PixelLoader(location_directory)
-    # Load one month from context dataframe
-    C4 = PixelLoader(context_directory)
-
-    c4 = C4[['Pos', 'Sfilename', 'Star_array']].values
-
-    stars = c4[:, 2]
-    padded_stars = star_padding(stars)
-
-    print('matching datasets')
-
-    Cpos = C4['Pos'].values
-    CRows = [i[0] for i in Cpos]
-    CCols = [i[1] for i in Cpos]
-
-    C4['RowIndex'] = CRows
-    C4['ColIndex'] = CCols
-
-    merged = pd.merge(L4, C4, on=['Sfilename', 'RowIndex', 'ColIndex'])
-
-    merged = merged.sample(frac=1)
-
-    truth = merged['Feature_Classification_Flags'].values
-
-    # split data into validation and training
-
-    pct = int(len(padded_stars) * validation_frac)
-
-    # take all but the 15% last
-    training_data = padded_stars[:-pct]
-    # take the last 15% of pixels
-    validation_data = padded_stars[-pct:]
-    training_truth_flags = truth[:-pct]
-    validation_truth_flags = truth[-pct:]
-
-    # turn binary truth flags into one hot code
-    training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
-    reverse_training_cloudtruth = 1 - training_cloudtruth
-    training_truth = np.vstack(
-        (training_cloudtruth, reverse_training_cloudtruth)).T
-
-    validation_cloudtruth = (validation_truth_flags.astype(int) & 2) / 2
-    reverse_validation_cloudtruth = 1 - validation_cloudtruth
-    validation_truth = np.vstack(
-        (validation_cloudtruth, reverse_validation_cloudtruth)).T
-
-    return training_data, validation_data, training_truth, validation_truth
-
-
-def cnn_getinputs(Sreference, positions=None):
-    """
-    Download and prepares pixel contextual information for a given SLSTR file to get the Supermodel prediction.
-
-    Parameters
-    -----------
-    Sreferenc: string
-        path to dowload SLST files from.
-    data: multi dimensional array
-        0: probability from first model
-        1: indice from image
-
-    Returns
-    ---------
-    star: array
-        data for CNN
-    """
-
-    if type(Sreference) == str:
-        scn = DL.scene_loader(Sreference)
-    else:
-        scn = Sreference
-
-    scn.load(['S1_an'])
-    S1 = np.nan_to_num(scn['S1_an'].values)  # @TODO: Use or remove
-
-    if positions is None:
-        row = np.repeat(np.arange(2400), 3000)
-        column = np.tile(np.arange(3000), 2400)
-
-        star_coords = get_coords(row, column, contextlength=50)
-    else:
-        star_coords = get_coords(
-            positions[:, 0], positions[:, 1], contextlength=50)
-
-    star = S1[star_coords]
-
-    return star
-
-
 def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
                    stypes_excluded=['sun_glint']):
     """
@@ -272,8 +151,8 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
 
     stypes = np.concatenate(stypes).reshape((11, -1)).transpose()
     print(stypes[0])
-    print(stypes[0,1])
-    print(stypes[0,10])
+    print(stypes[0, 1])
+    print(stypes[0, 10])
 
     # sorting data point into surface type categories from the one-hot encoding
 
@@ -321,7 +200,7 @@ def surftype_class(validation_data, validation_truth, stypes, bmask, emask,
     duplicate = np.concatenate(duplicate).reshape(-1, 4)
     day = np.concatenate(day).reshape(-1, 4)
     twilight = np.concatenate(twilight).reshape(-1, 4)
-    if len(sun_glint)> 0:
+    if len(sun_glint) > 0:
         sun_glint = np.concatenate(sun_glint).reshape(-1, 4)
     snow = np.concatenate(snow).reshape(-1, 4)
 

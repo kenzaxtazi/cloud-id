@@ -35,7 +35,7 @@ def apply_mask(model, Sfile, input_type=24, modeltype='ffn', positions=None):
     if modeltype == 'ffn':
         inputs = dp.getinputsFFN(Sfile, input_type)
     if modeltype == 'cnn':
-        inputs = dp.cnn_getinputs(Sfile, positions)
+        inputs = dp.getinputsCNN(Sfile, positions, np.arange(7200000))
 
     returnlist = []
 

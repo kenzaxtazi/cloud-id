@@ -353,7 +353,7 @@ class DataAnalyser():
                 edgecolor='thistle', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
 
-    def accuracy_stype(self, model, seed, validation_frac=0.15, para_num=22):
+    def accuracy_stype(self, seed=1, validation_frac=0.15):
         """
         Produces a histogram of accuraccy as a function of surface type
 
@@ -375,76 +375,99 @@ class DataAnalyser():
         None
         """
 
-        self._obj.dp.remove_nan()
+        self._model_applied()
+
+        # self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
-        self._obj.dp.remove_night()
+        # self._obj.dp.remove_night()
 
-        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(
-            seed=seed, input_type=para_num)
+        pct = int(len(self._obj) * validation_frac)
+        valdf = self._obj[-pct:]
 
-        extras = self._obj[['confidence_an', 'bayes_in', 'cloud_an']]
-        extras_tuple = extras.values
-        extras_array = np.concatenate(extras_tuple).reshape(-1, 3)
-        pct = int(len(extras_array) * validation_frac)
-        validation_extras = extras_array[-pct:]
+        bitmeanings = {
+            'coastline': 1,
+            'ocean': 2,
+            'tidal': 4,
+            'dry_land': 24,
+            'inland_water': 16,
+            'cosmetic': 256,
+            'duplicate': 512,
+            'day': 1024,
+            'twilight': 2048,
+            'snow': 8192
+        }
 
-        surftype_list = dp.surftype_class(vdata, vtruth, stypes=validation_extras[:, 0],
-                                          bmask=validation_extras[:, 1],
-                                          emask=validation_extras[:, 2])
-
-        accuracies = []
-        N = []
-
-        names = ['Coastline', 'Ocean', 'Tidal', 'Land', 'Inland water',
-                 'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Snow']
-
-        for i in range(len(surftype_list)):
-
-            b = surftype_list[i]
-
-            print(len(b))
-
-            if len(b) > 0:
-                acc = me.get_accuracy(
-                    model.model, b[:, 0], b[:, 1], para_num=para_num)
-
-                bayes_mask = dp.mask_to_one_hot(b[:, 2])
-                emp_mask = dp.mask_to_one_hot(b[:, 3])
-
-                truth = np.concatenate(b[:, 1]).reshape((-1, 2))
-                bayes_mask = np.concatenate(bayes_mask).reshape((-1, 2))
-                emp_mask = np.concatenate(emp_mask).reshape((-1, 2))
-
-                bayes_acc = 1 - np.mean(np.abs(truth - bayes_mask)[:, 0])
-                emp_acc = 1 - np.mean(np.abs(truth - emp_mask)[:, 0])
-                me.ROC_curve(model.model, b[:, 0], truth,
-                             bayes_mask=bayes_mask, emp_mask=emp_mask, name=names[i])
-                accuracies.append([acc, bayes_acc, emp_acc])
-                N.append(len(b))
-
+        for surface in bitmeanings:
+            if surface != 'dry_land':
+                surfdf = valdf[valdf['confidence_an'] & bitmeanings[surface] == bitmeanings[surface]]
             else:
-                accuracies.append([0, 0, 0])
-                N.append(0)
+                surfdf = valdf[valdf['confidence_an'] & bitmeanings[surface] == 8]
+            accuracy = np.mean(surfdf['Agree'])
+            print(str(surface) + ': ' + str(accuracy))
 
-        print(accuracies)
-        accuracies = (np.concatenate(accuracies)).reshape((-1, 3))
+        # extras = self._obj[['confidence_an', 'bayes_in', 'cloud_an']]
+        # extras_tuple = extras.values
+        # extras_array = np.concatenate(extras_tuple).reshape(-1, 3)
+        # pct = int(len(extras_array) * validation_frac)
+        # validation_extras = extras_array[-pct:]
 
-        t = np.arange(len(names))
+        # surftype_list = dp.surftype_class(vdata, vtruth, stypes=validation_extras[:, 0],
+        #                                   bmask=validation_extras[:, 1],
+        #                                   emask=validation_extras[:, 2])
 
-        plt.figure('Accuracy vs surface type')
-        plt.title('Accuracy as a function of surface type')
-        plt.ylabel('Accuracy')
-        bars = plt.bar(t, accuracies[:, 0], width=0.5, align='center', color='honeydew',
-                       edgecolor='palegreen', yerr=(np.array(accuracies[:, 0]) / np.array(N))**(0.5),
-                       tick_label=names, zorder=1)
-        circles = plt.scatter(t, accuracies[:, 1], marker='o', zorder=2)
-        stars = plt.scatter(t, accuracies[:, 2], marker='*', zorder=3)
-        plt.xticks(rotation=90)
-        plt.legend([bars, circles, stars], ['Model accuracy',
-                                            'Bayesian mask accuracy',
-                                            'Empirical mask accuracy'])
-        plt.show()
+        # accuracies = []
+        # N = []
+
+        # names = ['Coastline', 'Ocean', 'Tidal', 'Land', 'Inland water',
+        #          'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Snow']
+
+        # for i in range(len(surftype_list)):
+
+        #     b = surftype_list[i]
+
+        #     print(len(b))
+
+        #     if len(b) > 0:
+        #         acc = me.get_accuracy(
+        #             model.model, b[:, 0], b[:, 1], para_num=para_num)
+
+        #         bayes_mask = dp.mask_to_one_hot(b[:, 2])
+        #         emp_mask = dp.mask_to_one_hot(b[:, 3])
+
+        #         truth = np.concatenate(b[:, 1]).reshape((-1, 2))
+        #         bayes_mask = np.concatenate(bayes_mask).reshape((-1, 2))
+        #         emp_mask = np.concatenate(emp_mask).reshape((-1, 2))
+
+        #         bayes_acc = 1 - np.mean(np.abs(truth - bayes_mask)[:, 0])
+        #         emp_acc = 1 - np.mean(np.abs(truth - emp_mask)[:, 0])
+        #         me.ROC_curve(model.model, b[:, 0], truth,
+        #                      bayes_mask=bayes_mask, emp_mask=emp_mask, name=names[i])
+        #         accuracies.append([acc, bayes_acc, emp_acc])
+        #         N.append(len(b))
+
+        #     else:
+        #         accuracies.append([0, 0, 0])
+        #         N.append(0)
+
+        # print(accuracies)
+        # accuracies = (np.concatenate(accuracies)).reshape((-1, 3))
+
+        # t = np.arange(len(names))
+
+        # plt.figure('Accuracy vs surface type')
+        # plt.title('Accuracy as a function of surface type')
+        # plt.ylabel('Accuracy')
+        # bars = plt.bar(t, accuracies[:, 0], width=0.5, align='center', color='honeydew',
+        #                edgecolor='palegreen', yerr=(np.array(accuracies[:, 0]) / np.array(N))**(0.5),
+        #                tick_label=names, zorder=1)
+        # circles = plt.scatter(t, accuracies[:, 1], marker='o', zorder=2)
+        # stars = plt.scatter(t, accuracies[:, 2], marker='*', zorder=3)
+        # plt.xticks(rotation=90)
+        # plt.legend([bars, circles, stars], ['Model accuracy',
+        #                                     'Bayesian mask accuracy',
+        #                                     'Empirical mask accuracy'])
+        # plt.show()
 
     def reproducibility(self, model, number_of_runs=15, validation_frac=0.15, para_num=22):
         """ 

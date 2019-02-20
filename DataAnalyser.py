@@ -24,18 +24,39 @@ from FFN import FFN
 class DataAnalyser():
     def __init__(self, pandas_obj):
         self._obj = pandas_obj
+        self.model = None
 
     def _model_applied(self):
+        """Raise error if Agree column is not in dataframe"""
         if 'Agree' not in self._obj.columns:
             raise AttributeError(
-                'No model has been applied to this dataframe. See df.da.model_agreement')
+                'No model has been applied to this dataframe.'
+                ' See df.da.model_agreement')
 
     def model_agreement(self, model, MaxDist=None, MaxTime=None):
-        # Add useful columns to dataframe
+        """
+        Apply a model to the dataframe and add model output to rows
+
+        Adds the direct output of the model into the 'Labels' and
+        'Label_Confidence' columns, in addition the 'Agree' column shows
+        whether the model result agrees with the Calipso truth.
+
+        Parameters
+        ----------
+        model: str
+            Name of model to use. If using a model on disk, it should be saved in the Models folder.
+
+        Returns
+        ----------
+        None
+        """
+
         if MaxDist is not None:
             self._obj = self._obj[self._obj['Distance'] < MaxDist]
         if MaxTime is not None:
             self._obj = self._obj[abs(self._obj['TimeDiff']) < MaxTime]
+
+        self.model = model
 
         model = FFN(model)
         model.Load()
@@ -55,10 +76,17 @@ class DataAnalyser():
         self._obj = self._obj.dp.make_CTruth_col()
 
         self._obj['Agree'] = self._obj['CTruth'] != self._obj['Labels']
-        return(self._obj)
 
     def get_bad_classifications(self):
-        """Given a processed dataframe which has model predictions, produce dataframe with poorly classified pixels"""
+        """
+        Given a dataframe with model predictions, return poor results.
+
+        Returns
+        ----------
+        bad: pandas DataFrame
+            Dataframe with rows where either the model disagrees with Calipso
+            or model confidence is low.
+        """
         self._model_applied()
 
         bad = self._obj[(self._obj['Agree'] is False) | (
@@ -101,21 +129,16 @@ class DataAnalyser():
 
     def plot_pixels(self, datacol='Agree'):
         """
-        Plots the correctly and incorrectly classified pixels in a given directory or .pkl file.
+        Plots the value of data for each pixel on map.
 
         Parameters
         ----------
-        model: str
-            Name of a FFN model saved in the Models/ subdirectory
-            Default is 'Net1_FFN_v4'
+        datacol: str
+            Name of dataframe column to use for colouring pixels on map
 
-        MaxDist: int or float
-            Maximum accepted distance between collocated pixels in dataframe to consider
-            Default is 500
-
-        MaxTime: int or float
-            Maximum accepted time difference between collocated pixels in dataframe to consider
-            Default is 1200
+        Returns
+        ----------
+        None
         """
         if datacol in ['Agree', 'CTruth', 'Labels', 'Label_Confidence']:
             self._model_applied()
@@ -286,7 +309,7 @@ class DataAnalyser():
         plt.show()
 
     def accuracy_sza(self, model, seed, para_num=22):
-        """ 
+        """
         Produces a histogram of accuraccy as a function of solar zenith angle
 
         Parameters
@@ -294,7 +317,7 @@ class DataAnalyser():
         model: model object
 
         seed: int
-            the seed used to randomly shuffle the data for that model 
+            the seed used to randomly shuffle the data for that model
 
         validation_frac: float
             the fraction of data kept for validation when preparing the model's training data
@@ -304,7 +327,7 @@ class DataAnalyser():
 
         Returns
         ---------
-        None 
+        None
         """
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
@@ -400,9 +423,11 @@ class DataAnalyser():
 
         for surface in bitmeanings:
             if surface != 'dry_land':
-                surfdf = valdf[valdf['confidence_an'] & bitmeanings[surface] == bitmeanings[surface]]
+                surfdf = valdf[valdf['confidence_an'] &
+                               bitmeanings[surface] == bitmeanings[surface]]
             else:
-                surfdf = valdf[valdf['confidence_an'] & bitmeanings[surface] == 8]
+                surfdf = valdf[valdf['confidence_an']
+                               & bitmeanings[surface] == 8]
             accuracy = np.mean(surfdf['Agree'])
             print(str(surface) + ': ' + str(accuracy))
 

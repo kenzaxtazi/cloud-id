@@ -407,6 +407,8 @@ class DataAnalyser():
         self._obj.dp.shuffle_by_file(seed)
         self._obj.dp.remove_night()
 
+        self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
+
         pct = int(len(self._obj) * validation_frac)
         valdf = self._obj[-pct:]
 

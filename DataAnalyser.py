@@ -376,13 +376,14 @@ class DataAnalyser():
                 edgecolor='thistle', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
 
-    def accuracy_stype(self, model, seed=1, validation_frac=0.15):
+    def accuracy_stype(self, modelname, seed=1, validation_frac=0.15):
         """
         Produces a histogram of accuraccy as a function of surface type
 
         Parameters
         -----------
-        model: model object
+        modelname: string
+            name of model
 
         seed: int
             the seed used to randomly shuffle the data for that model
@@ -435,7 +436,7 @@ class DataAnalyser():
             accuracy = np.mean(surfdf['Agree'])
             print(str(surface) + ': ' + str(accuracy))
             model_accuracies.append(accuracy)
-            N.append(len(bitmeanings[surface]))
+            N.append(len(surdf))
 
         # extras = self._obj[['confidence_an', 'bayes_in', 'cloud_an']]
         # extras_tuple = extras.values
@@ -495,9 +496,9 @@ class DataAnalyser():
         # circles = plt.scatter(t, accuracies[:, 1], marker='o', zorder=2)
         # stars = plt.scatter(t, accuracies[:, 2], marker='*', zorder=3)
         plt.xticks(rotation=90)
-        plt.legend([bars, circles, stars], ['Model accuracy',
-                                            'Bayesian mask accuracy',
-                                            'Empirical mask accuracy'])
+        ## plt.legend([bars, circles, stars], ['Model accuracy',
+        #                                    'Bayesian mask accuracy',
+        #                                    'Empirical mask accuracy'])
         plt.show()
 
     def reproducibility(self, model, number_of_runs=15, validation_frac=0.15, para_num=22):

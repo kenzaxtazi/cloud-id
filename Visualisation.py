@@ -156,7 +156,7 @@ def MaskComparison(Sreference, mask1, mask2, animate=True, frametime=1000):
         plt.show()
 
 
-def plot_poles(latitude, longitude, data):
+def plot_poles(latitude, longitude, data, size=3, cmap='RdYlGn', showglobal=False):
     """
     Plot data on two polar views of the globe
 
@@ -188,20 +188,24 @@ def plot_poles(latitude, longitude, data):
     axN = plt.axes(projection=ccrs.Orthographic(0, 90))
     axN.add_feature(cartopy.feature.OCEAN, zorder=0)
     axN.add_feature(cartopy.feature.LAND, zorder=0, edgecolor='black')
-    axN.set_global()
+    if showglobal:
+        axN.set_global()
     axN.gridlines()
-    NorthPlot = axN.scatter(Nlongitude, Nlatitude, 3,
-                            Ndata, transform=ccrs.Geodetic(), vmin=datamin, vmax=datamax)
+    NorthPlot = axN.scatter(Nlongitude, Nlatitude, size,
+                            Ndata, transform=ccrs.Geodetic(), vmin=datamin, vmax=datamax,
+                            cmap=cmap)
     plt.colorbar(NorthPlot)
 
     plt.figure()
     axS = plt.axes(projection=ccrs.Orthographic(0, -90))
     axS.add_feature(cartopy.feature.OCEAN, zorder=0)
     axS.add_feature(cartopy.feature.LAND, zorder=0, edgecolor='black')
-    axS.set_global()
+    if showglobal:
+        axS.set_global()
     axS.gridlines()
-    SouthPlot = axS.scatter(Slongitude, Slatitude, 3,
-                            Sdata, transform=ccrs.Geodetic(), vmin=datamin, vmax=datamax)
+    SouthPlot = axS.scatter(Slongitude, Slatitude, size,
+                            Sdata, transform=ccrs.Geodetic(), vmin=datamin, vmax=datamax,
+                            cmap=cmap)
     plt.colorbar(SouthPlot)
 
     plt.show()

@@ -445,12 +445,12 @@ class DataAnalyser():
             # Bayesian mask accuracy 
             bayes_labels = surfdf['bayes_in']
             bayes_labels[bayes_labels > 1] = 1
-            bayes_accuracy = float(bayes_labels[bayes_labels == surfdf['Labels']])/float(n)
+            bayes_accuracy = float(len(bayes_labels[bayes_labels == surfdf['Labels']])) / float(n)
             
             # Empirical mask accuracy
             empir_labels = surfdf['cloud_an']
             empir_labels[empir_labels > 1] = 1
-            empir_accuracy = float(emp_labels[emp_labels == surfdf['Labels']])/float(n)
+            empir_accuracy = float(len(empir_labels[empir_labels == surfdf['Labels']])) /float(n)
 
             model_accuracies.append(model_accuracy)
             bayes_accuracies.append(bayes_accuracy)

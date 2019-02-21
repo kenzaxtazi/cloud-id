@@ -5,8 +5,7 @@
 ##############################################
 
 import os
-import matplotlib                                  
-matplotlib.rcParams.update({'errorbar.capsize': 0.15})
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -19,6 +18,8 @@ import Visualisation as Vis
 import ModelEvaluation as me
 
 from FFN import FFN
+
+#matplotlib.rcParams.update({'errorbar.capsize': 0.15})
 
 
 @pd.api.extensions.register_dataframe_accessor("da")
@@ -438,7 +439,7 @@ class DataAnalyser():
             else:
                 surfdf = valdf[valdf['confidence_an']
                                & bitmeanings[surface] == 8]
-            
+
             # Model accuracy
             n = len(surfdf)
             model_accuracy = np.mean(surfdf['Agree'])
@@ -447,12 +448,14 @@ class DataAnalyser():
             # Bayesian mask accuracy
             bayes_labels = surfdf['bayes_in']
             bayes_labels[bayes_labels > 1] = 1
-            bayes_accuracy = float(len(bayes_labels[bayes_labels == surfdf['CTruth']])) / float(n)
-            
+            bayes_accuracy = float(
+                len(bayes_labels[bayes_labels == surfdf['CTruth']])) / float(n)
+
             # Empirical mask accuracy
             empir_labels = surfdf['cloud_an']
             empir_labels[empir_labels > 1] = 1
-            empir_accuracy = float(len(empir_labels[empir_labels == surfdf['CTruth']])) / float(n)
+            empir_accuracy = float(
+                len(empir_labels[empir_labels == surfdf['CTruth']])) / float(n)
             print(empir_accuracy)
 
             model_accuracies.append(model_accuracy)
@@ -462,7 +465,7 @@ class DataAnalyser():
 
         print(bayes_accuracies)
         print(empir_accuracies)
-          
+
         # extras = self._obj[['confidence_an', 'bayes_in', 'cloud_an']]
         # extras_tuple = extras.values
         # extras_array = np.concatenate(extras_tuple).reshape(-1, 3)
@@ -474,7 +477,7 @@ class DataAnalyser():
         #                                   emask=validation_extras[:, 2])
 
         # accuracies = []
-        # 
+        #
 
         names = ['Coastline', 'Ocean', 'Tidal', 'Land', 'Inland water',
                  'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Snow']
@@ -516,8 +519,8 @@ class DataAnalyser():
         plt.title('Accuracy as a function of surface type')
         plt.ylabel('Accuracy')
         bars = plt.bar(t, model_accuracies, width=0.5, align='center', color='honeydew',
-                       edgecolor='palegreen', yerr=(np.array(model_accuracies)/ np.array(N))**(0.5),
-                       tick_label=names, ecolor= 'g', capsize=3, zorder=1)
+                       edgecolor='palegreen', yerr=(np.array(model_accuracies) / np.array(N))**(0.5),
+                       tick_label=names, ecolor='g', capsize=3, zorder=1)
         circles = plt.scatter(t, bayes_accuracies, marker='o', zorder=2)
         stars = plt.scatter(t, empir_accuracies, marker='*', zorder=3)
         plt.xticks(rotation=45)
@@ -527,7 +530,7 @@ class DataAnalyser():
         plt.show()
 
     def reproducibility(self, model, number_of_runs=15, validation_frac=0.15, para_num=22):
-        """ 
+        """
         Return the average and standard deviation of a same model but different
         order of the data it is presented. These outputs quantify the
         reproducibilty  of the model.
@@ -537,7 +540,7 @@ class DataAnalyser():
         model: model object
 
         number of runs: int
-            number of times to run the model. 
+            number of times to run the model.
 
         validation_frac: float
             the fraction of data kept for validation when preparing the model's training data.

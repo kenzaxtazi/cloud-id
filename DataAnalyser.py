@@ -5,7 +5,8 @@
 ##############################################
 
 import os
-
+import matplotlib                                  
+matplotlib.rcParams.update({'errorbar.capsize': 0.15})
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -444,12 +445,12 @@ class DataAnalyser():
             # Bayesian mask accuracy
             bayes_labels = surfdf['bayes_in']
             bayes_labels[bayes_labels > 1] = 1
-            bayes_accuracy = float(len(bayes_labels[bayes_labels == surfdf['Labels']])) / float(n)
+            bayes_accuracy = float(len(bayes_labels[bayes_labels == surfdf['CTruth']])) / float(n)
             
             # Empirical mask accuracy
             empir_labels = surfdf['cloud_an']
             empir_labels[empir_labels > 1] = 1
-            empir_accuracy = float(len(empir_labels[empir_labels == surfdf['Labels']])) / float(n)
+            empir_accuracy = float(len(empir_labels[empir_labels == surfdf['CTruth']])) / float(n)
             print(empir_accuracy)
 
             model_accuracies.append(model_accuracy)
@@ -514,10 +515,10 @@ class DataAnalyser():
         plt.ylabel('Accuracy')
         bars = plt.bar(t, model_accuracies, width=0.5, align='center', color='honeydew',
                        edgecolor='palegreen', yerr=(np.array(model_accuracies)/ np.array(N))**(0.5),
-                       tick_label=names, capsize=0.3, zorder=1)
+                       tick_label=names, ecolor= 'g', capsize=3, zorder=1)
         circles = plt.scatter(t, bayes_accuracies, marker='o', zorder=2)
         stars = plt.scatter(t, empir_accuracies, marker='*', zorder=3)
-        plt.xticks(rotation=90)
+        plt.xticks(rotation=45)
         plt.legend([bars, circles, stars], ['Model accuracy',
                                             'Bayesian mask accuracy',
                                             'Empirical mask accuracy'])

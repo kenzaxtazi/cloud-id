@@ -376,7 +376,7 @@ class DataAnalyser():
                 edgecolor='thistle', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
 
-    def accuracy_stype(self, modelname, seed=1, validation_frac=0.15):
+    def accuracy_stype(self, seed=1, validation_frac=0.15):
         """
         Produces a histogram of accuraccy as a function of surface type
 
@@ -399,7 +399,6 @@ class DataAnalyser():
         None
         """
 
-        self.model_agreement(modelname)
         self._model_applied()
 
         self._obj.dp.remove_nan()
@@ -447,7 +446,6 @@ class DataAnalyser():
             bayes_labels[bayes_labels > 1] = 1
             bayes_accuracy = float(len(bayes_labels[bayes_labels == surfdf['Labels']])) / float(n)
             
-
             # Empirical mask accuracy
             empir_labels = surfdf['cloud_an']
             empir_labels[empir_labels > 1] = 1

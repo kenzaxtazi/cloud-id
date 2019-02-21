@@ -162,7 +162,8 @@ class DataAnalyser():
 
         pos = list(zip(lat, lon, data))
 
-        upos = list(set(pos)).sort()
+        upos = list(set(pos))
+        upos.sort()
 
         cnt = Counter(pos)
 

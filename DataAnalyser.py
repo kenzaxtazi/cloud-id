@@ -376,7 +376,7 @@ class DataAnalyser():
                 edgecolor='thistle', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
 
-    def accuracy_stype(self, seed=1, validation_frac=0.15):
+    def accuracy_stype(self, model, seed=1, validation_frac=0.15):
         """
         Produces a histogram of accuraccy as a function of surface type
 
@@ -398,12 +398,13 @@ class DataAnalyser():
         None
         """
 
+        self.model_agreement(model)
         self._model_applied()
 
-        # self._obj.dp.remove_nan()
+        self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
-        # self._obj.dp.remove_night()
+        self._obj.dp.remove_night()
 
         pct = int(len(self._obj) * validation_frac)
         valdf = self._obj[-pct:]
@@ -421,6 +422,10 @@ class DataAnalyser():
             'snow': 8192
         }
 
+        model_accuracies = []
+        N = []
+
+
         for surface in bitmeanings:
             if surface != 'dry_land':
                 surfdf = valdf[valdf['confidence_an'] &
@@ -429,7 +434,11 @@ class DataAnalyser():
                 surfdf = valdf[valdf['confidence_an']
                                & bitmeanings[surface] == 8]
             accuracy = np.mean(surfdf['Agree'])
+            append 
             print(str(surface) + ': ' + str(accuracy))
+            model_accuracies.append(accuracy)
+            N.append(len(bitmeanings[surface]))
+
 
         # extras = self._obj[['confidence_an', 'bayes_in', 'cloud_an']]
         # extras_tuple = extras.values
@@ -442,10 +451,10 @@ class DataAnalyser():
         #                                   emask=validation_extras[:, 2])
 
         # accuracies = []
-        # N = []
+        # 
 
-        # names = ['Coastline', 'Ocean', 'Tidal', 'Land', 'Inland water',
-        #          'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Snow']
+        names = ['Coastline', 'Ocean', 'Tidal', 'Land', 'Inland water',
+                 'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Snow']
 
         # for i in range(len(surftype_list)):
 
@@ -480,19 +489,19 @@ class DataAnalyser():
 
         # t = np.arange(len(names))
 
-        # plt.figure('Accuracy vs surface type')
-        # plt.title('Accuracy as a function of surface type')
-        # plt.ylabel('Accuracy')
-        # bars = plt.bar(t, accuracies[:, 0], width=0.5, align='center', color='honeydew',
-        #                edgecolor='palegreen', yerr=(np.array(accuracies[:, 0]) / np.array(N))**(0.5),
-        #                tick_label=names, zorder=1)
-        # circles = plt.scatter(t, accuracies[:, 1], marker='o', zorder=2)
-        # stars = plt.scatter(t, accuracies[:, 2], marker='*', zorder=3)
-        # plt.xticks(rotation=90)
-        # plt.legend([bars, circles, stars], ['Model accuracy',
-        #                                     'Bayesian mask accuracy',
-        #                                     'Empirical mask accuracy'])
-        # plt.show()
+        plt.figure('Accuracy vs surface type')
+        plt.title('Accuracy as a function of surface type')
+        plt.ylabel('Accuracy')
+        bars = plt.bar(t, accuracies[:, 0], width=0.5, align='center', color='honeydew',
+                        edgecolor='palegreen', yerr=(np.array(accuracies[:, 0]) / np.array(N))**(0.5),
+                        tick_label=names, capsize=0.3 ,zorder=1)
+        circles = plt.scatter(t, accuracies[:, 1], marker='o', zorder=2)
+        stars = plt.scatter(t, accuracies[:, 2], marker='*', zorder=3)
+        plt.xticks(rotation=90)
+        plt.legend([bars, circles, stars], ['Model accuracy',
+                                            'Bayesian mask accuracy',
+                                            'Empirical mask accuracy'])
+        plt.show()
 
     def reproducibility(self, model, number_of_runs=15, validation_frac=0.15, para_num=22):
         """ 

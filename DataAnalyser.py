@@ -425,7 +425,6 @@ class DataAnalyser():
         model_accuracies = []
         N = []
 
-
         for surface in bitmeanings:
             if surface != 'dry_land':
                 surfdf = valdf[valdf['confidence_an'] &
@@ -434,11 +433,9 @@ class DataAnalyser():
                 surfdf = valdf[valdf['confidence_an']
                                & bitmeanings[surface] == 8]
             accuracy = np.mean(surfdf['Agree'])
-            append 
             print(str(surface) + ': ' + str(accuracy))
             model_accuracies.append(accuracy)
             N.append(len(bitmeanings[surface]))
-
 
         # extras = self._obj[['confidence_an', 'bayes_in', 'cloud_an']]
         # extras_tuple = extras.values
@@ -487,16 +484,16 @@ class DataAnalyser():
         # print(accuracies)
         # accuracies = (np.concatenate(accuracies)).reshape((-1, 3))
 
-        # t = np.arange(len(names))
+        t = np.arange(len(names))
 
         plt.figure('Accuracy vs surface type')
         plt.title('Accuracy as a function of surface type')
         plt.ylabel('Accuracy')
-        bars = plt.bar(t, accuracies[:, 0], width=0.5, align='center', color='honeydew',
-                        edgecolor='palegreen', yerr=(np.array(accuracies[:, 0]) / np.array(N))**(0.5),
-                        tick_label=names, capsize=0.3 ,zorder=1)
-        circles = plt.scatter(t, accuracies[:, 1], marker='o', zorder=2)
-        stars = plt.scatter(t, accuracies[:, 2], marker='*', zorder=3)
+        bars = plt.bar(t, model_accuracies, width=0.5, align='center', color='honeydew',
+                       edgecolor='palegreen', yerr=(np.array(model_accuracies)/ np.array(N))**(0.5),
+                       tick_label=names, capsize=0.3, zorder=1)
+        # circles = plt.scatter(t, accuracies[:, 1], marker='o', zorder=2)
+        # stars = plt.scatter(t, accuracies[:, 2], marker='*', zorder=3)
         plt.xticks(rotation=90)
         plt.legend([bars, circles, stars], ['Model accuracy',
                                             'Bayesian mask accuracy',

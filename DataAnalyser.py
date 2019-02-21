@@ -436,7 +436,7 @@ class DataAnalyser():
             accuracy = np.mean(surfdf['Agree'])
             print(str(surface) + ': ' + str(accuracy))
             model_accuracies.append(accuracy)
-            N.append(len(surdf))
+            N.append(len(surfdf))
 
         # extras = self._obj[['confidence_an', 'bayes_in', 'cloud_an']]
         # extras_tuple = extras.values

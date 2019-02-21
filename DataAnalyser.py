@@ -399,7 +399,7 @@ class DataAnalyser():
         None
         """
 
-        self.model_agreement(model)
+        self.model_agreement(modelname)
         self._model_applied()
 
         self._obj.dp.remove_nan()

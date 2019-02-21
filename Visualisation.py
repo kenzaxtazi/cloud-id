@@ -249,6 +249,10 @@ def false_color_image(band1, band2, band3, plot=True):
     if plot is True:
         plt.figure()
         plt.imshow(rgb)
-        plt.title('False colour image')
+        plt.xlabel('km')
+        plt.ylabel('km')
+        plt.xticks([0, 500, 1000, 1500, 2000, 2500, 3000], [0, 250, 500, 750, 1000, 1250, 1500])
+        plt.yticks([0, 500, 1000, 1500, 2000], [0, 250, 500, 750, 1000])
+        plt.show()
 
     return rgb

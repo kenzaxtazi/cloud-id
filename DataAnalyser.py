@@ -437,26 +437,31 @@ class DataAnalyser():
                 surfdf = valdf[valdf['confidence_an']
                                & bitmeanings[surface] == 8]
             
-            # Model accuracy 
+            # Model accuracy
             n = len(surfdf)
             model_accuracy = np.mean(surfdf['Agree'])
             # print(str(surface) + ': ' + str(accuracy))
 
-            # Bayesian mask accuracy 
+            # Bayesian mask accuracy
             bayes_labels = surfdf['bayes_in']
             bayes_labels[bayes_labels > 1] = 1
             bayes_accuracy = float(len(bayes_labels[bayes_labels == surfdf['Labels']])) / float(n)
             
+
             # Empirical mask accuracy
             empir_labels = surfdf['cloud_an']
             empir_labels[empir_labels > 1] = 1
-            empir_accuracy = float(len(empir_labels[empir_labels == surfdf['Labels']])) /float(n)
+            empir_accuracy = float(len(empir_labels[empir_labels == surfdf['Labels']])) / float(n)
+            print(empir_accuracy)
 
             model_accuracies.append(model_accuracy)
             bayes_accuracies.append(bayes_accuracy)
             empir_accuracies.append(empir_accuracy)
             N.append(n)
 
+        print(bayes_accuracies)
+        print(empir_accuracies)
+          
         # extras = self._obj[['confidence_an', 'bayes_in', 'cloud_an']]
         # extras_tuple = extras.values
         # extras_array = np.concatenate(extras_tuple).reshape(-1, 3)

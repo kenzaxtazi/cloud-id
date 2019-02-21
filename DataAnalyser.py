@@ -5,8 +5,9 @@
 ##############################################
 
 import os
-import matplotlib                                  
-matplotlib.rcParams.update({'errorbar.capsize': 0.15})
+from collections import Counter
+
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -15,10 +16,11 @@ from tqdm import tqdm
 import DataLoader as DL
 import DataPreparation as dp
 import FileDownloader as FD
-import Visualisation as Vis
 import ModelEvaluation as me
-
+import Visualisation as Vis
 from FFN import FFN
+
+matplotlib.rcParams.update({'errorbar.capsize': 0.15})
 
 
 @pd.api.extensions.register_dataframe_accessor("da")
@@ -146,6 +148,48 @@ class DataAnalyser():
 
         Vis.plot_poles(self._obj['latitude_an'].values,
                        self._obj['longitude_an'].values, self._obj[datacol].values)
+
+    def plot_poles_gridded(self, datacol='Agree'):
+        if datacol in ['Agree', 'CTruth', 'Labels', 'Label_Confidence']:
+            self._model_applied()
+
+        lat = self._obj['latitude_an'].values
+        lon = self._obj['longitude_an'].values
+        data = self._obj['Agree'].values
+
+        lat = np.round_(lat, 1)
+        lon = np.round_(lon, 1)
+
+        pos = list(zip(lat, lon, data))
+
+        upos = list(set(pos)).sort()
+
+        cnt = Counter(pos)
+
+        Tpos = list(zip(lat, lon, [True] * len(lat)))
+        Fpos = list(zip(lat, lon, [False] * len(lat)))
+
+        Tpos.sort()
+        Fpos.sort()
+
+        NTrues = []
+        NFalses = []
+
+        for i in Tpos:
+            NTrues.append(cnt[i])
+
+        for i in Fpos:
+            NFalses.append(cnt[i])
+
+        Means = []
+
+        for i in range(len(NTrues)):
+            Means.append(NTrues[i] / (NTrues[i] + NFalses[i]))
+
+        ulat = [i[0] for i in upos]
+        ulon = [i[1] for i in upos]
+
+        Vis.plot_poles(ulat, ulon, Means, 1.5)
 
     def get_contextual_dataframe(self, contextlength=50, download_missing=False):
         """Given a dataframe of poorly classified pixels, produce dataframe with neighbouring S1 pixel values"""
@@ -438,7 +482,7 @@ class DataAnalyser():
             else:
                 surfdf = valdf[valdf['confidence_an']
                                & bitmeanings[surface] == 8]
-            
+
             # Model accuracy
             n = len(surfdf)
             model_accuracy = np.mean(surfdf['Agree'])
@@ -447,12 +491,14 @@ class DataAnalyser():
             # Bayesian mask accuracy
             bayes_labels = surfdf['bayes_in']
             bayes_labels[bayes_labels > 1] = 1
-            bayes_accuracy = float(len(bayes_labels[bayes_labels == surfdf['CTruth']])) / float(n)
-            
+            bayes_accuracy = float(
+                len(bayes_labels[bayes_labels == surfdf['CTruth']])) / float(n)
+
             # Empirical mask accuracy
             empir_labels = surfdf['cloud_an']
             empir_labels[empir_labels > 1] = 1
-            empir_accuracy = float(len(empir_labels[empir_labels == surfdf['CTruth']])) / float(n)
+            empir_accuracy = float(
+                len(empir_labels[empir_labels == surfdf['CTruth']])) / float(n)
             print(empir_accuracy)
 
             model_accuracies.append(model_accuracy)
@@ -462,7 +508,7 @@ class DataAnalyser():
 
         print(bayes_accuracies)
         print(empir_accuracies)
-          
+
         # extras = self._obj[['confidence_an', 'bayes_in', 'cloud_an']]
         # extras_tuple = extras.values
         # extras_array = np.concatenate(extras_tuple).reshape(-1, 3)
@@ -474,7 +520,7 @@ class DataAnalyser():
         #                                   emask=validation_extras[:, 2])
 
         # accuracies = []
-        # 
+        #
 
         names = ['Coastline', 'Ocean', 'Tidal', 'Land', 'Inland water',
                  'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Snow']
@@ -516,8 +562,8 @@ class DataAnalyser():
         plt.title('Accuracy as a function of surface type')
         plt.ylabel('Accuracy')
         bars = plt.bar(t, model_accuracies, width=0.5, align='center', color='honeydew',
-                       edgecolor='palegreen', yerr=(np.array(model_accuracies)/ np.array(N))**(0.5),
-                       tick_label=names, ecolor= 'g', capsize=3, zorder=1)
+                       edgecolor='palegreen', yerr=(np.array(model_accuracies) / np.array(N))**(0.5),
+                       tick_label=names, ecolor='g', capsize=3, zorder=1)
         circles = plt.scatter(t, bayes_accuracies, marker='o', zorder=2)
         stars = plt.scatter(t, empir_accuracies, marker='*', zorder=3)
         plt.xticks(rotation=45)

@@ -274,7 +274,7 @@ def bits_from_int(array, num_inputs=22):
 
 
 def mask_to_one_hot(bitmask, bits_to_apply=[2]):
-    """ 
+    """
     Returns one hot encoding for a cloud bitmask.
 
     Parameters
@@ -288,7 +288,7 @@ def mask_to_one_hot(bitmask, bits_to_apply=[2]):
     Returns
     ---------
     onehot: 1x2 array
-        [0, 1] == clear, 
+        [0, 1] == clear,
         [1, 0] == cloudy.
     """
 

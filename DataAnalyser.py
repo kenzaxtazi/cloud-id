@@ -5,11 +5,8 @@
 ##############################################
 
 import os
-<<<<<<< HEAD
-=======
 from collections import Counter
 
->>>>>>> 346cba90981f67695cf4e7416f1b5d6ba043db6b
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,11 +20,7 @@ import ModelEvaluation as me
 import Visualisation as Vis
 from FFN import FFN
 
-<<<<<<< HEAD
-#matplotlib.rcParams.update({'errorbar.capsize': 0.15})
-=======
 matplotlib.rcParams.update({'errorbar.capsize': 0.15})
->>>>>>> 346cba90981f67695cf4e7416f1b5d6ba043db6b
 
 
 @pd.api.extensions.register_dataframe_accessor("da")
@@ -457,7 +450,6 @@ class DataAnalyser():
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
-        #self._obj.dp.remove_night()
 
         self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
 
@@ -485,8 +477,8 @@ class DataAnalyser():
         for surface in bitmeanings:
 
             if surface != 'dry_land':
-                surfdf = valdf[valdf['confidence_an'] &
-                               bitmeanings[surface] == bitmeanings[surface]]
+                surfdf = valdf[valdf['confidence_an']
+                               & bitmeanings[surface] == bitmeanings[surface]]
             else:
                 surfdf = valdf[valdf['confidence_an']
                                & bitmeanings[surface] == 8]
@@ -508,10 +500,7 @@ class DataAnalyser():
             empir_labels[empir_labels > 1] = 1
             empir_accuracy = float(
                 len(empir_labels[empir_labels == surfdf['CTruth']])) / float(n)
-<<<<<<< HEAD
-=======
             print(empir_accuracy)
->>>>>>> 346cba90981f67695cf4e7416f1b5d6ba043db6b
 
             model_accuracies.append(model_accuracy)
             bayes_accuracies.append(bayes_accuracy)
@@ -578,7 +567,8 @@ class DataAnalyser():
                        tick_label=names, ecolor='g', capsize=3, zorder=1)
         circles = plt.scatter(t, bayes_accuracies, marker='o', zorder=2)
         stars = plt.scatter(t, empir_accuracies, marker='*', zorder=3)
-        plt.yticks([0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95])
+        plt.yticks([0.50, 0.55, 0.60, 0.65, 0.70,
+                    0.75, 0.80, 0.85, 0.90, 0.95])
         plt.xticks(rotation=45)
         plt.legend([bars, circles, stars], ['Model accuracy',
                                             'Bayesian mask accuracy',

@@ -5,8 +5,11 @@
 ##############################################
 
 import os
+<<<<<<< HEAD
+=======
 from collections import Counter
 
+>>>>>>> 346cba90981f67695cf4e7416f1b5d6ba043db6b
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,7 +23,11 @@ import ModelEvaluation as me
 import Visualisation as Vis
 from FFN import FFN
 
+<<<<<<< HEAD
+#matplotlib.rcParams.update({'errorbar.capsize': 0.15})
+=======
 matplotlib.rcParams.update({'errorbar.capsize': 0.15})
+>>>>>>> 346cba90981f67695cf4e7416f1b5d6ba043db6b
 
 
 @pd.api.extensions.register_dataframe_accessor("da")
@@ -450,7 +457,7 @@ class DataAnalyser():
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
-        self._obj.dp.remove_night()
+        #self._obj.dp.remove_night()
 
         self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
 
@@ -486,6 +493,7 @@ class DataAnalyser():
 
             # Model accuracy
             n = len(surfdf)
+            print(n)
             model_accuracy = np.mean(surfdf['Agree'])
             # print(str(surface) + ': ' + str(accuracy))
 
@@ -500,7 +508,10 @@ class DataAnalyser():
             empir_labels[empir_labels > 1] = 1
             empir_accuracy = float(
                 len(empir_labels[empir_labels == surfdf['CTruth']])) / float(n)
+<<<<<<< HEAD
+=======
             print(empir_accuracy)
+>>>>>>> 346cba90981f67695cf4e7416f1b5d6ba043db6b
 
             model_accuracies.append(model_accuracy)
             bayes_accuracies.append(bayes_accuracy)
@@ -567,6 +578,7 @@ class DataAnalyser():
                        tick_label=names, ecolor='g', capsize=3, zorder=1)
         circles = plt.scatter(t, bayes_accuracies, marker='o', zorder=2)
         stars = plt.scatter(t, empir_accuracies, marker='*', zorder=3)
+        plt.yticks([0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95])
         plt.xticks(rotation=45)
         plt.legend([bars, circles, stars], ['Model accuracy',
                                             'Bayesian mask accuracy',
@@ -574,7 +586,7 @@ class DataAnalyser():
         plt.show()
 
     def reproducibility(self, model, number_of_runs=15, validation_frac=0.15, para_num=22):
-        """ 
+        """
         Return the average and standard deviation of a same model but different
         order of the data it is presented. These outputs quantify the
         reproducibilty  of the model.
@@ -584,7 +596,7 @@ class DataAnalyser():
         model: model object
 
         number of runs: int
-            number of times to run the model. 
+            number of times to run the model.
 
         validation_frac: float
             the fraction of data kept for validation when preparing the model's training data.

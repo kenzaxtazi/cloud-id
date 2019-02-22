@@ -475,15 +475,14 @@ class DataPreparer():
         validation_truth_flags = pix[-pct:, input_type]
 
         training_cloudtruth = (training_truth_flags.astype(int) & 7 == 2)
+        training_truth = np.vstack(
+            (training_cloudtruth, ~training_cloudtruth)).T
 
         validation_cloudtruth = (validation_truth_flags.astype(int) & 7 == 2)
+        validation_truth = np.vstack(
+            (validation_cloudtruth, ~validation_cloudtruth)).T
 
-        return [
-            training_data,
-            validation_data,
-            np.vstack((training_cloudtruth, 1 - training_cloudtruth)).T,
-            np.vstack((validation_cloudtruth, 1 - validation_cloudtruth)).T
-        ]
+        return training_data, validation_data, training_truth, validation_truth
 
     def get_cnn_training_data(self, validation_frac=0.15, seed=None):
         self.remove_nan()
@@ -509,14 +508,12 @@ class DataPreparer():
 
         # turn binary truth flags into one hot code
         training_cloudtruth = (training_truth_flags.astype(int) & 7 == 2)
-        reverse_training_cloudtruth = 1 - training_cloudtruth
         training_truth = np.vstack(
-            (training_cloudtruth, reverse_training_cloudtruth)).T
+            (training_cloudtruth, ~training_cloudtruth)).T
 
         validation_cloudtruth = (validation_truth_flags.astype(int) & 7 == 2)
-        reverse_validation_cloudtruth = 1 - validation_cloudtruth
         validation_truth = np.vstack(
-            (validation_cloudtruth, reverse_validation_cloudtruth)).T
+            (validation_cloudtruth, ~validation_cloudtruth)).T
 
         return training_data, validation_data, training_truth, validation_truth
 

@@ -460,41 +460,29 @@ class DataPreparer():
         self.shuffle_by_file(seed)
         self.remove_night()
 
-        pixel_channels = (
-            self._obj[[
-                'S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an',
-                'S7_in', 'S8_in', 'S9_in', 'satellite_zenith_angle',
-                'solar_zenith_angle', 'latitude_an', 'longitude_an'
-            ]].values
-        )
-
-        confidence_flags = bits_from_int(
-            self._obj['confidence_an'].values, input_type).T
-
-        pixel_inputs = np.column_stack((pixel_channels, confidence_flags))
+        pixel_inputs = self.get_inputs(input_type)
 
         pixel_outputs = self._obj[['Feature_Classification_Flags']].values
 
         pix = np.column_stack((pixel_inputs, pixel_outputs)).astype('float')
 
         pct = int(len(pix) * validation_frac)
-        training = pix[:-pct, :]   # take all but the 15% last
-        validation = pix[-pct:, :]   # take the last 15% of pixels
 
-        training_data = training[:, :input_type]
-        training_truth_flags = training[:, input_type]
-        validation_data = validation[:, :input_type]
-        validation_truth_flags = validation[:, input_type]
+        training_data = pix[:-pct, :input_type]
+        training_truth_flags = pix[:-pct, input_type]
 
-        training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
+        validation_data = pix[-pct:, :input_type]
+        validation_truth_flags = pix[-pct:, input_type]
+
+        training_cloudtruth = (training_truth_flags.astype(int) & 7 == 2)
         training_truth = np.vstack(
-            (training_cloudtruth, 1 - training_cloudtruth)).T
+            (training_cloudtruth, ~training_cloudtruth)).T
 
-        validation_cloudtruth = (validation_truth_flags.astype(int) & 2) / 2
+        validation_cloudtruth = (validation_truth_flags.astype(int) & 7 == 2)
         validation_truth = np.vstack(
-            (validation_cloudtruth, 1 - validation_cloudtruth)).T
+            (validation_cloudtruth, ~validation_cloudtruth)).T
 
-        return [training_data, validation_data, training_truth, validation_truth]
+        return training_data, validation_data, training_truth, validation_truth
 
     def get_cnn_training_data(self, validation_frac=0.15, seed=None):
         self.remove_nan()
@@ -519,15 +507,13 @@ class DataPreparer():
         validation_truth_flags = truth[-pct:]
 
         # turn binary truth flags into one hot code
-        training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
-        reverse_training_cloudtruth = 1 - training_cloudtruth
+        training_cloudtruth = (training_truth_flags.astype(int) & 7 == 2)
         training_truth = np.vstack(
-            (training_cloudtruth, reverse_training_cloudtruth)).T
+            (training_cloudtruth, ~training_cloudtruth)).T
 
-        validation_cloudtruth = (validation_truth_flags.astype(int) & 2) / 2
-        reverse_validation_cloudtruth = 1 - validation_cloudtruth
+        validation_cloudtruth = (validation_truth_flags.astype(int) & 7 == 2)
         validation_truth = np.vstack(
-            (validation_cloudtruth, reverse_validation_cloudtruth)).T
+            (validation_cloudtruth, ~validation_cloudtruth)).T
 
         return training_data, validation_data, training_truth, validation_truth
 

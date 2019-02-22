@@ -1,7 +1,6 @@
 import unittest
 
 from FFN import FFN
-from ModelApplication import apply_mask
 
 
 class TestMaskingMethod(unittest.TestCase):
@@ -11,11 +10,6 @@ class TestMaskingMethod(unittest.TestCase):
         self.model = FFN('Net1_FFN')
         self.model.Load()
         self.TestFile = "./SatelliteData/SLSTR/2018/08/S3A_SL_1_RBT____20180806T081914_20180806T082214_20180807T131253_0179_034_178_1620_LN2_O_NT_003.SEN3"
-
-    def test_mask_ModelAPP(self):
-        mask = apply_mask(self.model.model, self.TestFile, 24)[0]
-
-        self.assertEqual(mask.shape, (2400, 3000))
 
     def test_mask_FFNMethod(self):
         mask = self.model.apply_mask(self.TestFile)[0]

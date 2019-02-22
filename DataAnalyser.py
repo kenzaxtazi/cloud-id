@@ -5,6 +5,11 @@
 ##############################################
 
 import os
+<<<<<<< HEAD
+=======
+from collections import Counter
+
+>>>>>>> 346cba90981f67695cf4e7416f1b5d6ba043db6b
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,12 +19,15 @@ from tqdm import tqdm
 import DataLoader as DL
 import DataPreparation as dp
 import FileDownloader as FD
-import Visualisation as Vis
 import ModelEvaluation as me
-
+import Visualisation as Vis
 from FFN import FFN
 
+<<<<<<< HEAD
 #matplotlib.rcParams.update({'errorbar.capsize': 0.15})
+=======
+matplotlib.rcParams.update({'errorbar.capsize': 0.15})
+>>>>>>> 346cba90981f67695cf4e7416f1b5d6ba043db6b
 
 
 @pd.api.extensions.register_dataframe_accessor("da")
@@ -147,6 +155,49 @@ class DataAnalyser():
 
         Vis.plot_poles(self._obj['latitude_an'].values,
                        self._obj['longitude_an'].values, self._obj[datacol].values)
+
+    def plot_poles_gridded(self, datacol='Agree'):
+        if datacol in ['Agree', 'CTruth', 'Labels', 'Label_Confidence']:
+            self._model_applied()
+
+        lat = self._obj['latitude_an'].values
+        lon = self._obj['longitude_an'].values
+        data = self._obj['Agree'].values
+
+        lat = np.round_(lat, 1)
+        lon = np.round_(lon, 1)
+
+        pos = list(zip(lat, lon, data))
+
+        upos = list(set(pos))
+        upos.sort()
+
+        cnt = Counter(pos)
+
+        Tpos = list(zip(lat, lon, [True] * len(lat)))
+        Fpos = list(zip(lat, lon, [False] * len(lat)))
+
+        Tpos.sort()
+        Fpos.sort()
+
+        NTrues = []
+        NFalses = []
+
+        for i in Tpos:
+            NTrues.append(cnt[i])
+
+        for i in Fpos:
+            NFalses.append(cnt[i])
+
+        Means = []
+
+        for i in range(len(NTrues)):
+            Means.append(NTrues[i] / (NTrues[i] + NFalses[i]))
+
+        ulat = [i[0] for i in upos]
+        ulon = [i[1] for i in upos]
+
+        Vis.plot_poles(ulat, ulon, Means, 1.5)
 
     def get_contextual_dataframe(self, contextlength=50, download_missing=False):
         """Given a dataframe of poorly classified pixels, produce dataframe with neighbouring S1 pixel values"""
@@ -457,6 +508,10 @@ class DataAnalyser():
             empir_labels[empir_labels > 1] = 1
             empir_accuracy = float(
                 len(empir_labels[empir_labels == surfdf['CTruth']])) / float(n)
+<<<<<<< HEAD
+=======
+            print(empir_accuracy)
+>>>>>>> 346cba90981f67695cf4e7416f1b5d6ba043db6b
 
             model_accuracies.append(model_accuracy)
             bayes_accuracies.append(bayes_accuracy)

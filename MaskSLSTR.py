@@ -5,7 +5,6 @@
 # Licence version 3 (GPLv3)
 ##############################################
 
-from ModelApplication import apply_mask
 import DataLoader as DL
 import Visualisation as Vis
 from FFN import FFN
@@ -34,7 +33,7 @@ Sfiles = ["./SatelliteData/SLSTR/Test4/S3A_SL_1_RBT____20180212T103733_20180212T
 
 for Sfile in Sfiles:
 
-    mask1 = apply_mask(model.model, Sfile, input_type=22)[0]
+    mask1 = model.apply_mask(Sfile)[0]
 
     # bmask = DL.extract_mask(Sfile, 'cloud_an', 64)
     bmask = DL.extract_mask(Sfile, 'bayes_in', 2)

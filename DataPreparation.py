@@ -274,7 +274,7 @@ def bits_from_int(array, num_inputs=22):
 
 
 def mask_to_one_hot(bitmask, bits_to_apply=[2]):
-    """ 
+    """
     Returns one hot encoding for a cloud bitmask.
 
     Parameters
@@ -474,9 +474,9 @@ class DataPreparer():
         validation_data = pix[-pct:, :input_type]
         validation_truth_flags = pix[-pct:, input_type]
 
-        training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
+        training_cloudtruth = (training_truth_flags.astype(int) & 7 == 2)
 
-        validation_cloudtruth = (validation_truth_flags.astype(int) & 2) / 2
+        validation_cloudtruth = (validation_truth_flags.astype(int) & 7 == 2)
 
         return [
             training_data,
@@ -508,12 +508,12 @@ class DataPreparer():
         validation_truth_flags = truth[-pct:]
 
         # turn binary truth flags into one hot code
-        training_cloudtruth = (training_truth_flags.astype(int) & 2) / 2
+        training_cloudtruth = (training_truth_flags.astype(int) & 7 == 2)
         reverse_training_cloudtruth = 1 - training_cloudtruth
         training_truth = np.vstack(
             (training_cloudtruth, reverse_training_cloudtruth)).T
 
-        validation_cloudtruth = (validation_truth_flags.astype(int) & 2) / 2
+        validation_cloudtruth = (validation_truth_flags.astype(int) & 7 == 2)
         reverse_validation_cloudtruth = 1 - validation_cloudtruth
         validation_truth = np.vstack(
             (validation_cloudtruth, reverse_validation_cloudtruth)).T

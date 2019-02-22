@@ -5,11 +5,8 @@
 ##############################################
 
 import os
-<<<<<<< HEAD
-=======
 from collections import Counter
 
->>>>>>> 346cba90981f67695cf4e7416f1b5d6ba043db6b
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,11 +20,7 @@ import ModelEvaluation as me
 import Visualisation as Vis
 from FFN import FFN
 
-<<<<<<< HEAD
-#matplotlib.rcParams.update({'errorbar.capsize': 0.15})
-=======
 matplotlib.rcParams.update({'errorbar.capsize': 0.15})
->>>>>>> 346cba90981f67695cf4e7416f1b5d6ba043db6b
 
 
 @pd.api.extensions.register_dataframe_accessor("da")
@@ -508,10 +501,6 @@ class DataAnalyser():
             empir_labels[empir_labels > 1] = 1
             empir_accuracy = float(
                 len(empir_labels[empir_labels == surfdf['CTruth']])) / float(n)
-<<<<<<< HEAD
-=======
-            print(empir_accuracy)
->>>>>>> 346cba90981f67695cf4e7416f1b5d6ba043db6b
 
             model_accuracies.append(model_accuracy)
             bayes_accuracies.append(bayes_accuracy)

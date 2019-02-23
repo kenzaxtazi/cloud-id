@@ -76,6 +76,9 @@ def getinputsFFN(Sreference, input_type=24):
 
     inputs = np.vstack((inputs, confidence_flags))
 
+    if input_type == 21:
+        inputs = np.reshape(inputs, (21, 7200000))
+
     if input_type == 22:
         inputs = np.reshape(inputs, (22, 7200000))
 
@@ -237,6 +240,20 @@ def bits_from_int(array, num_inputs=22):
     """
     array = array.astype(int)
 
+    if num_inputs == 21:
+        return(
+            np.array([
+                array & 1,          # Coastline
+                array & 2,          # Ocean
+                array & 4,          # Tidal
+                array & 24 == 8,    # Dry land
+                array & 16,         # Inland water
+                array & 256,        # Cosmetic
+                array & 512,        # Duplicate
+                array & 1024,       # Day
+            ]).astype('bool')
+        )
+
     if num_inputs == 22:
         return(
             np.array([
@@ -270,7 +287,7 @@ def bits_from_int(array, num_inputs=22):
         )
 
     else:
-        raise ValueError('Only recognised num_inputs values are 22 and 24')
+        raise ValueError('Only recognised num_inputs values are 21, 22 and 24')
 
 
 def mask_to_one_hot(bitmask, bits_to_apply=[2]):
@@ -458,7 +475,7 @@ class DataPreparer():
         self.remove_nan()
         self.remove_anomalous()
         self.shuffle_by_file(seed)
-        self.remove_night()
+        # self.remove_night()
 
         pixel_inputs = self.get_inputs(input_type)
 

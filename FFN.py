@@ -240,8 +240,8 @@ if __name__ == '__main__':
     # Pixel Loading
     df = dp.PixelLoader('./SatelliteData/SLSTR/Pixels3')
 
-    tdata, vdata, ttruth, vtruth = df.dp.get_ffn_training_data(22)
+    tdata, vdata, ttruth, vtruth = df.dp.get_ffn_training_data(21)
 
-    model = FFN('Test', 'Network1', 22)
+    model = FFN('Test', 'Network1', 21)
     model.Train(tdata, ttruth, vdata, vtruth)
     model.Save()

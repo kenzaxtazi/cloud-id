@@ -36,7 +36,7 @@ class DataAnalyser():
                 'No model has been applied to this dataframe.'
                 ' See df.da.model_agreement')
 
-    def model_agreement(self, model, MaxDist=None, MaxTime=None):
+    def model_agreement(self, model, verbose=False, MaxDist=None, MaxTime=None):
         """
         Apply a model to the dataframe and add model output to rows
 
@@ -59,10 +59,14 @@ class DataAnalyser():
         if MaxTime is not None:
             self._obj = self._obj[abs(self._obj['TimeDiff']) < MaxTime]
 
-        self.model = model
+        if isinstance(model, str):
+            self.model = model
 
-        model = FFN(model)
-        model.Load()
+            model = FFN(model)
+            model.Load(verbose=verbose)
+
+        elif isinstance(model, FFN):
+            pass
 
         num_inputs = model.para_num
 

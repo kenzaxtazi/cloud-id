@@ -10,7 +10,7 @@ modelname = 'Net1_FFN_v7'
 model = FFN(modelname)
 model.Load()
 
-mask1 = model.apply_mask(Sfile)[0]
+mask1, pmask = model.apply_mask(Sfile)
 
 rgb, TitleStr = Vis.FalseColour(Sfile, False)
 
@@ -31,59 +31,84 @@ rgb[~mask1, 2] = 185 / 255
 im4 = plt.imshow(rgb)
 im4.set_visible(False)
 
+im5 = plt.imshow(1 - pmask, cmap='Oranges')
+im5.set_visible(False)
 
-# TODO Refactor
+
 class Toggler():
     def __init__(self):
-        self.setting = 1
+        self.index = 0
+        self.settingfuncs = [self.setting1, self.setting2, self.setting3, self.setting4, self.setting5]
 
     def toggle_images(self, event):
         """Toggle between different images to display"""
         if event.key == '1':
+            self._clearframe()
             self.setting1()
         elif event.key == '2':
+            self._clearframe()
             self.setting2()
         elif event.key == '3':
+            self._clearframe()
             self.setting3()
         elif event.key == '4':
+            self._clearframe()
             self.setting4()
+        elif event.key == '5':
+            self._clearframe()
+            self.setting5()
+        elif event.key == 'm':
+            self._clearframe()
+            self.cycleforward()
+        elif event.key == 'n':
+            self._clearframe()
+            self.cyclebackward()
         else:
             return
+
+    def _clearframe(self):
+        im1.set_visible(False)
+        im2.set_visible(False)
+        im3.set_visible(False)
+        im4.set_visible(False)
+        im5.set_visible(False)
+
+    def cycleforward(self):
+        self.index = (self.index + 1) % 5
+        self.settingfuncs[self.index]()
+
+    def cyclebackward(self):
+        self.index = (self.index - 1) % 5
+        self.settingfuncs[self.index]()
 
     def setting1(self):
         plt.title('False colour image\n' + TitleStr)
         im1.set_visible(True)
-        im2.set_visible(False)
-        im3.set_visible(False)
-        im4.set_visible(False)
-        self.setting = 1
+        self.index = 0
         plt.draw()
 
     def setting2(self):
         plt.title(modelname + ' mask\n' + TitleStr)
-        im1.set_visible(False)
         im2.set_visible(True)
-        im3.set_visible(False)
-        im4.set_visible(False)
-        self.setting = 2
+        self.index = 1
         plt.draw()
 
     def setting3(self):
         plt.title('Bayesian mask\n' + TitleStr)
-        im1.set_visible(False)
-        im2.set_visible(False)
         im3.set_visible(True)
-        im4.set_visible(False)
-        self.setting = 3
+        self.index = 2
         plt.draw()
 
     def setting4(self):
         plt.title(modelname + ' masked false colour image\n' + TitleStr)
-        im1.set_visible(False)
-        im2.set_visible(False)
-        im3.set_visible(False)
         im4.set_visible(True)
-        self.setting = 4
+        self.index = 3
+        plt.draw()
+
+    def setting5(self):
+        plt.title(modelname + ' probability mask\n' + TitleStr)
+        im5.set_visible(True)
+        self.index = 4
         plt.draw()
 
 

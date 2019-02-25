@@ -76,6 +76,52 @@ class CNN():
                                    loss='categorical_crossentropy', name='targets')
         self.networkConfig = 'NetworkA'
 
+    def NetworkB(self):
+        convnet = input_data(
+            shape=[None, self.img_length, self.img_width, 1], name='input')
+
+        # Layer 1
+        convnet = conv_2d(convnet, nb_filter=32,
+                          filter_size=5, activation='relu')
+        convnet = max_pool_2d(convnet, kernel_size=5)
+        convnet = dropout(convnet, 0.8)
+
+        # Layer 2
+        convnet = conv_2d(convnet, nb_filter=64,
+                          filter_size=5, activation='relu')
+        convnet = max_pool_2d(convnet, kernel_size=5)
+        convent = dropout(convnet, 0.8)
+
+        # Layer 3
+        convnet = conv_2d(convnet, nb_filter=128,
+                          filter_size=5, activation='relu')
+        convnet = max_pool_2d(convnet, kernel_size=5)
+        convent = dropout(convnet, 0.8)
+
+        # Layer 4
+        convnet = conv_2d(convnet, nb_filter=64,
+                          filter_size=5, activation='relu')
+        convnet = max_pool_2d(convnet, kernel_size=5)
+        convent = dropout(convnet, 0.8)
+
+        # Layer 5
+        convnet = conv_2d(convnet, nb_filter=32,
+                          filter_size=5, activation='relu')
+        convnet = max_pool_2d(convnet, kernel_size=5)
+        convent = dropout(convnet, 0.8)
+
+        # Layer 6
+        convnet = fully_connected(convnet, 1024, activation='relu')
+        convnet = dropout(convnet, keep_prob=0.8)
+
+        # Layer 7
+        softmax = fully_connected(convnet, 2, activation='softmax')
+
+        # gives the paramaters to optimise the network
+        self._network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
+                                   loss='categorical_crossentropy', name='targets')
+        self.networkConfig = 'NetworkB'
+
     @property
     def network(self):
         if self._network is not None:

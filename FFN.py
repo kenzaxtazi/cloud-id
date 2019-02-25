@@ -6,8 +6,9 @@
 ##############################################
 
 import datetime
-import pandas
+
 import numpy as np
+import pandas   # noqa: F401 # pylint: disable=unused-import # Prevent tflearn importing dodgy version
 import tflearn
 from tflearn.layers.core import dropout, fully_connected, input_data
 from tflearn.layers.estimator import regression
@@ -256,27 +257,23 @@ class FFN():
 
         inputs = dp.getinputsFFN(Sreference, input_type=self.para_num)
 
-        returnlist = []
-
         label = self.model.predict_label(inputs)
         lmask = np.array(label)
         lmask = lmask[:, 0].reshape(2400, 3000)
-        returnlist.append(lmask)
 
         prob = self.model.predict(inputs)
         pmask = np.array(prob)
         pmask = pmask[:, 0].reshape(2400, 3000)
-        returnlist.append(pmask)
 
-        return returnlist
+        return lmask, pmask
 
 
 if __name__ == '__main__':
     # Pixel Loading
     df = dp.PixelLoader('./SatelliteData/SLSTR/Pixels3')
 
-    tdata, vdata, ttruth, vtruth = df.dp.get_ffn_training_data(22)
+    tdata, vdata, ttruth, vtruth = df.dp.get_ffn_training_data(21)
 
-    model = FFN('Test', 'Network1', 22)
+    model = FFN('Test', 'Network1', 21)
     model.Train(tdata, ttruth, vdata, vtruth)
     model.Save()

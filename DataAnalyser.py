@@ -36,7 +36,7 @@ class DataAnalyser():
                 'No model has been applied to this dataframe.'
                 ' See df.da.model_agreement')
 
-    def model_agreement(self, model, MaxDist=None, MaxTime=None):
+    def model_agreement(self, model, verbose=False, MaxDist=None, MaxTime=None):
         """
         Apply a model to the dataframe and add model output to rows
 
@@ -59,10 +59,14 @@ class DataAnalyser():
         if MaxTime is not None:
             self._obj = self._obj[abs(self._obj['TimeDiff']) < MaxTime]
 
-        self.model = model
+        if isinstance(model, str):
+            self.model = model
 
-        model = FFN(model)
-        model.Load()
+            model = FFN(model)
+            model.Load(verbose=verbose)
+
+        elif isinstance(model, FFN):
+            pass
 
         num_inputs = model.para_num
 
@@ -450,7 +454,6 @@ class DataAnalyser():
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
-        self._obj.dp.remove_night()
 
         self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
 
@@ -478,14 +481,15 @@ class DataAnalyser():
         for surface in bitmeanings:
 
             if surface != 'dry_land':
-                surfdf = valdf[valdf['confidence_an'] &
-                               bitmeanings[surface] == bitmeanings[surface]]
+                surfdf = valdf[valdf['confidence_an']
+                               & bitmeanings[surface] == bitmeanings[surface]]
             else:
                 surfdf = valdf[valdf['confidence_an']
                                & bitmeanings[surface] == 8]
 
             # Model accuracy
             n = len(surfdf)
+            print(n)
             model_accuracy = np.mean(surfdf['Agree'])
             # print(str(surface) + ': ' + str(accuracy))
 
@@ -500,7 +504,6 @@ class DataAnalyser():
             empir_labels[empir_labels > 1] = 1
             empir_accuracy = float(
                 len(empir_labels[empir_labels == surfdf['CTruth']])) / float(n)
-            print(empir_accuracy)
 
             model_accuracies.append(model_accuracy)
             bayes_accuracies.append(bayes_accuracy)
@@ -567,6 +570,8 @@ class DataAnalyser():
                        tick_label=names, ecolor='g', capsize=3, zorder=1)
         circles = plt.scatter(t, bayes_accuracies, marker='o', zorder=2)
         stars = plt.scatter(t, empir_accuracies, marker='*', zorder=3)
+        plt.yticks([0.50, 0.55, 0.60, 0.65, 0.70,
+                    0.75, 0.80, 0.85, 0.90, 0.95])
         plt.xticks(rotation=45)
         plt.legend([bars, circles, stars], ['Model accuracy',
                                             'Bayesian mask accuracy',
@@ -574,7 +579,7 @@ class DataAnalyser():
         plt.show()
 
     def reproducibility(self, model, number_of_runs=15, validation_frac=0.15, para_num=22):
-        """ 
+        """
         Return the average and standard deviation of a same model but different
         order of the data it is presented. These outputs quantify the
         reproducibilty  of the model.
@@ -584,7 +589,7 @@ class DataAnalyser():
         model: model object
 
         number of runs: int
-            number of times to run the model. 
+            number of times to run the model.
 
         validation_frac: float
             the fraction of data kept for validation when preparing the model's training data.

@@ -127,6 +127,38 @@ class FFN():
                                    loss='categorical_crossentropy', name='targets')
         self.networkConfig = 'Network2'
 
+    def Network3(self):
+        # Network layers
+
+        # layer 0: generates a 4D tensor
+        layer0 = input_data(shape=[None, self.para_num], name='input')
+        dropout0 = dropout(layer0, 0.8)
+
+        # layer 1
+        layer1 = fully_connected(dropout0, 32, activation='leakyrelu')
+        dropout1 = dropout(layer1, 0.8)
+
+        # layer 2
+        layer2 = fully_connected(dropout1, 32, activation='leakyrelu')
+        dropout2 = dropout(layer2, 0.8)
+
+        # layer 3
+        layer3 = fully_connected(dropout2, 32, activation='leakyrelu')
+        dropout3 = dropout(layer3, 0.8)
+
+        # layer 4
+        layer4 = fully_connected(dropout3, 32, activation='leakyrelu')
+        dropout4 = dropout(layer4, 0.8)
+
+        # layer 5 this layer needs to spit out the number of categories
+        # we are looking for.
+        softmax = fully_connected(dropout4, 2, activation='softmax')
+
+        # gives the paramaters to optimise the network
+        self._network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
+                                   loss='categorical_crossentropy', name='targets')
+        self.networkConfig = 'Network1'
+
     @property
     def network(self):
         if self._network is not None:

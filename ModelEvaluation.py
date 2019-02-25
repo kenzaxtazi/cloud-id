@@ -24,8 +24,8 @@ def get_accuracy(model, validation_data, validation_truth, para_num=22):
     return accuracy[0]
 
 
-def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
-              emp_mask=None, name=None):
+def ROC(model, validation_data, validation_truth, bayes_mask=None,
+        emp_mask=None, name=None):
     """Plots Receiver Operating Characteristic (ROC) curve"""
 
     para_num = len(validation_data[0])

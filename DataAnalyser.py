@@ -529,7 +529,7 @@ class DataAnalyser():
                                             'Empirical mask accuracy'])
         plt.show()
 
-    def ROC_stype(self, seed=1, validation_frac=0.15, para_num=22):
+    def ROC_stype(self, seed=1, validation_frac=0.15):
         """
         Produces ROCs of relevant SLSTR surface types. 
 

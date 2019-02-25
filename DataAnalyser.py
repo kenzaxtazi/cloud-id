@@ -578,7 +578,7 @@ class DataAnalyser():
                                             'Empirical mask accuracy'])
         plt.show()
 
-    def reproducibility(self, model, number_of_runs=15, validation_frac=0.15, para_num=22):
+    def reproducibility(self, modelname, number_of_runs=15, validation_frac=0.15, para_num=22):
         """
         Return the average and standard deviation of a same model but different
         order of the data it is presented. These outputs quantify the
@@ -586,7 +586,8 @@ class DataAnalyser():
 
         Parameters
         -----------
-        model: model object
+        modelname: str
+            refers to model architecture to run
 
         number of runs: int
             number of times to run the model.
@@ -605,6 +606,9 @@ class DataAnalyser():
         std: float
             standard deviation of the model.
         """
+
+        model = FFN('Reproducibilty', modelname, 21)
+
         accuracies = []
 
         for i in range(number_of_runs):

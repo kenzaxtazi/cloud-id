@@ -290,42 +290,6 @@ def bits_from_int(array, num_inputs=22):
         raise ValueError('Only recognised num_inputs values are 21, 22 and 24')
 
 
-def mask_to_one_hot(bitmask, bits_to_apply=[2]):
-    """
-    Returns one hot encoding for a cloud bitmask.
-
-    Parameters
-    -----------
-    bitmask: array of int,
-        array of bitmasks to be transformed
-
-    bits_to_apply:
-        bitmasks to activate (see Header Information on the repository)
-
-    Returns
-    ---------
-    onehot: 1x2 array
-        [0, 1] == clear,
-        [1, 0] == cloudy.
-    """
-
-    bitmask = np.nan_to_num(bitmask)
-    bitmask = bitmask.astype(int)
-
-    masks = []
-    for b in bits_to_apply:
-        mask = bitmask & b
-        masks.append(mask)
-
-    summed_mask = sum(masks)
-    summed_mask[summed_mask > 1] = 1
-    reversed_mask = 1 - summed_mask
-
-    onehot = np.vstack((summed_mask, reversed_mask)).T
-
-    return onehot
-
-
 def get_coords(x0, y0, contextlength, separate=False):
     East_xs = np.linspace(x0 + 1, x0 + contextlength,
                           contextlength).astype(int)

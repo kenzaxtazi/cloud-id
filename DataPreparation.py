@@ -116,6 +116,7 @@ def getinputsCNN(Sreference, indices):
 
     return data
 
+
 def bits_from_int(array, num_inputs=22):
     """
     Extract bitmask from integer arrays
@@ -381,6 +382,40 @@ class DataPreparer():
         training_data = padded_stars[:-pct]
         # take the last 15% of pixels
         validation_data = padded_stars[-pct:]
+        training_truth_flags = truth[:-pct]
+        validation_truth_flags = truth[-pct:]
+
+        # turn binary truth flags into one hot code
+        training_cloudtruth = (training_truth_flags.astype(int) & 7 == 2)
+        training_truth = np.vstack(
+            (training_cloudtruth, ~training_cloudtruth)).T
+
+        validation_cloudtruth = (validation_truth_flags.astype(int) & 7 == 2)
+        validation_truth = np.vstack(
+            (validation_cloudtruth, ~validation_cloudtruth)).T
+
+        return training_data, validation_data, training_truth, validation_truth
+
+        def get_cnn_training_data_prime(self, validation_frac=0.15, seed=None):
+        self.remove_nan()
+        self.remove_anomalous()
+        self.shuffle_by_file(seed)
+        self.remove_night()
+
+        stars = self._obj['Star_array'].values
+        padded_stars = star_padding(stars)
+        extra_padded_stars = extra_padding(padded_stars)
+
+        truth = self._obj['Feature_Classification_Flags'].values
+
+        # split data into validation and training
+
+        pct = int(len(padded_stars) * validation_frac)
+
+        # take all but the 15% last
+        training_data = extra_padded_stars[:-pct]
+        # take the last 15% of pixels
+        validation_data = extra_padded_stars[-pct:]
         training_truth_flags = truth[:-pct]
         validation_truth_flags = truth[-pct:]
 

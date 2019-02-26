@@ -11,6 +11,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import tensorflow as tf 
 from tqdm import tqdm
 
 import DataLoader as DL
@@ -531,7 +532,7 @@ class DataAnalyser():
 
     def ROC_stype(self, seed=1, validation_frac=0.15):
         """
-        Produces ROCs of relevant SLSTR surface types. 
+        Produces ROCs of relevant SLSTR surface types.
 
         Parameters
         -----------
@@ -583,10 +584,10 @@ class DataAnalyser():
             # Truth
             truth = surfdf['CTruth']
             truth_onehot = np.vstack((truth, ~truth)).T
-            
+
             # Model
             model_confidence = surfdf['Label_Confidence']
-            model_onehot = np.vstack((model_confidence, 1-model_confidence)).T
+            model_onehot = np.vstack((model_confidence, 1 - model_confidence)).T
 
             # Bayesian mask
             bayes_labels = surfdf['bayes_in']
@@ -639,6 +640,7 @@ class DataAnalyser():
                 validation_frac=validation_frac, input_type=para_num)
             model.Train(tdata, ttruth, vdata, vtruth)
             acc = me.get_accuracy(model, vdata, vtruth, para_num=para_num)
+            tf.reset_default_graph()
             accuracies.append(acc)
 
         average = np.mean(accuracies)

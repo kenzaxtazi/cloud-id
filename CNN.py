@@ -108,7 +108,7 @@ class CNN():
         convnet = conv_2d(convnet, nb_filter=32,
                           filter_size=5, activation='relu')
         convnet = max_pool_2d(convnet, kernel_size=5)
-        convent = dropout(convnet, 0.8)
+        convnet = dropout(convnet, 0.8)
 
         # Layer 6
         convnet = fully_connected(convnet, 1024, activation='relu')

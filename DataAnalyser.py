@@ -277,7 +277,8 @@ class DataAnalyser():
 
         return(out)
 
-    def accuracy_timediff(self, model, seed, validation_frac=0.15, para_num=22):  # TODO update to use model_agreement
+    # TODO update to use model_agreement
+    def accuracy_timediff(self, model, seed, validation_frac=0.15, para_num=22):
         """
         Produces a histogram of accuraccy as a function of the time difference between
         the data take by SLSTR and CALIOP instruments
@@ -443,7 +444,7 @@ class DataAnalyser():
 
         Returns
         ---------
-        Matplotlib histogram 
+        Matplotlib histogram
 
         """
 
@@ -529,7 +530,6 @@ class DataAnalyser():
         plt.show()
 
     def ROC_stype(self, seed=1, validation_frac=0.15):
-
         """
         Produces ROCs of relevant SLSTR surface types. 
 
@@ -548,7 +548,6 @@ class DataAnalyser():
         ---------
         Matplotlib plots
         """
-
         self._model_applied()
 
         self._obj.dp.remove_nan()
@@ -561,19 +560,16 @@ class DataAnalyser():
         valdf = self._obj[-pct:]
 
         bitmeanings = {
-            'coastline': 1,
-            'ocean': 2,
-            'tidal': 4,
-            'dry_land': 24,
-            'inland_water': 16,
-            'cosmetic': 256,
-            'duplicate': 512,
-            'day': 1024,
-            'twilight': 2048,
-            'snow': 8192}
-
-        names = ['Coastline', 'Ocean', 'Tidal', 'Land', 'Inland water',
-                 'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Snow']
+            'Coastline': 1,
+            'Ocean': 2,
+            'Tidal': 4,
+            'Dry land': 24,
+            'Inland water': 16,
+            'Cosmetic': 256,
+            'Duplicate': 512,
+            'Day': 1024,
+            'Twilight': 2048,
+            'Snow': 8192}
 
         for surface in bitmeanings:
 
@@ -584,22 +580,27 @@ class DataAnalyser():
                 surfdf = valdf[valdf['confidence_an']
                                & bitmeanings[surface] == 8]
 
-            # Model accuracy
-            model_labels = np.mean(surfdf['Labels'])
-            mode_onehot = np.vstack((model_labels, ~model_labels)).T
+            # Truth
+            truth = surfdf['CTruth']
+            truth_onehot = np.vstack((truth, ~truth)).T
+            
+            # Model
+            model_confidence = surfdf['Label_Confidence']
+            model_onehot = np.vstack((model_confidence, 1-model_confidence)).T
 
-            # Bayesian mask accuracy
+            # Bayesian mask
             bayes_labels = surfdf['bayes_in']
             bayes_labels[bayes_labels > 1] = 1
             bayes_onehot = np.vstack((bayes_labels, ~bayes_labels)).T
-            
-            # Empirical mask accuracy
+
+            # Empirical mask
             empir_labels = surfdf['cloud_an']
             empir_labels[empir_labels > 1] = 1
             empir_onehot = np.vstack((empir_labels, ~empir_labels)).T
 
-        me.ROC_curve(model.model, model_onehot, truth, bayes_mask=bayes_onehot, emp_mask=empir_onehot, name=names[i])
-
+            me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
+                   emp_mask=empir_onehot, name=surface)
+            plt.show()
 
     def reproducibility(self, modelname, number_of_runs=15, validation_frac=0.15, para_num=22):
         """

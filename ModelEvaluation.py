@@ -24,20 +24,12 @@ def get_accuracy(model, validation_data, validation_truth, para_num=22):
     return accuracy[0]
 
 
-def ROC_curve(model, validation_data, validation_truth, bayes_mask=None,
-              emp_mask=None, name=None):
+def ROC(validation_predictions, validation_truth, bayes_mask=None,
+        emp_mask=None, name=None):
     """Plots Receiver Operating Characteristic (ROC) curve"""
 
-    para_num = len(validation_data[0])
-    validation_data = np.concatenate(validation_data)
-    validation_data = validation_data.reshape(-1, para_num)
-    validation_truth = np.concatenate(validation_truth)
-    validation_truth = validation_truth.reshape(-1, 2)
-
-    predictions = model.predict(validation_data)
-
     false_positive_rate, true_positive_rate, _ = metrics.roc_curve(
-        validation_truth[:, 0], predictions[:, 0], pos_label=1)
+        validation_truth[:, 0], validation_predictions[:, 0], pos_label=1)
 
     if name is None:
         plt.figure('ROC')

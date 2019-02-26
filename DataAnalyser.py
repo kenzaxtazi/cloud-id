@@ -277,6 +277,7 @@ class DataAnalyser():
 
         return(out)
 
+    # TODO update to use model_agreement
     def accuracy_timediff(self, model, seed, validation_frac=0.15, para_num=22):
         """
         Produces a histogram of accuraccy as a function of the time difference between
@@ -358,7 +359,7 @@ class DataAnalyser():
                 color='lightcyan', edgecolor='lightseagreen', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
 
-    def accuracy_sza(self, model, seed, para_num=22):
+    def accuracy_sza(self, model, seed, para_num=22):  # TODO update to use model_agreement
         """
         Produces a histogram of accuraccy as a function of solar zenith angle
 
@@ -432,9 +433,6 @@ class DataAnalyser():
 
         Parameters
         -----------
-        modelname: string
-            name of model
-
         seed: int
             the seed used to randomly shuffle the data for that model
 
@@ -446,7 +444,8 @@ class DataAnalyser():
 
         Returns
         ---------
-        None
+        Matplotlib histogram
+
         """
 
         self._model_applied()
@@ -489,7 +488,6 @@ class DataAnalyser():
 
             # Model accuracy
             n = len(surfdf)
-            print(n)
             model_accuracy = np.mean(surfdf['Agree'])
             # print(str(surface) + ': ' + str(accuracy))
 
@@ -510,55 +508,8 @@ class DataAnalyser():
             empir_accuracies.append(empir_accuracy)
             N.append(n)
 
-        print(bayes_accuracies)
-        print(empir_accuracies)
-
-        # extras = self._obj[['confidence_an', 'bayes_in', 'cloud_an']]
-        # extras_tuple = extras.values
-        # extras_array = np.concatenate(extras_tuple).reshape(-1, 3)
-        # pct = int(len(extras_array) * validation_frac)
-        # validation_extras = extras_array[-pct:]
-
-        # surftype_list = dp.surftype_class(vdata, vtruth, stypes=validation_extras[:, 0],
-        #                                   bmask=validation_extras[:, 1],
-        #                                   emask=validation_extras[:, 2])
-
-        # accuracies = []
-        #
-
         names = ['Coastline', 'Ocean', 'Tidal', 'Land', 'Inland water',
                  'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Snow']
-
-        # for i in range(len(surftype_list)):
-
-        #     b = surftype_list[i]
-
-        #     print(len(b))
-
-        #     if len(b) > 0:
-        #         acc = me.get_accuracy(
-        #             model.model, b[:, 0], b[:, 1], para_num=para_num)
-
-        #         bayes_mask = dp.mask_to_one_hot(b[:, 2])
-        #         emp_mask = dp.mask_to_one_hot(b[:, 3])
-
-        #         truth = np.concatenate(b[:, 1]).reshape((-1, 2))
-        #         bayes_mask = np.concatenate(bayes_mask).reshape((-1, 2))
-        #         emp_mask = np.concatenate(emp_mask).reshape((-1, 2))
-
-        #         bayes_acc = 1 - np.mean(np.abs(truth - bayes_mask)[:, 0])
-        #         emp_acc = 1 - np.mean(np.abs(truth - emp_mask)[:, 0])
-        #         me.ROC_curve(model.model, b[:, 0], truth,
-        #                      bayes_mask=bayes_mask, emp_mask=emp_mask, name=names[i])
-        #         accuracies.append([acc, bayes_acc, emp_acc])
-        #         N.append(len(b))
-
-        #     else:
-        #         accuracies.append([0, 0, 0])
-        #         N.append(0)
-
-        # print(accuracies)
-        # accuracies = (np.concatenate(accuracies)).reshape((-1, 3))
 
         t = np.arange(len(names))
 
@@ -578,7 +529,80 @@ class DataAnalyser():
                                             'Empirical mask accuracy'])
         plt.show()
 
-    def reproducibility(self, model, number_of_runs=15, validation_frac=0.15, para_num=22):
+    def ROC_stype(self, seed=1, validation_frac=0.15):
+        """
+        Produces ROCs of relevant SLSTR surface types. 
+
+        Parameters
+        -----------
+        seed: int
+            the seed used to randomly shuffle the data for that model
+
+        validation_frac: float
+            the fraction of data kept for validation when preparing the model's training data
+
+        para_num: int
+            the number of inputs take by the model
+
+        Returns
+        ---------
+        Matplotlib plots
+        """
+        self._model_applied()
+
+        self._obj.dp.remove_nan()
+        self._obj.dp.remove_anomalous()
+        self._obj.dp.shuffle_by_file(seed)
+
+        self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
+
+        pct = int(len(self._obj) * validation_frac)
+        valdf = self._obj[-pct:]
+
+        bitmeanings = {
+            'Coastline': 1,
+            'Ocean': 2,
+            'Tidal': 4,
+            'Dry land': 24,
+            'Inland water': 16,
+            'Cosmetic': 256,
+            'Duplicate': 512,
+            'Day': 1024,
+            'Twilight': 2048,
+            'Snow': 8192}
+
+        for surface in bitmeanings:
+
+            if surface != 'dry_land':
+                surfdf = valdf[valdf['confidence_an']
+                               & bitmeanings[surface] == bitmeanings[surface]]
+            else:
+                surfdf = valdf[valdf['confidence_an']
+                               & bitmeanings[surface] == 8]
+
+            # Truth
+            truth = surfdf['CTruth']
+            truth_onehot = np.vstack((truth, ~truth)).T
+            
+            # Model
+            model_confidence = surfdf['Label_Confidence']
+            model_onehot = np.vstack((model_confidence, 1-model_confidence)).T
+
+            # Bayesian mask
+            bayes_labels = surfdf['bayes_in']
+            bayes_labels[bayes_labels > 1] = 1
+            bayes_onehot = np.vstack((bayes_labels, ~bayes_labels)).T
+
+            # Empirical mask
+            empir_labels = surfdf['cloud_an']
+            empir_labels[empir_labels > 1] = 1
+            empir_onehot = np.vstack((empir_labels, ~empir_labels)).T
+
+            me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
+                   emp_mask=empir_onehot, name=surface)
+            plt.show()
+
+    def reproducibility(self, modelname, number_of_runs=15, validation_frac=0.15, para_num=22):
         """
         Return the average and standard deviation of a same model but different
         order of the data it is presented. These outputs quantify the
@@ -586,7 +610,8 @@ class DataAnalyser():
 
         Parameters
         -----------
-        model: model object
+        modelname: str
+            refers to model architecture to run
 
         number of runs: int
             number of times to run the model.
@@ -605,9 +630,11 @@ class DataAnalyser():
         std: float
             standard deviation of the model.
         """
+
         accuracies = []
 
         for i in range(number_of_runs):
+            model = FFN('Reproducibilty', modelname, 21)
             tdata, vdata, ttruth, vtruth = self._obj.dp.get_ffn_training_data(
                 validation_frac=validation_frac, input_type=para_num)
             model.Train(tdata, ttruth, vdata, vtruth)

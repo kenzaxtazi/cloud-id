@@ -363,19 +363,28 @@ class DataPreparer():
         self.remove_anomalous()
         self.shuffle_by_file(seed)
 
-        stars = self._obj['Star_array'].values
-        padded_stars = star_padding(stars)
+        if 'PaddedStars' in self._obj.columns:
+            stars = np.array(list(self._obj['PaddedStars'].values))
+
+        elif 'Star_array' in self._obj.columns:
+            stars = self._obj['Star_array'].values
+            stars = star_padding(stars)
+
+        elif 'Square_array' in self._obj.columns:
+            stars = self._obj['Square_array'].values
+            stars = np.array(list(stars))
+            stars = stars.reshape((-1, 11, 11, 1))
 
         truth = self._obj['Feature_Classification_Flags'].values
 
         # split data into validation and training
 
-        pct = int(len(padded_stars) * validation_frac)
+        pct = int(len(stars) * validation_frac)
 
         # take all but the 15% last
-        training_data = padded_stars[:-pct]
+        training_data = stars[:-pct]
         # take the last 15% of pixels
-        validation_data = padded_stars[-pct:]
+        validation_data = stars[-pct:]
         training_truth_flags = truth[:-pct]
         validation_truth_flags = truth[-pct:]
 

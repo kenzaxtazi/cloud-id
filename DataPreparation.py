@@ -396,7 +396,7 @@ class DataPreparer():
 
         return training_data, validation_data, training_truth, validation_truth
 
-        def get_cnn_training_data_prime(self, validation_frac=0.15, seed=None):
+    def get_cnn_training_data_prime(self, validation_frac=0.15, seed=None):
         self.remove_nan()
         self.remove_anomalous()
         self.shuffle_by_file(seed)

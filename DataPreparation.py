@@ -302,10 +302,6 @@ class DataPreparer():
         self._obj = self._obj[abs(self._obj['TimeDiff']) < MaxTime]
         return(self._obj)
 
-    def remove_night(self):
-        self._obj = self._obj[self._obj['confidence_an'] & 1024 == 1024]
-        return(self._obj)
-
     def prepare_random(self, seed):
         if seed is None:
             np.random.seed(self.seed)
@@ -337,7 +333,6 @@ class DataPreparer():
         self.remove_nan()
         self.remove_anomalous()
         self.shuffle_by_file(seed)
-        # self.remove_night()
 
         pixel_inputs = self.get_inputs(input_type)
 
@@ -367,7 +362,6 @@ class DataPreparer():
         self.remove_nan()
         self.remove_anomalous()
         self.shuffle_by_file(seed)
-        self.remove_night()
 
         stars = self._obj['Star_array'].values
         padded_stars = star_padding(stars)
@@ -400,7 +394,6 @@ class DataPreparer():
         self.remove_nan()
         self.remove_anomalous()
         self.shuffle_by_file(seed)
-        self.remove_night()
 
         stars = self._obj['Star_array'].values
         padded_stars = star_padding(stars)

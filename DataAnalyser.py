@@ -319,7 +319,6 @@ class DataAnalyser():
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
-        self._obj.dp.remove_night()
 
         _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(
             seed=seed, input_type=para_num)
@@ -399,7 +398,6 @@ class DataAnalyser():
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
-        self._obj.dp.remove_night()
 
         _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(
             seed=seed, input_type=para_num)

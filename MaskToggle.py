@@ -1,10 +1,20 @@
+##############################################
+# (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
+# This software is distributed under the terms of the GNU General Public
+# Licence version 3 (GPLv3)
+##############################################
+import sys
+
 import matplotlib.pyplot as plt
 
 import DataLoader as DL
 import Visualisation as Vis
 from FFN import FFN
 
-Sfile = r"./SatelliteData/SLSTR/Poster/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3"
+if len(sys.argv) == 1:
+    Sfile = r"./SatelliteData/SLSTR/2018/05/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3"
+else:
+    Sfile = sys.argv[1]
 
 modelname = 'Net1_FFN_v7'
 model = FFN(modelname)
@@ -38,7 +48,8 @@ im5.set_visible(False)
 class Toggler():
     def __init__(self):
         self.index = 0
-        self.settingfuncs = [self.setting1, self.setting2, self.setting3, self.setting4, self.setting5]
+        self.settingfuncs = [self.setting1, self.setting2,
+                             self.setting3, self.setting4, self.setting5]
 
     def toggle_images(self, event):
         """Toggle between different images to display"""

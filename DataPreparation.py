@@ -276,7 +276,37 @@ def star_padding(stars):
     return padded_stars
 
 
-# Class to add useful methods to pd DataFrame
+def extra_padding(stars):
+
+    print('padding squares')
+
+    squares = []
+
+    for star in tqdm(stars):
+        diagonal1 = np.concatenate((star[0], np.array([0]).reshape(1, 1), star[4])).reshape(-1)
+        diagonal2 = np.concatenate((star[1], np.array([0]).reshape(1, 1), star[5])).reshape(-1)
+        diagonal3 = np.concatenate((star[2], np.array([0]).reshape(1, 1), star[6])).reshape(-1)
+        diagonal4 = np.concatenate((star[3], np.array([0]).reshape(1, 1), star[7])).reshape(-1)
+
+        square = np.zeros((101, 101))
+
+        # indices
+        di1 = np.diag_indices(101)
+        di2 = (np.arange(101).astype(int), np.ones(101).astype(int) * 50)
+        di3 = (100 - di1[0], di1[1])
+        di4 = (np.ones(101).astype(int) * 50, np.arange(101).astype(int))
+
+        square[di1] = diagonal1
+        square[di2] = diagonal2
+        square[di3] = diagonal3
+        square[di4] = diagonal4
+   
+        squares.append(square.reshape(101, 101, 1))
+
+    return squares
+
+# Class to §a§dd useful methods to pd DataFrame
+
 
 @pd.api.extensions.register_dataframe_accessor("dp")
 class DataPreparer():
@@ -396,11 +426,11 @@ class DataPreparer():
 
         return training_data, validation_data, training_truth, validation_truth
 
-        def get_cnn_training_data_prime(self, validation_frac=0.15, seed=None):
+    def get_cnn_training_data_prime(self, validation_frac=0.15, seed=None):
         self.remove_nan()
         self.remove_anomalous()
         self.shuffle_by_file(seed)
-        self.remove_night()
+        #self.remove_night()
 
         stars = self._obj['Star_array'].values
         padded_stars = star_padding(stars)

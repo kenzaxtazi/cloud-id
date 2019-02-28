@@ -11,12 +11,10 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import tensorflow as tf 
 from tqdm import tqdm
 
 import DataLoader as DL
 import DataPreparation as dp
-import FileDownloader as FD
 import ModelEvaluation as me
 import Visualisation as Vis
 from FFN import FFN
@@ -197,18 +195,15 @@ class DataAnalyser():
 
         Vis.plot_poles(ulat, ulon, Means, 1.5)
 
-    def get_contextual_dataframe(self, contextlength=50, download_missing=False):
+    def get_contextual_dataframe(self, pklname, contextlength=50, square=False):
         """Given a dataframe of poorly classified pixels, produce dataframe with neighbouring S1 pixel values"""
         # List of all unique SLSTR files in the dataframe
         Sfiles = list(set(self._obj['Sfilename']))
 
         out = pd.DataFrame()
 
-        if download_missing is True:
-            ftp = FD.FTPlogin()
-
-        for Sfile in tqdm(Sfiles):
-
+        for i, Sfile in tqdm(enumerate(Sfiles)):
+            
             # Load the rows of the dataframe for a SLSTR file
             Sdf = self._obj[self._obj['Sfilename'] == Sfile]
 
@@ -220,63 +215,80 @@ class DataAnalyser():
 
             # If the file is not on the local machine
             if os.path.exists(Spath) is False:
+                tqdm.write(Sfile + ' not found locally...')
+                print('Skipping...')
+                continue
 
-                if download_missing is True:
-                    # Download the file
-                    tqdm.write(Sfile + ' not found locally...')
-                    tqdm.write('Downloading...')
+            if square is False:
+                coords = []
 
-                    Year = Sfile[16:20]
-                    Month = Sfile[20:22]
-                    Day = Sfile[22:24]
+                for j in range(len(Indices)):
+                    x0, y0 = Indices[j]
+                    coords.append(dp.get_coords(x0, y0, contextlength, True))
 
-                    CEDApath = Year + '/' + Month + '/' + Day + '/' + Sfile + '.zip'
+                if len(coords) == 0:
+                    return(pd.DataFrame())
 
-                    DestinationPath = '/vols/lhcb/egede/cloud/SLSTR/' + Year + '/' + Month + '/'
+                scn = DL.scene_loader(Spath)
+                scn.load(['S1_an'])
+                S1 = np.array(scn['S1_an'].values)
 
-                    download_status = FD.FTPdownload(
-                        ftp, CEDApath, DestinationPath)
-                    if download_status == 1:
-                        tqdm.write('Download failed, skipping...')
-                        continue
-                else:
-                    tqdm.write(Sfile + ' not found locally...')
-                    print('Skipping...')
+                data = []
+
+                for pixel in coords:
+                    pixel_data = []
+                    for arm in pixel:
+                        xs = [j[0] for j in arm]
+                        ys = [j[1] for j in arm]
+                        arm_data = S1[xs, ys]
+                        pixel_data.append(arm_data)
+                    data.append(pixel_data)
+
+                SfileList = [Sfile] * len(data)
+                Positions = list(Indices)
+
+                newdf = pd.DataFrame(
+                    {'Sfilename': SfileList, 'Pos': Positions, 'Star_array': data})
+
+                out = out.append(newdf, ignore_index=True, sort=True)
+
+                out.to_pickle(pklname)
+
+            else:
+                scn = DL.scene_loader(Spath)
+                scn.load(['S1_an'])
+                S1 = np.zeros((2410, 3010))
+                try:
+                    S1[5:2405, 5:3005] = np.array(scn['S1_an'].values)
+                except ValueError:
+                    tqdm.write('Skipping improperly shaped array')
+                    tqdm.write(Spath)
                     continue
 
-            coords = []
+                data = []
 
-            for i in range(len(Indices)):
-                x0, y0 = Indices[i]
-                coords.append(dp.get_coords(x0, y0, contextlength, True))
+                for j in range(len(Indices)):
+                    y0, x0 = Indices[j]
+                    y0 += 5
+                    x0 += 5
+                    data.append(S1[y0 - 5:y0 + 6, x0 - 5:x0 + 6])
 
-            if len(coords) == 0:
-                return(pd.DataFrame())
+                SfileList = [Sfile] * len(data)
+                Positions = list(Indices)
 
-            scn = DL.scene_loader(Spath)
-            scn.load(['S1_an'])
-            S1 = np.array(scn['S1_an'].values)
+                newdf = pd.DataFrame(
+                    {'Sfilename': SfileList, 'Pos': Positions, 'Star_array': data})
 
-            data = []
+                out = out.append(newdf, ignore_index=True, sort=True)
 
-            for pixel in coords:
-                pixel_data = []
-                for arm in pixel:
-                    xs = [i[0] for i in arm]
-                    ys = [i[1] for i in arm]
-                    arm_data = S1[xs, ys]
-                    pixel_data.append(arm_data)
-                data.append(pixel_data)
-
-            SfileList = [Sfile] * len(data)
-            Positions = list(Indices)
-
-            newdf = pd.DataFrame(
-                {'Sfilename': SfileList, 'Pos': Positions, 'Star_array': data})
-
-            out = out.append(newdf, ignore_index=True, sort=True)
-
-        return(out)
+                if i % 25 == 0 or i == len(Sfiles) - 1:
+                    if i == 0:
+                        out.to_pickle(pklname)
+                    else:
+                        temp = pd.read_pickle(pklname)
+                        temp = temp.append(out)
+                        temp.to_pickle(pklname)
+                        out = pd.DataFrame()
 
     # TODO update to use model_agreement
     def accuracy_timediff(self, model, seed, validation_frac=0.15, para_num=22):
@@ -304,7 +316,6 @@ class DataAnalyser():
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
-        self._obj.dp.remove_night()
 
         _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(
             seed=seed, input_type=para_num)
@@ -384,7 +395,6 @@ class DataAnalyser():
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
-        self._obj.dp.remove_night()
 
         _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(
             seed=seed, input_type=para_num)
@@ -742,7 +752,6 @@ class DataAnalyser():
                 validation_frac=validation_frac, input_type=para_num)
             model.Train(tdata, ttruth, vdata, vtruth)
             acc = me.get_accuracy(model, vdata, vtruth, para_num=para_num)
-            tf.reset_default_graph()
             accuracies.append(acc)
 
         average = np.mean(accuracies)

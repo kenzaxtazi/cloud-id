@@ -530,6 +530,108 @@ class DataAnalyser():
                                             'Empirical mask accuracy'])
         plt.show()
 
+    def accuracy_ctype(self, seed=1, validation_frac=0.15):
+        """
+        Produces a histogram of accuraccy as a function of surface type
+
+        Parameters
+        -----------
+        seed: int
+            the seed used to randomly shuffle the data for that model
+
+        validation_frac: float
+            the fraction of data kept for validation when preparing the model's training data
+
+        para_num: int
+            the number of inputs take by the model
+
+        Returns
+        ---------
+        Matplotlib histogram
+
+        """
+
+        self._model_applied()
+
+        self._obj.dp.remove_nan()
+        self._obj.dp.remove_anomalous()
+        self._obj.dp.shuffle_by_file(seed)
+
+        self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
+
+        pct = int(len(self._obj) * validation_frac)
+        valdf = self._obj[-pct:]
+
+        bitmeanings = {
+            'coastline': 1,
+            'ocean': 2,
+            'tidal': 4,
+            'dry_land': 24,
+            'inland_water': 16,
+            'cosmetic': 256,
+            'duplicate': 512,
+            'day': 1024,
+            'twilight': 2048,
+            'snow': 8192}
+
+        model_accuracies = []
+        bayes_accuracies = []
+        empir_accuracies = []
+
+        N = []
+
+        for surface in bitmeanings:
+
+            if surface != 'dry_land':
+                surfdf = valdf[valdf['confidence_an']
+                               & bitmeanings[surface] == bitmeanings[surface]]
+            else:
+                surfdf = valdf[valdf['confidence_an']
+                               & bitmeanings[surface] == 8]
+
+            # Model accuracy
+            n = len(surfdf)
+            model_accuracy = np.mean(surfdf['Agree'])
+            # print(str(surface) + ': ' + str(accuracy))
+
+            # Bayesian mask accuracy
+            bayes_labels = surfdf['bayes_in']
+            bayes_labels[bayes_labels > 1] = 1
+            bayes_accuracy = float(
+                len(bayes_labels[bayes_labels == surfdf['CTruth']])) / float(n)
+
+            # Empirical mask accuracy
+            empir_labels = surfdf['cloud_an']
+            empir_labels[empir_labels > 1] = 1
+            empir_accuracy = float(
+                len(empir_labels[empir_labels == surfdf['CTruth']])) / float(n)
+
+            model_accuracies.append(model_accuracy)
+            bayes_accuracies.append(bayes_accuracy)
+            empir_accuracies.append(empir_accuracy)
+            N.append(n)
+
+        names = ['Coastline', 'Ocean', 'Tidal', 'Land', 'Inland water',
+                 'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Snow']
+
+        t = np.arange(len(names))
+
+        plt.figure('Accuracy vs surface type')
+        plt.title('Accuracy as a function of surface type')
+        plt.ylabel('Accuracy')
+        bars = plt.bar(t, model_accuracies, width=0.5, align='center', color='honeydew',
+                       edgecolor='palegreen', yerr=(np.array(model_accuracies) / np.array(N))**(0.5),
+                       tick_label=names, ecolor='g', capsize=3, zorder=1)
+        circles = plt.scatter(t, bayes_accuracies, marker='o', zorder=2)
+        stars = plt.scatter(t, empir_accuracies, marker='*', zorder=3)
+        plt.yticks([0.50, 0.55, 0.60, 0.65, 0.70,
+                    0.75, 0.80, 0.85, 0.90, 0.95])
+        plt.xticks(rotation=45)
+        plt.legend([bars, circles, stars], ['Model accuracy',
+                                            'Bayesian mask accuracy',
+                                            'Empirical mask accuracy'])
+        plt.show()
+
     def ROC_stype(self, seed=1, validation_frac=0.15):
         """
         Produces ROCs of relevant SLSTR surface types.

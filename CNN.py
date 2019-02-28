@@ -126,29 +126,46 @@ class CNN():
         convnet = input_data(shape=[None, self.img_length, self.img_width, 1], name='input')
 
         # Layer 1
-        convnet = conv_2d(convnet, nb_filter=8,
-                          filter_size=50, activation='relu')
+        convnet = conv_2d(convnet, nb_filter=32,
+                          filter_size=5, activation='relu')
         convnet = max_pool_2d(convnet, kernel_size=5)
+        convnet = dropout(convnet, 0.8)
 
         # Layer 2
         convnet = conv_2d(convnet, nb_filter=64,
                           filter_size=5, activation='relu')
         convnet = max_pool_2d(convnet, kernel_size=5)
+        convnet = dropout(convnet, 0.8)
 
         # Layer 3
         convnet = conv_2d(convnet, nb_filter=128,
                           filter_size=5, activation='relu')
         convnet = max_pool_2d(convnet, kernel_size=5)
+        convnet = dropout(convnet, 0.8)
 
         # Layer 4
+        convnet = conv_2d(convnet, nb_filter=246,
+                          filter_size=5, activation='relu')
+        convnet = max_pool_2d(convnet, kernel_size=5)
+        convnet = dropout(convnet, 0.8)
+
+        # Layer 5
+        convnet = conv_2d(convnet, nb_filter=128,
+                          filter_size=5, activation='relu')
+        convnet = max_pool_2d(convnet, kernel_size=5)
+        convnet = dropout(convnet, 0.8)
+
+        # Layer 5
         convnet = conv_2d(convnet, nb_filter=64,
                           filter_size=5, activation='relu')
         convnet = max_pool_2d(convnet, kernel_size=5)
+        convnet = dropout(convnet, 0.8)
 
         # Layer 5
         convnet = conv_2d(convnet, nb_filter=32,
                           filter_size=5, activation='relu')
         convnet = max_pool_2d(convnet, kernel_size=5)
+        convnet = dropout(convnet, 0.8)
 
         # Layer 6
         convnet = fully_connected(convnet, 1024, activation='relu')

@@ -202,8 +202,8 @@ class DataAnalyser():
 
         out = pd.DataFrame()
 
-        for Sfile in tqdm(Sfiles):
-
+        for i, Sfile in tqdm(enumerate(Sfiles)):
+            
             # Load the rows of the dataframe for a SLSTR file
             Sdf = self._obj[self._obj['Sfilename'] == Sfile]
 
@@ -222,8 +222,8 @@ class DataAnalyser():
             if square is False:
                 coords = []
 
-                for i in range(len(Indices)):
-                    x0, y0 = Indices[i]
+                for j in range(len(Indices)):
+                    x0, y0 = Indices[j]
                     coords.append(dp.get_coords(x0, y0, contextlength, True))
 
                 if len(coords) == 0:
@@ -238,8 +238,8 @@ class DataAnalyser():
                 for pixel in coords:
                     pixel_data = []
                     for arm in pixel:
-                        xs = [i[0] for i in arm]
-                        ys = [i[1] for i in arm]
+                        xs = [j[0] for j in arm]
+                        ys = [j[1] for j in arm]
                         arm_data = S1[xs, ys]
                         pixel_data.append(arm_data)
                     data.append(pixel_data)
@@ -281,7 +281,7 @@ class DataAnalyser():
 
                 out = out.append(newdf, ignore_index=True, sort=True)
 
-                if i % 25 == 0:
+                if i % 25 == 0 or i == len(Sfiles) - 1:
                     if i == 0:
                         out.to_pickle(pklname)
                     else:
@@ -289,9 +289,6 @@ class DataAnalyser():
                         temp = temp.append(out)
                         temp.to_pickle(pklname)
                         out = pd.DataFrame()
-                temp = pd.read_pickle(pklname)
-                temp.append(out)
-                temp.to_pickle(pklname)
 
     # TODO update to use model_agreement
     def accuracy_timediff(self, model, seed, validation_frac=0.15, para_num=22):
@@ -441,7 +438,7 @@ class DataAnalyser():
                 edgecolor='thistle', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
 
-    def accuracy_stype(self, seed=1, validation_frac=0.15):
+    def cloud_types(self, seed=1, validation_frac=0.15):
         """
         Produces a histogram of accuraccy as a function of surface type
 
@@ -459,6 +456,112 @@ class DataAnalyser():
         Returns
         ---------
         Matplotlib histogram
+        """
+        self._model_applied()
+
+        self._obj.dp.remove_nan()
+        self._obj.dp.remove_anomalous()
+        self._obj.dp.shuffle_by_file(seed)
+
+        self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
+
+        pct = int(len(self._obj) * validation_frac)
+        valdf = self._obj[-pct:]
+
+        clear_valdf = valdf[valdf['Labels'] == 1]
+        cloudy_valdf = valdf[valdf['Labels'] == 0]
+
+        bitmeanings = {
+            'low overcast, transparent': 0,
+            'low overcast, opaque': 1,
+            'transition stratocumulus': 2,
+            'low, broken cumulus': 3,
+            'altocumulus (transparent)': 4,
+            'altostratus (opaque)': 5,
+            'cirrus (transparent)': 6,
+            'deep convective (opaque)': 7}
+
+        clear_probabilities = []
+        cloudy_probabilities = []
+        Ncloudy = []
+        Nclear = []
+
+        # seperate clear flags
+        clear_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 != 2]    
+        clear_cloudydf = cloudy_valdf[cloudy_valdf['Feature_Classification_Flags'] & 7 != 2]
+        clear_probabilities.append(np.mean(clear_cleardf['Label_Confidence'].values))
+        cloudy_probabilities.append(np.mean(clear_cloudydf['Label_Confidence'].values))
+        Ncloudy.append(len(clear_cloudydf))
+        Nclear.append(len(clear_cleardf))
+
+        # seperate cloudy flags
+        cloudy_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 == 2]    
+        cloudy_cloudydf = cloudy_valdf[cloudy_valdf['Feature_Classification_Flags'] & 7 == 2]
+
+        for surface in bitmeanings:
+
+            cleardf = cloudy_cleardf[(cloudy_cleardf['Feature_Classification_Flags'] >> 9) & 7 == bitmeanings[surface]]
+            cloudydf = cloudy_cloudydf[(cloudy_cloudydf['Feature_Classification_Flags'] >> 9) & 7 == bitmeanings[surface]]
+
+            clear_probabilities.append(np.mean(cleardf['Label_Confidence'].values))
+            cloudy_probabilities.append(np.mean(cloudydf['Label_Confidence'].values))
+            Ncloudy.append(len(cloudydf))
+            Nclear.append(len(cleardf))
+
+        names = ['clear', 'low overcast, transparent', 'low overcast, opaque', 'transition stratocumulus', 'low, broken cumulus',
+                 'altocumulus (transparent)', 'altostratus (opaque)', 'cirrus (transparent)', 'deep convective (opaque)']
+
+        t = np.arange(len(names))
+
+        plt.figure('Average cloudy probability vs cloud type')
+        plt.title('Average cloudy probability as a function of cloud type')
+        plt.ylabel('Average probability')
+        bars = plt.bar(t, cloudy_probabilities, width=0.5, align='center', color='lavender',
+                       edgecolor='plum', yerr=(np.array(cloudy_probabilities) / np.array(Ncloudy))**(0.5),
+                       tick_label=names, ecolor='purple', capsize=3, zorder=1)
+        plt.xticks(rotation=90)
+
+        plt.figure('Average clear probability vs cloud type')
+        plt.title('Average clear probability as a function of cloud type')
+        plt.ylabel('Average probability')
+        bars = plt.bar(t, clear_probabilities, width=0.5, align='center', color='lavender',
+                       edgecolor='plum', yerr=(np.array(clear_probabilities) / np.array(Nclear))**(0.5),
+                       tick_label=names, ecolor='purple', capsize=3, zorder=1)
+        plt.xticks(rotation=90)
+
+        plt.figure('Cloudy classification number vs cloud type')
+        plt.title('Cloudy classification number as a function of cloud type')
+        plt.ylabel('Data points')
+        bars = plt.bar(t, Ncloudy, width=0.5, align='center', color='papayawhip',
+                       edgecolor='bisque', tick_label=names, ecolor='orange', zorder=1)
+        plt.xticks(rotation=90)
+
+        plt.figure('Clear classification number vs cloud type')
+        plt.title('Clear classification number as a function of cloud type')
+        plt.ylabel('Data points')
+        bars = plt.bar(t, Nclear, width=0.5, align='center', color='papayawhip',
+                       edgecolor='bisque', tick_label=names, ecolor='orange', zorder=1)
+        plt.xticks(rotation=90)
+        plt.show()
+
+    def accuracy_stype(self, seed=1, validation_frac=0.15):
+        """
+        Produces a histogram of accuraccy as a function of cloud type
+
+        Parameters
+        -----------
+        seed: int
+            the seed used to randomly shuffle the data for that model
+
+        validation_frac: float
+            the fraction of data kept for validation when preparing the model's training data
+
+        para_num: int
+            the number of inputs take by the model
+
+        Returns
+        ---------
+        Matplotlib histogram.
 
         """
 
@@ -474,16 +577,16 @@ class DataAnalyser():
         valdf = self._obj[-pct:]
 
         bitmeanings = {
-            'coastline': 1,
-            'ocean': 2,
-            'tidal': 4,
-            'dry_land': 24,
-            'inland_water': 16,
-            'cosmetic': 256,
-            'duplicate': 512,
-            'day': 1024,
-            'twilight': 2048,
-            'snow': 8192}
+            'Coastline': 1,
+            'Ocean': 2,
+            'Tidal': 4,
+            'Dry land': 24,
+            'Inland water': 16,
+            'Cosmetic': 256,
+            'Duplicate': 512,
+            'Day': 1024,
+            'Twilight': 2048,
+            'Snow': 8192}
 
         model_accuracies = []
         bayes_accuracies = []

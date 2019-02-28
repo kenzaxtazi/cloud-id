@@ -276,8 +276,53 @@ def star_padding(stars):
     return padded_stars
 
 
-# Class to add useful methods to pd DataFrame
+def square_prep(X):
+    X = np.array(list(X))
+    ok = ~np.isnan(X)
+    xp = ok.ravel().nonzero()[0]
+    fp = X[~np.isnan(X)]
+    x = np.isnan(X).ravel().nonzero()[0]
 
+    X[np.isnan(X)] = np.interp(x, xp, fp)
+
+    return(X)
+
+
+def extra_padding(stars):
+
+    print('padding squares')
+
+    squares = []
+
+    for star in tqdm(stars):
+        diagonal1 = np.concatenate(
+            (star[0], np.array([0]).reshape(1, 1), star[4])).reshape(-1)
+        diagonal2 = np.concatenate(
+            (star[1], np.array([0]).reshape(1, 1), star[5])).reshape(-1)
+        diagonal3 = np.concatenate(
+            (star[2], np.array([0]).reshape(1, 1), star[6])).reshape(-1)
+        diagonal4 = np.concatenate(
+            (star[3], np.array([0]).reshape(1, 1), star[7])).reshape(-1)
+
+        square = np.zeros((101, 101))
+
+        # indices
+        di1 = np.diag_indices(101)
+        di2 = (np.arange(101).astype(int), np.ones(101).astype(int) * 50)
+        di3 = (100 - di1[0], di1[1])
+        di4 = (np.ones(101).astype(int) * 50, np.arange(101).astype(int))
+
+        square[di1] = diagonal1
+        square[di2] = diagonal2
+        square[di3] = diagonal3
+        square[di4] = diagonal4
+
+        squares.append(square.reshape(101, 101, 1))
+
+    return squares
+
+
+# Class to add useful methods to pd DataFrame
 @pd.api.extensions.register_dataframe_accessor("dp")
 class DataPreparer():
     def __init__(self, pandas_obj):
@@ -372,7 +417,7 @@ class DataPreparer():
 
         elif 'Square_array' in self._obj.columns:
             stars = self._obj['Square_array'].values
-            stars = np.array(list(stars))
+            stars = square_prep(stars)
             stars = stars.reshape((-1, 11, 11, 1))
 
         truth = self._obj['Feature_Classification_Flags'].values

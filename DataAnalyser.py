@@ -438,7 +438,7 @@ class DataAnalyser():
                 edgecolor='thistle', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
 
-    def accuracy_stype(self, seed=1, validation_frac=0.15):
+    def cloud_types(self, seed=1, validation_frac=0.15):
         """
         Produces a histogram of accuraccy as a function of surface type
 
@@ -456,9 +456,7 @@ class DataAnalyser():
         Returns
         ---------
         Matplotlib histogram
-
         """
-
         self._model_applied()
 
         self._obj.dp.remove_nan()
@@ -470,79 +468,85 @@ class DataAnalyser():
         pct = int(len(self._obj) * validation_frac)
         valdf = self._obj[-pct:]
 
+        clear_valdf = valdf[valdf['Labels'] == 1]
+        cloudy_valdf = valdf[valdf['Labels'] == 0]
+
         bitmeanings = {
-            'coastline': 1,
-            'ocean': 2,
-            'tidal': 4,
-            'dry_land': 24,
-            'inland_water': 16,
-            'cosmetic': 256,
-            'duplicate': 512,
-            'day': 1024,
-            'twilight': 2048,
-            'snow': 8192}
+            'low overcast, transparent': 0,
+            'low overcast, opaque': 1,
+            'transition stratocumulus': 2,
+            'low, broken cumulus': 3,
+            'altocumulus (transparent)': 4,
+            'altostratus (opaque)': 5,
+            'cirrus (transparent)': 6,
+            'deep convective (opaque)': 7}
 
-        model_accuracies = []
-        bayes_accuracies = []
-        empir_accuracies = []
+        clear_probabilities = []
+        cloudy_probabilities = []
+        Ncloudy = []
+        Nclear = []
 
-        N = []
+        # seperate clear flags
+        clear_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 != 2]    
+        clear_cloudydf = cloudy_valdf[cloudy_valdf['Feature_Classification_Flags'] & 7 != 2]
+        clear_probabilities.append(np.mean(clear_cleardf['Label_Confidence'].values))
+        cloudy_probabilities.append(np.mean(clear_cloudydf['Label_Confidence'].values))
+        Ncloudy.append(len(clear_cloudydf))
+        Nclear.append(len(clear_cleardf))
+
+        # seperate cloudy flags
+        cloudy_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 == 2]    
+        cloudy_cloudydf = cloudy_valdf[cloudy_valdf['Feature_Classification_Flags'] & 7 == 2]
 
         for surface in bitmeanings:
 
-            if surface != 'dry_land':
-                surfdf = valdf[valdf['confidence_an']
-                               & bitmeanings[surface] == bitmeanings[surface]]
-            else:
-                surfdf = valdf[valdf['confidence_an']
-                               & bitmeanings[surface] == 8]
+            cleardf = cloudy_cleardf[(cloudy_cleardf['Feature_Classification_Flags'] >> 9) & 7 == bitmeanings[surface]]
+            cloudydf = cloudy_cloudydf[(cloudy_cloudydf['Feature_Classification_Flags'] >> 9) & 7 == bitmeanings[surface]]
 
-            # Model accuracy
-            n = len(surfdf)
-            model_accuracy = np.mean(surfdf['Agree'])
-            # print(str(surface) + ': ' + str(accuracy))
+            clear_probabilities.append(np.mean(cleardf['Label_Confidence'].values))
+            cloudy_probabilities.append(np.mean(cloudydf['Label_Confidence'].values))
+            Ncloudy.append(len(cloudydf))
+            Nclear.append(len(cleardf))
 
-            # Bayesian mask accuracy
-            bayes_labels = surfdf['bayes_in']
-            bayes_labels[bayes_labels > 1] = 1
-            bayes_accuracy = float(
-                len(bayes_labels[bayes_labels == surfdf['CTruth']])) / float(n)
-
-            # Empirical mask accuracy
-            empir_labels = surfdf['cloud_an']
-            empir_labels[empir_labels > 1] = 1
-            empir_accuracy = float(
-                len(empir_labels[empir_labels == surfdf['CTruth']])) / float(n)
-
-            model_accuracies.append(model_accuracy)
-            bayes_accuracies.append(bayes_accuracy)
-            empir_accuracies.append(empir_accuracy)
-            N.append(n)
-
-        names = ['Coastline', 'Ocean', 'Tidal', 'Land', 'Inland water',
-                 'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Snow']
+        names = ['clear', 'low overcast, transparent', 'low overcast, opaque', 'transition stratocumulus', 'low, broken cumulus',
+                 'altocumulus (transparent)', 'altostratus (opaque)', 'cirrus (transparent)', 'deep convective (opaque)']
 
         t = np.arange(len(names))
 
-        plt.figure('Accuracy vs surface type')
-        plt.title('Accuracy as a function of surface type')
-        plt.ylabel('Accuracy')
-        bars = plt.bar(t, model_accuracies, width=0.5, align='center', color='honeydew',
-                       edgecolor='palegreen', yerr=(np.array(model_accuracies) / np.array(N))**(0.5),
-                       tick_label=names, ecolor='g', capsize=3, zorder=1)
-        circles = plt.scatter(t, bayes_accuracies, marker='o', zorder=2)
-        stars = plt.scatter(t, empir_accuracies, marker='*', zorder=3)
-        plt.yticks([0.50, 0.55, 0.60, 0.65, 0.70,
-                    0.75, 0.80, 0.85, 0.90, 0.95])
-        plt.xticks(rotation=45)
-        plt.legend([bars, circles, stars], ['Model accuracy',
-                                            'Bayesian mask accuracy',
-                                            'Empirical mask accuracy'])
+        plt.figure('Average cloudy probability vs cloud type')
+        plt.title('Average cloudy probability as a function of cloud type')
+        plt.ylabel('Average probability')
+        bars = plt.bar(t, cloudy_probabilities, width=0.5, align='center', color='lavender',
+                       edgecolor='plum', yerr=(np.array(cloudy_probabilities) / np.array(Ncloudy))**(0.5),
+                       tick_label=names, ecolor='purple', capsize=3, zorder=1)
+        plt.xticks(rotation=90)
+
+        plt.figure('Average clear probability vs cloud type')
+        plt.title('Average clear probability as a function of cloud type')
+        plt.ylabel('Average probability')
+        bars = plt.bar(t, clear_probabilities, width=0.5, align='center', color='lavender',
+                       edgecolor='plum', yerr=(np.array(clear_probabilities) / np.array(Nclear))**(0.5),
+                       tick_label=names, ecolor='purple', capsize=3, zorder=1)
+        plt.xticks(rotation=90)
+
+        plt.figure('Cloudy classification number vs cloud type')
+        plt.title('Cloudy classification number as a function of cloud type')
+        plt.ylabel('Data points')
+        bars = plt.bar(t, Ncloudy, width=0.5, align='center', color='papayawhip',
+                       edgecolor='bisque', tick_label=names, ecolor='orange', zorder=1)
+        plt.xticks(rotation=90)
+
+        plt.figure('Clear classification number vs cloud type')
+        plt.title('Clear classification number as a function of cloud type')
+        plt.ylabel('Data points')
+        bars = plt.bar(t, Nclear, width=0.5, align='center', color='papayawhip',
+                       edgecolor='bisque', tick_label=names, ecolor='orange', zorder=1)
+        plt.xticks(rotation=90)
         plt.show()
 
-    def accuracy_ctype(self, seed=1, validation_frac=0.15):
+    def accuracy_stype(self, seed=1, validation_frac=0.15):
         """
-        Produces a histogram of accuraccy as a function of surface type
+        Produces a histogram of accuraccy as a function of cloud type
 
         Parameters
         -----------
@@ -557,7 +561,7 @@ class DataAnalyser():
 
         Returns
         ---------
-        Matplotlib histogram
+        Matplotlib histogram.
 
         """
 
@@ -573,16 +577,16 @@ class DataAnalyser():
         valdf = self._obj[-pct:]
 
         bitmeanings = {
-            'coastline': 1,
-            'ocean': 2,
-            'tidal': 4,
-            'dry_land': 24,
-            'inland_water': 16,
-            'cosmetic': 256,
-            'duplicate': 512,
-            'day': 1024,
-            'twilight': 2048,
-            'snow': 8192}
+            'Coastline': 1,
+            'Ocean': 2,
+            'Tidal': 4,
+            'Dry land': 24,
+            'Inland water': 16,
+            'Cosmetic': 256,
+            'Duplicate': 512,
+            'Day': 1024,
+            'Twilight': 2048,
+            'Snow': 8192}
 
         model_accuracies = []
         bayes_accuracies = []

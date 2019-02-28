@@ -202,8 +202,8 @@ class DataAnalyser():
 
         out = pd.DataFrame()
 
-        for Sfile in tqdm(Sfiles):
-
+        for i, Sfile in tqdm(enumerate(Sfiles)):
+            
             # Load the rows of the dataframe for a SLSTR file
             Sdf = self._obj[self._obj['Sfilename'] == Sfile]
 
@@ -222,8 +222,8 @@ class DataAnalyser():
             if square is False:
                 coords = []
 
-                for i in range(len(Indices)):
-                    x0, y0 = Indices[i]
+                for j in range(len(Indices)):
+                    x0, y0 = Indices[j]
                     coords.append(dp.get_coords(x0, y0, contextlength, True))
 
                 if len(coords) == 0:
@@ -238,8 +238,8 @@ class DataAnalyser():
                 for pixel in coords:
                     pixel_data = []
                     for arm in pixel:
-                        xs = [i[0] for i in arm]
-                        ys = [i[1] for i in arm]
+                        xs = [j[0] for j in arm]
+                        ys = [j[1] for j in arm]
                         arm_data = S1[xs, ys]
                         pixel_data.append(arm_data)
                     data.append(pixel_data)
@@ -281,7 +281,7 @@ class DataAnalyser():
 
                 out = out.append(newdf, ignore_index=True, sort=True)
 
-                if i % 25 == 0:
+                if i % 25 == 0 or i == len(Sfiles) - 1:
                     if i == 0:
                         out.to_pickle(pklname)
                     else:
@@ -289,9 +289,6 @@ class DataAnalyser():
                         temp = temp.append(out)
                         temp.to_pickle(pklname)
                         out = pd.DataFrame()
-                temp = pd.read_pickle(pklname)
-                temp.append(out)
-                temp.to_pickle(pklname)
 
     # TODO update to use model_agreement
     def accuracy_timediff(self, model, seed, validation_frac=0.15, para_num=22):

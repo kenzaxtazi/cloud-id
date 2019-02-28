@@ -227,7 +227,8 @@ def simple_mask(pmask, S1):
     plt.imshow(pmask, alpha=0.2)
     plt.xlabel('km')
     plt.ylabel('km')
-    plt.xticks([0, 500, 1000, 1500, 2000, 2500, 3000], [0, 250, 500, 750, 1000, 1250, 1500])
+    plt.xticks([0, 500, 1000, 1500, 2000, 2500, 3000],
+               [0, 250, 500, 750, 1000, 1250, 1500])
     plt.yticks([0, 500, 1000, 1500, 2000], [0, 250, 500, 750, 1000])
     plt.colorbar()
 
@@ -259,7 +260,8 @@ def false_color_image(band1, band2, band3, plot=True):
         plt.imshow(rgb)
         plt.xlabel('km')
         plt.ylabel('km')
-        plt.xticks([0, 500, 1000, 1500, 2000, 2500, 3000], [0, 250, 500, 750, 1000, 1250, 1500])
+        plt.xticks([0, 500, 1000, 1500, 2000, 2500, 3000],
+                   [0, 250, 500, 750, 1000, 1250, 1500])
         plt.yticks([0, 500, 1000, 1500, 2000], [0, 250, 500, 750, 1000])
         plt.show()
 

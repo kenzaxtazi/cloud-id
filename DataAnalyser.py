@@ -203,7 +203,7 @@ class DataAnalyser():
         out = pd.DataFrame()
 
         for i, Sfile in tqdm(enumerate(Sfiles)):
-            
+
             # Load the rows of the dataframe for a SLSTR file
             Sdf = self._obj[self._obj['Sfilename'] == Sfile]
 
@@ -487,24 +487,30 @@ class DataAnalyser():
         Nclear = []
 
         # seperate clear flags
-        clear_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 != 2]    
+        clear_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 != 2]
         clear_cloudydf = cloudy_valdf[cloudy_valdf['Feature_Classification_Flags'] & 7 != 2]
-        clear_probabilities.append(np.mean(clear_cleardf['Label_Confidence'].values))
-        cloudy_probabilities.append(np.mean(clear_cloudydf['Label_Confidence'].values))
+        clear_probabilities.append(
+            np.mean(clear_cleardf['Label_Confidence'].values))
+        cloudy_probabilities.append(
+            np.mean(clear_cloudydf['Label_Confidence'].values))
         Ncloudy.append(len(clear_cloudydf))
         Nclear.append(len(clear_cleardf))
 
         # seperate cloudy flags
-        cloudy_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 == 2]    
+        cloudy_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 == 2]
         cloudy_cloudydf = cloudy_valdf[cloudy_valdf['Feature_Classification_Flags'] & 7 == 2]
 
         for surface in bitmeanings:
 
-            cleardf = cloudy_cleardf[(cloudy_cleardf['Feature_Classification_Flags'] >> 9) & 7 == bitmeanings[surface]]
-            cloudydf = cloudy_cloudydf[(cloudy_cloudydf['Feature_Classification_Flags'] >> 9) & 7 == bitmeanings[surface]]
+            cleardf = cloudy_cleardf[(
+                cloudy_cleardf['Feature_Classification_Flags'] >> 9) & 7 == bitmeanings[surface]]
+            cloudydf = cloudy_cloudydf[(
+                cloudy_cloudydf['Feature_Classification_Flags'] >> 9) & 7 == bitmeanings[surface]]
 
-            clear_probabilities.append(np.mean(cleardf['Label_Confidence'].values))
-            cloudy_probabilities.append(np.mean(cloudydf['Label_Confidence'].values))
+            clear_probabilities.append(
+                np.mean(cleardf['Label_Confidence'].values))
+            cloudy_probabilities.append(
+                np.mean(cloudydf['Label_Confidence'].values))
             Ncloudy.append(len(cloudydf))
             Nclear.append(len(cleardf))
 
@@ -703,7 +709,8 @@ class DataAnalyser():
 
             # Model
             model_confidence = surfdf['Label_Confidence']
-            model_onehot = np.vstack((model_confidence, 1 - model_confidence)).T
+            model_onehot = np.vstack(
+                (model_confidence, 1 - model_confidence)).T
 
             # Bayesian mask
             bayes_labels = surfdf['bayes_in']

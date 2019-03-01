@@ -11,45 +11,44 @@ import DataLoader as DL
 import Visualisation as Vis
 from FFN import FFN
 
-if len(sys.argv) == 1:
-    Sfile = r"./SatelliteData/SLSTR/2018/05/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3"
-else:
-    Sfile = sys.argv[1]
 
-modelname = 'Net1_FFN_v7'
-model = FFN(modelname)
-model.Load()
-
-mask1, pmask = model.apply_mask(Sfile)
-
-rgb, TitleStr = Vis.FalseColour(Sfile, False)
-
-im1 = plt.imshow(rgb)
-plt.title('False colour image\n' + TitleStr)
-
-im2 = plt.imshow(mask1, cmap='Blues')
-im2.set_visible(False)
-
-bmask = DL.extract_mask(Sfile, 'bayes_in', 2)
-im3 = plt.imshow(bmask, cmap='Reds')
-im3.set_visible(False)
-
-mask1 = mask1.astype('bool')
-rgb[~mask1, 0] = 254 / 255
-rgb[~mask1, 1] = 253 / 255
-rgb[~mask1, 2] = 185 / 255
-im4 = plt.imshow(rgb)
-im4.set_visible(False)
-
-im5 = plt.imshow(1 - pmask, cmap='Oranges')
-im5.set_visible(False)
-
-
-class Toggler():
-    def __init__(self):
+class MaskToggler():
+    def __init__(self, Sfilename, model='Net1_FFN_v7', verbose=False):
         self.index = 0
         self.settingfuncs = [self.setting1, self.setting2,
                              self.setting3, self.setting4, self.setting5]
+        if isinstance(model, str):
+            self.modelname = model
+
+            self.model = FFN(model)
+            self.model.Load(verbose=verbose)
+
+        elif isinstance(model, FFN):
+            pass
+
+        mask1, pmask = self.model.apply_mask(Sfilename)
+
+        rgb, self.TitleStr = Vis.FalseColour(Sfilename, False)
+
+        self.im1 = plt.imshow(rgb)
+        plt.title('False colour image\n' + self.TitleStr)
+
+        self.im2 = plt.imshow(mask1, cmap='Blues')
+        self.im2.set_visible(False)
+
+        bmask = DL.extract_mask(Sfilename, 'bayes_in', 2)
+        self.im3 = plt.imshow(bmask, cmap='Reds')
+        self.im3.set_visible(False)
+
+        mask1 = mask1.astype('bool')
+        rgb[~mask1, 0] = 254 / 255
+        rgb[~mask1, 1] = 253 / 255
+        rgb[~mask1, 2] = 185 / 255
+        self.im4 = plt.imshow(rgb)
+        self.im4.set_visible(False)
+
+        self.im5 = plt.imshow(1 - pmask, cmap='Oranges')
+        self.im5.set_visible(False)
 
     def toggle_images(self, event):
         """Toggle between different images to display"""
@@ -78,11 +77,11 @@ class Toggler():
             return
 
     def _clearframe(self):
-        im1.set_visible(False)
-        im2.set_visible(False)
-        im3.set_visible(False)
-        im4.set_visible(False)
-        im5.set_visible(False)
+        self.im1.set_visible(False)
+        self.im2.set_visible(False)
+        self.im3.set_visible(False)
+        self.im4.set_visible(False)
+        self.im5.set_visible(False)
 
     def cycleforward(self):
         self.index = (self.index + 1) % 5
@@ -93,38 +92,45 @@ class Toggler():
         self.settingfuncs[self.index]()
 
     def setting1(self):
-        plt.title('False colour image\n' + TitleStr)
-        im1.set_visible(True)
+        plt.title('False colour image\n' + self.TitleStr)
+        self.im1.set_visible(True)
         self.index = 0
         plt.draw()
 
     def setting2(self):
-        plt.title(modelname + ' mask\n' + TitleStr)
-        im2.set_visible(True)
+        plt.title(self.modelname + ' mask\n' + self.TitleStr)
+        self.im2.set_visible(True)
         self.index = 1
         plt.draw()
 
     def setting3(self):
-        plt.title('Bayesian mask\n' + TitleStr)
-        im3.set_visible(True)
+        plt.title('Bayesian mask\n' + self.TitleStr)
+        self.im3.set_visible(True)
         self.index = 2
         plt.draw()
 
     def setting4(self):
-        plt.title(modelname + ' masked false colour image\n' + TitleStr)
-        im4.set_visible(True)
+        plt.title(self.modelname +
+                  ' masked false colour image\n' + self.TitleStr)
+        self.im4.set_visible(True)
         self.index = 3
         plt.draw()
 
     def setting5(self):
-        plt.title(modelname + ' probability mask\n' + TitleStr)
-        im5.set_visible(True)
+        plt.title(self.modelname + ' probability mask\n' + self.TitleStr)
+        self.im5.set_visible(True)
         self.index = 4
         plt.draw()
 
 
-toggler = Toggler()
+if __name__ == '__main__':
+    if len(sys.argv) == 1:
+        Sfile = r"./SatelliteData/SLSTR/2018/05/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3"
+    else:
+        Sfile = sys.argv[1]
 
-plt.connect('key_press_event', toggler.toggle_images)
+    toggler = MaskToggler(Sfile)
 
-plt.show()
+    plt.connect('key_press_event', toggler.toggle_images)
+
+    plt.show()

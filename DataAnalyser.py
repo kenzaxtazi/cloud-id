@@ -297,7 +297,6 @@ class DataAnalyser():
                         temp.to_pickle(pklname)
                         out = pd.DataFrame()
 
-
     def accuracy_timediff(self, model, seed, validation_frac=0.15, para_num=22):
         """
         Produces a histogram of accuraccy as a function of the time difference between
@@ -326,8 +325,10 @@ class DataAnalyser():
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
 
-        pct = int(len(time_array) * validation_frac)
-        validation_times = time_array[-pct:]
+        self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
+
+        pct = int(len(self._obj) * validation_frac)
+        valdf = self._obj[-pct:]
 
         time_slices = np.linspace(0, 1401, 15)
         accuracies = []
@@ -336,9 +337,10 @@ class DataAnalyser():
         for t in time_slices:
 
             sliced_df = valdf[valdf['TimeDiff'].between(t, t + 100)]
-            
+
             if len(sliced_df) > 0:
-                acc = float(len(sliced_df[sliced_df['Agree'] == True])) / float(len(sliced_df))
+                acc = float(
+                    len(sliced_df[sliced_df['Agree'] == True])) / float(len(sliced_df))
                 accuracies.append(acc)
                 N.append(len(sliced_df[sliced_df['Agree'] == True]))
             else:
@@ -352,7 +354,6 @@ class DataAnalyser():
         plt.bar(time_slices, accuracies, width=100, align='edge',
                 color='lightcyan', edgecolor='lightseagreen', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
-
 
     def accuracy_sza(self, seed, validation_frac=15):
         """
@@ -373,7 +374,7 @@ class DataAnalyser():
 
         Returns
         ---------
-        Matplotlib histogram 
+        Matplotlib histogram
         """
 
         self._model_applied()
@@ -393,10 +394,12 @@ class DataAnalyser():
 
         for a in angle_slices:
 
-            sliced_df = valdf[valdf['satellite_zenith_angle'].between(a, a + 3)]
-            
+            sliced_df = valdf[valdf['satellite_zenith_angle'].between(
+                a, a + 3)]
+
             if len(sliced_df) > 0:
-                acc = float(len(sliced_df[sliced_df['Agree'] == True])) / float(len(sliced_df))
+                acc = float(
+                    len(sliced_df[sliced_df['Agree'] == True])) / float(len(sliced_df))
                 accuracies.append(acc)
                 N.append(len(sliced_df[sliced_df['Agree'] == True]))
             else:
@@ -523,7 +526,8 @@ class DataAnalyser():
         bars2 = plt.bar(t, Nclear, width=0.5, align='center', color='lightcyan',
                         edgecolor='lightskyblue', bottom=Ncloudy, tick_label=names, ecolor='skyblue')
         plt.xticks(rotation=90)
-        plt.legend([bars1, bars2], ['Predicted as cloudy', 'Predicted as clear'])
+        plt.legend([bars1, bars2], [
+                   'Predicted as cloudy', 'Predicted as clear'])
         plt.show()
 
     def accuracy_stype(self, seed=1, validation_frac=0.15):

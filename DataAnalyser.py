@@ -202,7 +202,7 @@ class DataAnalyser():
 
         out = pd.DataFrame()
 
-        for i, Sfile in tqdm(enumerate(Sfiles)):
+        for i, Sfile in enumerate(tqdm(Sfiles)):
 
             # Load the rows of the dataframe for a SLSTR file
             Sdf = self._obj[self._obj['Sfilename'] == Sfile]
@@ -216,7 +216,7 @@ class DataAnalyser():
             # If the file is not on the local machine
             if os.path.exists(Spath) is False:
                 tqdm.write(Sfile + ' not found locally...')
-                print('Skipping...')
+                tqdm.write('Skipping...')
                 continue
 
             if square is False:
@@ -252,7 +252,14 @@ class DataAnalyser():
 
                 out = out.append(newdf, ignore_index=True, sort=True)
 
-                out.to_pickle(pklname)
+                if i % 25 == 0 or i == len(Sfiles) - 1:
+                    if i == 0:
+                        out.to_pickle(pklname)
+                    else:
+                        temp = pd.read_pickle(pklname)
+                        temp = temp.append(out)
+                        temp.to_pickle(pklname)
+                        out = pd.DataFrame()
 
             else:
                 scn = DL.scene_loader(Spath)

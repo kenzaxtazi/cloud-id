@@ -378,7 +378,7 @@ class DataAnalyser():
                 color='lightcyan', edgecolor='lightseagreen', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
 
-    def accuracy_sza(self, model, seed, para_num=22):  # TODO update to use model_agreement
+    def accuracy_sza(self, seed, validation_frac=15):
         """
         Produces a histogram of accuraccy as a function of solar zenith angle
 
@@ -397,14 +397,19 @@ class DataAnalyser():
 
         Returns
         ---------
-        None
+        Matplotlib histogram 
         """
+
+        self._model_applied()
+
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
 
-        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(
-            seed=seed, input_type=para_num)
+        self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
+
+        pct = int(len(self._obj) * validation_frac)
+        valdf = self._obj[-pct:]
 
         angle_slices = np.linspace(3, 55, 18)
         accuracies = []
@@ -412,27 +417,12 @@ class DataAnalyser():
 
         for a in angle_slices:
 
-            new_validation_data = []
-            new_validation_truth = []
-
-            # slices
-            for i in range(len(vdata)):
-                if abs(vdata[i, 9]) > a:
-                    if abs(vdata[i, 9]) < a + 3:
-                        new_validation_data.append(vdata[i])
-                        new_validation_truth.append(vtruth[i])
-
-            new_validation_data = np.array(new_validation_data)
-            new_validation_truth = np.array(new_validation_truth)
-
-            if len(new_validation_data) > 0:
-
-                new_validation_data = new_validation_data.reshape(-1, para_num)
-                acc = me.get_accuracy(
-                    model.model, new_validation_data, new_validation_truth, para_num=para_num)
+            sliced_df = valdf[valdf['satellite_zenith_angle'].between(a, a + 3)]
+            
+            if len(sliced_df) > 0:
+                acc = float(len(sliced_df['Agree'])) / float(len(sliced_df))
                 accuracies.append(acc)
-                N.append(len(new_validation_data))
-
+                N.append(len(sliced_df['Agree']))
             else:
                 accuracies.append(0)
                 N.append(0)
@@ -442,7 +432,7 @@ class DataAnalyser():
         plt.xlabel('Satellite zenith angle (deg)')
         plt.ylabel('Accuracy')
         plt.bar(angle_slices, accuracies, width=3, align='edge', color='lavenderblush',
-                edgecolor='thistle', yerr=(np.array(accuracies) / np.array(N))**(0.5))
+                edgecolor='thistle', ecolor='purple', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
 
     def cloud_types(self, seed=1, validation_frac=0.15):
@@ -507,12 +497,17 @@ class DataAnalyser():
         cloudy_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 == 2]
         cloudy_cloudydf = cloudy_valdf[cloudy_valdf['Feature_Classification_Flags'] & 7 == 2]
 
-        for surface in bitmeanings:
+        # new column with shifted feature classifcation flags to get cloud subtypes
+        cloudy_cleardf['FCF_RightShift9'] = pd.Series(
+            cloudy_cleardf['Feature_Classification_Flags'].values >> 9, index=cloudy_cleardf.index)
+        cloudy_cloudydf['FCF_RightShift9'] = pd.Series(
+            cloudy_cloudydf['Feature_Classification_Flags'].values >> 9, index=cloudy_cloudydf.index)
 
-            cleardf = cloudy_cleardf[(
-                cloudy_cleardf['Feature_Classification_Flags'] >> 9) & 7 == bitmeanings[surface]]
-            cloudydf = cloudy_cloudydf[(
-                cloudy_cloudydf['Feature_Classification_Flags'] >> 9) & 7 == bitmeanings[surface]]
+        for surface in bitmeanings:
+            cleardf = cloudy_cleardf[cloudy_cleardf['FCF_RightShift9']
+                                     & 7 == bitmeanings[surface]]
+            cloudydf = cloudy_cloudydf[cloudy_cloudydf['FCF_RightShift9']
+                                       & 7 == bitmeanings[surface]]
 
             clear_probabilities.append(
                 np.mean(cleardf['Label_Confidence'].values))
@@ -529,32 +524,28 @@ class DataAnalyser():
         plt.figure('Average cloudy probability vs cloud type')
         plt.title('Average cloudy probability as a function of cloud type')
         plt.ylabel('Average probability')
-        bars = plt.bar(t, cloudy_probabilities, width=0.5, align='center', color='lavender',
-                       edgecolor='plum', yerr=(np.array(cloudy_probabilities) / np.array(Ncloudy))**(0.5),
-                       tick_label=names, ecolor='purple', capsize=3, zorder=1)
+        plt.bar(t, cloudy_probabilities, width=0.5, align='center', color='lavender',
+                edgecolor='plum', yerr=(np.array(cloudy_probabilities) / np.array(Ncloudy))**(0.5),
+                tick_label=names, ecolor='purple', capsize=3, zorder=1)
         plt.xticks(rotation=90)
 
         plt.figure('Average clear probability vs cloud type')
         plt.title('Average clear probability as a function of cloud type')
         plt.ylabel('Average probability')
-        bars = plt.bar(t, clear_probabilities, width=0.5, align='center', color='lavender',
-                       edgecolor='plum', yerr=(np.array(clear_probabilities) / np.array(Nclear))**(0.5),
-                       tick_label=names, ecolor='purple', capsize=3, zorder=1)
+        plt.bar(t, clear_probabilities, width=0.5, align='center', color='lavender',
+                edgecolor='plum', yerr=(np.array(clear_probabilities) / np.array(Nclear))**(0.5),
+                tick_label=names, ecolor='purple', capsize=3, zorder=1)
         plt.xticks(rotation=90)
 
-        plt.figure('Cloudy classification number vs cloud type')
-        plt.title('Cloudy classification number as a function of cloud type')
-        plt.ylabel('Data points')
-        bars = plt.bar(t, Ncloudy, width=0.5, align='center', color='papayawhip',
-                       edgecolor='bisque', tick_label=names, ecolor='orange', zorder=1)
+        plt.figure('Classification numbers vs cloud type')
+        plt.title('Classification numbers as a function of cloud type')
+        plt.ylabel('Number of data points')
+        bars1 = plt.bar(t, Ncloudy, width=0.5, align='center', color='papayawhip',
+                        edgecolor='bisque', tick_label=names, ecolor='orange', zorder=1)
+        bars2 = plt.bar(t, Nclear, width=0.5, align='center', color='lightcyan',
+                        edgecolor='lightskyblue', tick_label=names, ecolor='skyblue', zorder=1)
         plt.xticks(rotation=90)
-
-        plt.figure('Clear classification number vs cloud type')
-        plt.title('Clear classification number as a function of cloud type')
-        plt.ylabel('Data points')
-        bars = plt.bar(t, Nclear, width=0.5, align='center', color='papayawhip',
-                       edgecolor='bisque', tick_label=names, ecolor='orange', zorder=1)
-        plt.xticks(rotation=90)
+        plt.legend([bars1, bars2], ['Predicted as cloudy', 'Predicted as cloudy'])
         plt.show()
 
     def accuracy_stype(self, seed=1, validation_frac=0.15):

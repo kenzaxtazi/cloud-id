@@ -414,8 +414,6 @@ class DataAnalyser():
                 edgecolor='thistle', ecolor='purple', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
 
-        print(accuracies)
-
     def cloud_types(self, seed=1, validation_frac=0.15):
         """
         Produces a histogram of accuraccy as a function of surface type

@@ -290,7 +290,7 @@ class DataAnalyser():
                         temp.to_pickle(pklname)
                         out = pd.DataFrame()
 
-    # TODO update to use model_agreement
+
     def accuracy_timediff(self, model, seed, validation_frac=0.15, para_num=22):
         """
         Produces a histogram of accuraccy as a function of the time difference between
@@ -313,15 +313,12 @@ class DataAnalyser():
         ---------
         None
         """
+        self._model_applied()
+
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
 
-        _, vdata, _, vtruth = self._obj.dp.get_ffn_training_data(
-            seed=seed, input_type=para_num)
-
-        times = self._obj['TimeDiff']
-        time_array = times.values
         pct = int(len(time_array) * validation_frac)
         validation_times = time_array[-pct:]
 
@@ -330,35 +327,13 @@ class DataAnalyser():
         N = []
 
         for t in time_slices:
-            new_validation_data = []
-            new_validation_truth = []
 
-            # slices
-            for i in range(len(vdata)):
-                if abs(validation_times[i]) > t:
-                    if abs(validation_times[i]) < t + 100:
-                        new_validation_data.append(vdata[i])
-                        new_validation_truth.append(vtruth[i])
-
-            new_validation_data = np.array(new_validation_data)
-            new_validation_truth = np.array(new_validation_truth)
-
-            if len(new_validation_data) > 0:
-
-                new_validation_data = new_validation_data.reshape(-1, para_num)
-                # Print accuracy
-                acc = me.get_accuracy(
-                    model.model, new_validation_data, new_validation_truth)
+            sliced_df = valdf[valdf['TimeDiff'].between(t, t + 100)]
+            
+            if len(sliced_df) > 0:
+                acc = float(len(sliced_df[sliced_df['Agree'] == True])) / float(len(sliced_df))
                 accuracies.append(acc)
-
-                # apply model to test images to generate masks
-                '''
-                for scn in scenes:
-                    app.apply_mask(model, scn)
-                    plt.show()
-                '''
-                N.append(len(new_validation_data))
-
+                N.append(len(sliced_df[sliced_df['Agree'] == True]))
             else:
                 accuracies.append(0)
                 N.append(0)
@@ -370,6 +345,7 @@ class DataAnalyser():
         plt.bar(time_slices, accuracies, width=100, align='edge',
                 color='lightcyan', edgecolor='lightseagreen', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
+
 
     def accuracy_sza(self, seed, validation_frac=15):
         """
@@ -413,9 +389,9 @@ class DataAnalyser():
             sliced_df = valdf[valdf['satellite_zenith_angle'].between(a, a + 3)]
             
             if len(sliced_df) > 0:
-                acc = float(len(sliced_df['Agree'])) / float(len(sliced_df))
+                acc = float(len(sliced_df[sliced_df['Agree'] == True])) / float(len(sliced_df))
                 accuracies.append(acc)
-                N.append(len(sliced_df['Agree']))
+                N.append(len(sliced_df[sliced_df['Agree'] == True]))
             else:
                 accuracies.append(0)
                 N.append(0)
@@ -427,6 +403,8 @@ class DataAnalyser():
         plt.bar(angle_slices, accuracies, width=3, align='edge', color='lavenderblush',
                 edgecolor='thistle', ecolor='purple', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
+
+        print(accuracies)
 
     def cloud_types(self, seed=1, validation_frac=0.15):
         """
@@ -519,7 +497,7 @@ class DataAnalyser():
         plt.ylabel('Average probability')
         plt.bar(t, cloudy_probabilities, width=0.5, align='center', color='lavender',
                 edgecolor='plum', yerr=(np.array(cloudy_probabilities) / np.array(Ncloudy))**(0.5),
-                tick_label=names, ecolor='purple', capsize=3, zorder=1)
+                tick_label=names, ecolor='purple', capsize=3)
         plt.xticks(rotation=90)
 
         plt.figure('Average clear probability vs cloud type')
@@ -527,18 +505,18 @@ class DataAnalyser():
         plt.ylabel('Average probability')
         plt.bar(t, clear_probabilities, width=0.5, align='center', color='lavender',
                 edgecolor='plum', yerr=(np.array(clear_probabilities) / np.array(Nclear))**(0.5),
-                tick_label=names, ecolor='purple', capsize=3, zorder=1)
+                tick_label=names, ecolor='purple', capsize=3)
         plt.xticks(rotation=90)
 
         plt.figure('Classification numbers vs cloud type')
         plt.title('Classification numbers as a function of cloud type')
         plt.ylabel('Number of data points')
         bars1 = plt.bar(t, Ncloudy, width=0.5, align='center', color='papayawhip',
-                        edgecolor='bisque', tick_label=names, ecolor='orange', zorder=1)
+                        edgecolor='bisque', tick_label=names, ecolor='orange')
         bars2 = plt.bar(t, Nclear, width=0.5, align='center', color='lightcyan',
-                        edgecolor='lightskyblue', tick_label=names, ecolor='skyblue', zorder=1)
+                        edgecolor='lightskyblue', bottom=Ncloudy, tick_label=names, ecolor='skyblue')
         plt.xticks(rotation=90)
-        plt.legend([bars1, bars2], ['Predicted as cloudy', 'Predicted as cloudy'])
+        plt.legend([bars1, bars2], ['Predicted as cloudy', 'Predicted as clear'])
         plt.show()
 
     def accuracy_stype(self, seed=1, validation_frac=0.15):

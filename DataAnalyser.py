@@ -487,7 +487,7 @@ class DataAnalyser():
         Nclear = []
 
         # seperate clear flags
-        clear_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 != 2]    
+        clear_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 != 2]  
         clear_cloudydf = cloudy_valdf[cloudy_valdf['Feature_Classification_Flags'] & 7 != 2]
         clear_probabilities.append(np.mean(clear_cleardf['Label_Confidence'].values))
         cloudy_probabilities.append(np.mean(clear_cloudydf['Label_Confidence'].values))
@@ -495,7 +495,7 @@ class DataAnalyser():
         Nclear.append(len(clear_cleardf))
 
         # seperate cloudy flags
-        cloudy_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 == 2]    
+        cloudy_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 == 2]
         cloudy_cloudydf = cloudy_valdf[cloudy_valdf['Feature_Classification_Flags'] & 7 == 2]
 
         for surface in bitmeanings:

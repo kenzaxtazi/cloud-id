@@ -414,9 +414,258 @@ class DataAnalyser():
                 edgecolor='thistle', ecolor='purple', yerr=(np.array(accuracies) / np.array(N))**(0.5))
         plt.show()
 
-    def cloud_types(self, seed=1, validation_frac=0.15):
+    def confidence_cloud_types(self, seed=1, validation_frac=0.15):
         """
-        Produces a histogram of accuraccy as a function of surface type
+        Produces a histograms analysing cloud types.
+        
+        - Two histograms of confidence as a function of surface cloud types for
+        data points classified as cloudy and clear.
+        - One stacked bar chart with data points numbers.
+        -
+
+        Parameters
+        -----------
+        seed: int
+            the seed used to randomly shuffle the data for that model
+
+        validation_frac: float
+            the fraction of data kept for validation when preparing the model's training data
+
+        para_num: int
+            the number of inputs take by the model
+
+        Returns
+        ---------
+        Matplotlib histograms
+        """
+        self._model_applied()
+
+        self._obj.dp.remove_nan()
+        self._obj.dp.remove_anomalous()
+        self._obj.dp.shuffle_by_file(seed)
+
+        self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
+
+        pct = int(len(self._obj) * validation_frac)
+        valdf = self._obj[-pct:]
+
+        clear_valdf = valdf[valdf['Labels'] == 1]
+        cloudy_valdf = valdf[valdf['Labels'] == 0]
+
+        bitmeanings = {
+            'low overcast, transparent': 0,
+            'low overcast, opaque': 1,
+            'transition stratocumulus': 2,
+            'low, broken cumulus': 3,
+            'altocumulus (transparent)': 4,
+            'altostratus (opaque)': 5,
+            'cirrus (transparent)': 6,
+            'deep convective (opaque)': 7}
+
+        clear_probabilities = []
+        cloudy_probabilities = []
+        Ncloudy = []
+        Nclear = []
+
+        # seperate clear flags
+        clear_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 != 2]
+        clear_cloudydf = cloudy_valdf[cloudy_valdf['Feature_Classification_Flags'] & 7 != 2]
+        clear_probabilities.append(
+            np.mean(clear_cleardf['Label_Confidence'].values))
+        cloudy_probabilities.append(
+            np.mean(clear_cloudydf['Label_Confidence'].values))
+        Ncloudy.append(len(clear_cloudydf))
+        Nclear.append(len(clear_cleardf))
+
+        # seperate cloudy flags
+        cloudy_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 == 2]
+        cloudy_cloudydf = cloudy_valdf[cloudy_valdf['Feature_Classification_Flags'] & 7 == 2]
+
+        # new column with shifted feature classifcation flags to get cloud subtypes
+        cloudy_cleardf['FCF_RightShift9'] = pd.Series(
+            cloudy_cleardf['Feature_Classification_Flags'].values >> 9, index=cloudy_cleardf.index)
+        cloudy_cloudydf['FCF_RightShift9'] = pd.Series(
+            cloudy_cloudydf['Feature_Classification_Flags'].values >> 9, index=cloudy_cloudydf.index)
+
+        for surface in bitmeanings:
+            cleardf = cloudy_cleardf[cloudy_cleardf['FCF_RightShift9']
+                                     & 7 == bitmeanings[surface]]
+            cloudydf = cloudy_cloudydf[cloudy_cloudydf['FCF_RightShift9']
+                                       & 7 == bitmeanings[surface]]
+
+            clear_probabilities.append(
+                np.mean(cleardf['Label_Confidence'].values))
+            cloudy_probabilities.append(
+                np.mean(cloudydf['Label_Confidence'].values))
+            Ncloudy.append(len(cloudydf))
+            Nclear.append(len(cleardf))
+
+        names = ['clear', 'low overcast, transparent', 'low overcast, opaque', 'transition stratocumulus', 'low, broken cumulus',
+                 'altocumulus (transparent)', 'altostratus (opaque)', 'cirrus (transparent)', 'deep convective (opaque)']
+
+        t = np.arange(len(names))
+
+        plt.figure('Average cloudy probability vs cloud type')
+        plt.title('Average cloudy probability as a function of cloud type')
+        plt.ylabel('Average probability')
+        plt.bar(t, cloudy_probabilities, width=0.5, align='center', color='lavender',
+                edgecolor='plum', yerr=(np.array(cloudy_probabilities) / np.array(Ncloudy))**(0.5),
+                tick_label=names, ecolor='purple', capsize=3)
+        plt.xticks(rotation=90)
+
+        plt.figure('Average clear probability vs cloud type')
+        plt.title('Average clear probability as a function of cloud type')
+        plt.ylabel('Average probability')
+        plt.bar(t, clear_probabilities, width=0.5, align='center', color='lavender',
+                edgecolor='plum', yerr=(np.array(clear_probabilities) / np.array(Nclear))**(0.5),
+                tick_label=names, ecolor='purple', capsize=3)
+        plt.xticks(rotation=90)
+
+        plt.figure('Classification numbers vs cloud type')
+        plt.title('Classification numbers as a function of cloud type')
+        plt.ylabel('Number of data points')
+        bars1 = plt.bar(t, Ncloudy, width=0.5, align='center', color='papayawhip',
+                        edgecolor='bisque', tick_label=names, ecolor='orange')
+        bars2 = plt.bar(t, Nclear, width=0.5, align='center', color='lightcyan',
+                        edgecolor='lightskyblue', bottom=Ncloudy, tick_label=names, ecolor='skyblue')
+        plt.xticks(rotation=90)
+        plt.legend([bars1, bars2], [
+                   'Predicted as cloudy', 'Predicted as clear'])
+        plt.show()
+
+    def confidence_aerosol_types(self, seed=1, validation_frac=0.15):
+        """
+        Produces a histograms analysing clear types.
+
+        - Two histograms of confidence as a function of surface cloud types for
+        data points classified as cloudy and clear.
+        - One stacked bar chart with data points numbers.
+
+        Parameters
+        -----------
+        seed: int
+            the seed used to randomly shuffle the data for that model
+
+        validation_frac: float
+            the fraction of data kept for validation when preparing the model's training data
+
+        para_num: int
+            the number of inputs take by the model
+
+        Returns
+        ---------
+        Matplotlib histograms
+        """
+        self._model_applied()
+
+        self._obj.dp.remove_nan()
+        self._obj.dp.remove_anomalous()
+        self._obj.dp.shuffle_by_file(seed)
+
+        self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
+
+        pct = int(len(self._obj) * validation_frac)
+        valdf = self._obj[-pct:]
+
+        clear_valdf = valdf[valdf['Labels'] == 1]
+        cloudy_valdf = valdf[valdf['Labels'] == 0]
+
+        bitmeanings = {
+            'Not determined': 0,
+            'Clear marine': 1,
+            'Dust': 2,
+            'Polluted continental': 3,
+            'Clean continental': 4,
+            'Polluted dust': 5,
+            'Smoke': 6,
+            'Other': 7}
+
+        clear_probabilities = []
+        cloudy_probabilities = []
+        Ncloudy = []
+        Nclear = []
+
+        # seperate clear air and cloudy flags
+        clearair_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 == 1]
+        clearair_cloudydf = cloudy_valdf[cloudy_valdf['Feature_Classification_Flags'] & 7 == 1]
+
+        cloudy_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 == 2]
+        cloudy_cloudydf = cloudy_valdf[cloudy_valdf['Feature_Classification_Flags'] & 7 == 2]
+        
+        clear_probabilities.extend([np.mean(cloudy_cleardf['Label_Confidence'].values),
+                                    np.mean(clearair_cleardf['Label_Confidence'].values)])
+        cloudy_probabilities.extend([np.mean(cloudy_cloudydf['Label_Confidence'].values),
+                                     np.mean(clearair_cloudydf['Label_Confidence'].values)])
+
+        Nclear.extend([len(cloudy_cleardf), len(clearair_cleardf)])
+        Ncloudy.extend([len(cloudy_cloudydf), len(clearair_cloudydf)])
+
+        # seperate aerosol flags
+        aero_cleardf = clear_valdf[clear_valdf['Feature_Classification_Flags'] & 7 == 3]
+        aero_cloudydf = cloudy_valdf[cloudy_valdf['Feature_Classification_Flags'] & 7 == 3]
+
+        print(aero_cleardf)
+        print(aero_cloudydf)
+
+        # new column with shifted feature classifcation flags to get cloud subtypes
+        aero_cleardf['FCF_RightShift9'] = pd.Series(
+            aero_cleardf['Feature_Classification_Flags'].values >> 9, index=aero_cleardf.index)
+        aero_cloudydf['FCF_RightShift9'] = pd.Series(
+            aero_cloudydf['Feature_Classification_Flags'].values >> 9, index=aero_cloudydf.index)
+
+        print(aero_cleardf['FCF_RightShift9'])
+        print(aero_cloudydf['FCF_RightShift9'])
+
+        for surface in bitmeanings:
+            cleardf = aero_cleardf[aero_cleardf['FCF_RightShift9'] & 7 == bitmeanings[surface]]
+            cloudydf = aero_cloudydf[aero_cloudydf['FCF_RightShift9'] & 7 == bitmeanings[surface]]
+
+            clear_probabilities.append(
+                np.mean(cleardf['Label_Confidence'].values))
+            cloudy_probabilities.append(
+                np.mean(cloudydf['Label_Confidence'].values))
+            Ncloudy.append(len(cloudydf))
+            Nclear.append(len(cleardf))
+
+        names = ['Cloud', 'Clear', 'Not determined', 'Clear marine', 'Dust', 'Polluted continental',
+                 'Clean continental', 'Polluted dust', 'Smoke', 'Other']
+
+        print(clear_probabilities)
+        print(cloudy_probabilities)
+
+        t = np.arange(len(names))
+
+        plt.figure('Average cloudy probability vs aerosol type')
+        plt.title('Average cloudy probability as a function of aerosol type')
+        plt.ylabel('Average probability')
+        plt.bar(t, cloudy_probabilities, width=0.5, align='center', color='lavender',
+                edgecolor='plum', yerr=(np.array(cloudy_probabilities) / np.array(Ncloudy))**(0.5),
+                tick_label=names, ecolor='purple', capsize=3)
+        plt.xticks(rotation=90)
+
+        plt.figure('Average clear probability vs aerosol type')
+        plt.title('Average clear probability as a function of aerosol type')
+        plt.ylabel('Average probability')
+        plt.bar(t, clear_probabilities, width=0.5, align='center', color='lavender',
+                edgecolor='plum', yerr=(np.array(clear_probabilities) / np.array(Nclear))**(0.5),
+                tick_label=names, ecolor='purple', capsize=3)
+        plt.xticks(rotation=90)
+
+        plt.figure('Classification numbers vs cloud type')
+        plt.title('Classification numbers as a function of cloud type')
+        plt.ylabel('Number of data points')
+        bars1 = plt.bar(t, Ncloudy, width=0.5, align='center', color='papayawhip',
+                        edgecolor='bisque', tick_label=names, ecolor='orange')
+        bars2 = plt.bar(t, Nclear, width=0.5, align='center', color='lightcyan',
+                        edgecolor='lightskyblue', bottom=Ncloudy, tick_label=names, ecolor='skyblue')
+        plt.xticks(rotation=90)
+        plt.legend([bars1, bars2], [
+                   'Predicted as cloudy', 'Predicted as clear'])
+        plt.show()
+
+    def accuracy_cloud_types(self, seed=1, validation_frac=0.15):
+        """
+        Produces one stacked bar chart with data points numbers.
 
         Parameters
         -----------

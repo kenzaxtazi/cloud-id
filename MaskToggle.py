@@ -50,6 +50,10 @@ class MaskToggler():
         self.im5 = plt.imshow(1 - pmask, cmap='Oranges')
         self.im5.set_visible(False)
 
+        maskdiff = mask1 - bmask
+        self.im6 = plt.imshow(maskdiff, cmap='spring')
+        self.im6.set_visible(False)
+
     def toggle_images(self, event):
         """Toggle between different images to display"""
         if event.key == '1':
@@ -67,6 +71,9 @@ class MaskToggler():
         elif event.key == '5':
             self._clearframe()
             self.setting5()
+        elif event.key == '6':
+            self._clearframe()
+            self.setting6()
         elif event.key == 'm':
             self._clearframe()
             self.cycleforward()
@@ -82,13 +89,14 @@ class MaskToggler():
         self.im3.set_visible(False)
         self.im4.set_visible(False)
         self.im5.set_visible(False)
+        self.im6.set_visible(False)
 
     def cycleforward(self):
-        self.index = (self.index + 1) % 5
+        self.index = (self.index + 1) % 6
         self.settingfuncs[self.index]()
 
     def cyclebackward(self):
-        self.index = (self.index - 1) % 5
+        self.index = (self.index - 1) % 6
         self.settingfuncs[self.index]()
 
     def setting1(self):
@@ -120,6 +128,12 @@ class MaskToggler():
         plt.title(self.modelname + ' probability mask\n' + self.TitleStr)
         self.im5.set_visible(True)
         self.index = 4
+        plt.draw()
+    
+    def setting6(self):
+        plt.title(self.modelname + ' mask - Bayesian mask\n' + self.TitleStr)
+        self.im6.set_visible(True)
+        self.index = 5
         plt.draw()
 
 

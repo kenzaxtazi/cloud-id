@@ -15,8 +15,8 @@ from FFN import FFN
 class MaskToggler():
     def __init__(self, Sfilename, model='Net1_FFN_v7', verbose=False):
         self.index = 0
-        self.settingfuncs = [self.setting1, self.setting2,
-                             self.setting3, self.setting4, self.setting5]
+        self.settingfuncs = [self.setting1, self.setting2, self.setting3,
+                             self.setting4, self.setting5, self.setting6]
         if isinstance(model, str):
             self.modelname = model
 
@@ -51,7 +51,7 @@ class MaskToggler():
         self.im5.set_visible(False)
 
         maskdiff = mask1 - bmask
-        self.im6 = plt.imshow(maskdiff, cmap='spring')
+        self.im6 = plt.imshow(maskdiff, cmap='bwr')
         self.im6.set_visible(False)
 
     def toggle_images(self, event):
@@ -129,7 +129,7 @@ class MaskToggler():
         self.im5.set_visible(True)
         self.index = 4
         plt.draw()
-    
+
     def setting6(self):
         plt.title(self.modelname + ' mask - Bayesian mask\n' + self.TitleStr)
         self.im6.set_visible(True)

@@ -47,6 +47,7 @@ def ROC(validation_predictions, validation_truth, bayes_mask=None,
         bayes_mask = bayes_mask.astype(int)
         tn, fp, fn, tp = (metrics.confusion_matrix(
             validation_truth[:, 0], bayes_mask[:, 0], labels=(0, 1))).ravel()
+        print(tn, fp, fn, tp)
         plt.scatter(float(fp) / float(tn + fp), float(tp) / float(fn + tp), marker='o', label='Bayesian mask')
 
     if emp_mask is not None:
@@ -54,6 +55,7 @@ def ROC(validation_predictions, validation_truth, bayes_mask=None,
         emp_mask = emp_mask.astype(int)
         tn, fp, fn, tp = (metrics.confusion_matrix(
             validation_truth[:, 0], emp_mask[:, 0], labels=(0, 1))).ravel()
+        print(tn, fp, fn, tp)
         plt.scatter(float(fp) / float(tn + fp), float(tp) / float(fn + tp), marker='*', label='Empirical mask')
 
     plt.legend()

@@ -124,14 +124,14 @@ class MaskToggler():
         plt.draw()
 
     def setting4(self):
-        plt.title(self.modelname +
-                  ' masked false colour image\n' + self.TitleStr)
+        plt.title(self.modelname
+                  + ' masked false colour image\n' + self.TitleStr)
         self.im4.set_visible(True)
         self.index = 3
         plt.draw()
 
     def setting5(self):
-        plt.title(self.modelname + ' probability mask\n' + self.TitleStr)
+        plt.title(self.modelname + ' model output\n' + self.TitleStr)
         self.im5.set_visible(True)
         self.index = 4
         self.cb = plt.colorbar(self.im5)

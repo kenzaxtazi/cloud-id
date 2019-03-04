@@ -24,7 +24,8 @@ class MaskToggler():
             self.model.Load(verbose=verbose)
 
         elif isinstance(model, FFN):
-            pass
+            self.model = model
+            self.modelname = self.model.name
 
         mask1, pmask = self.model.apply_mask(Sfilename)
 
@@ -41,9 +42,7 @@ class MaskToggler():
         self.im3.set_visible(False)
 
         mask1 = mask1.astype('bool')
-        rgb[~mask1, 0] = 254 / 255
-        rgb[~mask1, 1] = 253 / 255
-        rgb[~mask1, 2] = 185 / 255
+        rgb[~mask1, :] = 254 / 255, 253 / 255, 185 / 255
         self.im4 = plt.imshow(rgb)
         self.im4.set_visible(False)
 
@@ -124,14 +123,14 @@ class MaskToggler():
         plt.draw()
 
     def setting4(self):
-        plt.title(self.modelname +
-                  ' masked false colour image\n' + self.TitleStr)
+        plt.title(self.modelname
+                  + ' masked false colour image\n' + self.TitleStr)
         self.im4.set_visible(True)
         self.index = 3
         plt.draw()
 
     def setting5(self):
-        plt.title(self.modelname + ' probability mask\n' + self.TitleStr)
+        plt.title(self.modelname + ' model output\n' + self.TitleStr)
         self.im5.set_visible(True)
         self.index = 4
         self.cb = plt.colorbar(self.im5)

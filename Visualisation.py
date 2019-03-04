@@ -8,6 +8,7 @@
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import colors as mcolors
 
 import DataLoader as DL
 
@@ -21,7 +22,7 @@ def norm(band):
     return ((band - band_min) / (band_max - band_min))
 
 
-def FalseColour(Sreference, plot=True, mask=None):
+def FalseColour(Sreference, plot=True, mask=None, brightness=0.2):
     """
     Produce false colour image for SLSTR file
 
@@ -67,6 +68,11 @@ def FalseColour(Sreference, plot=True, mask=None):
         blue[mask] = 185 / 255
 
     rgb = np.dstack((red, green, blue))
+
+    hsv = mcolors.rgb_to_hsv(rgb)
+    hsv[:, :, 2] += brightness
+    rgb = mcolors.hsv_to_rgb(hsv)
+    rgb[rgb > 1] = 1
 
     LatPos = str(round(np.array(scn['latitude_an'].values)[0, 0], 6))
     LonPos = str(round(np.array(scn['longitude_an'].values)[0, 0], 6))

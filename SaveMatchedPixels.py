@@ -190,6 +190,8 @@ def process_pair(Spath, Cpath, interpolate=True):
                             'satellite_zenith_angle', 'solar_zenith_angle',
                             'latitude_an', 'longitude_an', 'confidence_an']
         scn.load(SLSTR_attributes)
+        if scn['S1_an'].shape != (2400, 3000):
+            return pd.DataFrame()
 
         def Smake_series(Sattribute):
             """

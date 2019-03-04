@@ -50,7 +50,7 @@ class MaskToggler():
         self.im5 = plt.imshow(1 - pmask, cmap='Oranges')
         self.im5.set_visible(False)
 
-        maskdiff = mask1 - bmask
+        maskdiff = bmask - mask1
         self.im6 = plt.imshow(maskdiff, cmap='bwr')
         self.im6.set_visible(False)
 

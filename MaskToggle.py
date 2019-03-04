@@ -134,7 +134,7 @@ class MaskToggler():
         plt.title(self.modelname + ' probability mask\n' + self.TitleStr)
         self.im5.set_visible(True)
         self.index = 4
-        self.cb = plt.colorbar()
+        self.cb = plt.colorbar(self.im5)
         self.cbset = True
         plt.draw()
 
@@ -142,7 +142,7 @@ class MaskToggler():
         plt.title(self.modelname + ' mask - Bayesian mask\n' + self.TitleStr)
         self.im6.set_visible(True)
         self.index = 5
-        self.cb = plt.colorbar()
+        self.cb = plt.colorbar(self.im6)
         self.cbset = True
         plt.draw()
 

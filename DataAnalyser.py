@@ -11,6 +11,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn import metrics
 from tqdm import tqdm
 
 import DataLoader as DL
@@ -27,6 +28,7 @@ class DataAnalyser():
     def __init__(self, pandas_obj):
         self._obj = pandas_obj
         self.model = None
+        self.shuffled_channel = None
 
     def _model_applied(self):
         """Raise error if Agree column is not in dataframe"""
@@ -78,6 +80,76 @@ class DataAnalyser():
             output_labels[:, 0], index=self._obj.index)
         self._obj['Label_Confidence'] = pd.Series(
             output_con[:, 0], index=self._obj.index)
+
+        self._obj = self._obj.dp.make_CTruth_col()
+
+        self._obj['Agree'] = self._obj['CTruth'] != self._obj['Labels']
+
+    def shuffled_model_agreement(self, model, channel_name, verbose=False, MaxDist=None, MaxTime=None):
+        """
+        Apply a model to the dataframe and add model output to rows
+
+        Adds the direct output of the model into the 'Labels' and
+        'Label_Confidence' columns, in addition the 'Agree' column shows
+        whether the model result agrees with the Calipso truth.
+
+        Parameters
+        ----------
+        model: str
+            Name of model to use. If using a model on disk, it should be saved in the Models folder.
+
+        Returns
+        ----------
+        None
+        """
+
+        self.shuffled_channel = channel_name
+
+        if MaxDist is not None:
+            self._obj = self._obj[self._obj['Distance'] < MaxDist]
+        if MaxTime is not None:
+            self._obj = self._obj[abs(self._obj['TimeDiff']) < MaxTime]
+
+        if isinstance(model, str):
+            self.model = model
+
+            model = FFN(model)
+            model.Load(verbose=verbose)
+
+        elif isinstance(model, FFN):
+            pass
+
+        channel_indices = {
+            'S1_an': 0,
+            'S2_an': 1,
+            'S3_an': 2,
+            'S4_an': 3,
+            'S5_an': 4,
+            'S6_an': 5,
+            'S7_in': 6,
+            'S8_in': 7,
+            'S9_in': 8,
+            'satellite_zenith_angle': 9,
+            'solar_zenith_angle': 10,
+            'latitude_an': 11,
+            'longitude_an': 12}
+
+        num_inputs = model.para_num
+        inputs = self._obj.dp.get_inputs(num_inputs)
+        shuffled_inputs = np.column_stack((inputs[:, :channel_indices[channel_name]],
+                                           np.random.permutation(
+                                               inputs[:, channel_indices[channel_name]]),
+                                           inputs[:, channel_indices[channel_name] + 1:]))
+        output_labels = model.model.predict_label(inputs)
+        output_con = model.model.predict(inputs)
+        shuffled_output_con = model.model.predict(shuffled_inputs)
+
+        self._obj['Labels'] = pd.Series(
+            output_labels[:, 0], index=self._obj.index)
+        self._obj['Label_Confidence'] = pd.Series(
+            output_con[:, 0], index=self._obj.index)
+        self._obj['Shuffled_Confidence'] = pd.Series(
+            shuffled_output_con[:, 0], index=self._obj.index)
 
         self._obj = self._obj.dp.make_CTruth_col()
 
@@ -297,7 +369,7 @@ class DataAnalyser():
                         temp.to_pickle(pklname)
                         out = pd.DataFrame()
 
-    def accuracy_timediff(self, seed=1, validation_frac=0.15):
+    def AUC_timediff(self, seed=1, validation_frac=0.15):
         """
         Produces a histogram of accuraccy as a function of the time difference between
         the data take by SLSTR and CALIOP instruments
@@ -331,7 +403,7 @@ class DataAnalyser():
         valdf = self._obj[-pct:]
 
         time_slices = np.linspace(0, 1401, 15)
-        accuracies = []
+        aucs = []
         N = []
 
         for t in time_slices:
@@ -339,23 +411,23 @@ class DataAnalyser():
             sliced_df = valdf[valdf['TimeDiff'].between(t, t + 100)]
 
             if len(sliced_df) > 0:
-                acc = float(
-                    len(sliced_df[sliced_df['Agree'] == True])) / float(len(sliced_df))
-                accuracies.append(acc)
-                N.append(len(sliced_df[sliced_df['Agree'] == True]))
+                auc = metrics.roc_auc_score((sliced_df['CTruth'].values).astype('int'),
+                                            (sliced_df['Label_Confidence'].values))
+                aucs.append(auc)
+                N.append(len(sliced_df))
             else:
-                accuracies.append(0)
+                aucs.append(0)
                 N.append(0)
 
-        plt.figure('Accuracy vs time difference')
-        plt.title('Accuracy as a function of time difference')
+        plt.figure('AUC vs time difference')
+        plt.title('AUC as a function of time difference')
         plt.xlabel('Absolute time difference (s)')
-        plt.ylabel('Accuracy')
-        plt.bar(time_slices, accuracies, width=100, align='edge',
-                color='lightcyan', edgecolor='lightseagreen', yerr=(np.array(accuracies) / np.array(N))**(0.5))
+        plt.ylabel('AUC')
+        plt.bar(time_slices, aucs, width=100, align='edge',
+                color='lightcyan', edgecolor='lightseagreen', yerr=(np.array(aucs) / np.array(N))**(0.5))
         plt.show()
 
-    def accuracy_sza(self, seed=1, validation_frac=15):
+    def AUC_sza(self, seed=1, validation_frac=15):
         """
         Produces a histogram of accuraccy as a function of solar zenith angle
 
@@ -389,7 +461,7 @@ class DataAnalyser():
         valdf = self._obj[-pct:]
 
         angle_slices = np.linspace(3, 55, 18)
-        accuracies = []
+        aucs = []
         N = []
 
         for a in angle_slices:
@@ -398,23 +470,23 @@ class DataAnalyser():
                 a, a + 3)]
 
             if len(sliced_df) > 0:
-                acc = float(
-                    len(sliced_df[sliced_df['Agree'] == True])) / float(len(sliced_df))
-                accuracies.append(acc)
-                N.append(len(sliced_df[sliced_df['Agree'] == True]))
+                auc = metrics.roc_auc_score((sliced_df['CTruth'].values).astype('int'),
+                                            (sliced_df['Label_Confidence'].values))
+                aucs.append(auc)
+                N.append(len(sliced_df))
             else:
-                accuracies.append(0)
+                aucs.append(0)
                 N.append(0)
 
-        plt.figure('Accuracy vs satellite zenith angle')
-        plt.title('Accuracy as a function of satellite zenith angle')
+        plt.figure('AUC vs satellite zenith angle')
+        plt.title('AUC as a function of satellite zenith angle')
         plt.xlabel('Satellite zenith angle (deg)')
-        plt.ylabel('Accuracy')
-        plt.bar(angle_slices, accuracies, width=3, align='edge', color='lavenderblush',
-                edgecolor='thistle', ecolor='purple', yerr=(np.array(accuracies) / np.array(N))**(0.5))
+        plt.ylabel('AUC')
+        plt.bar(angle_slices, aucs, width=3, align='edge', color='lavenderblush',
+                edgecolor='thistle', ecolor='purple', yerr=(np.array(aucs) / np.array(N))**(0.5))
         plt.show()
 
-    def accuracy_ctype(self, seed=1, validation_frac=0.15):
+    def AUC_ctype(self, seed=1, validation_frac=0.15):
         """
         Produces a histogram of accuracy as a function of cloud type
 
@@ -535,7 +607,7 @@ class DataAnalyser():
                                             'Empirical mask accuracy'])
         plt.show()
 
-    def accuracy_stype(self, seed=1, validation_frac=0.15):
+    def AUC_stype(self, seed=1, validation_frac=0.15):
         """
         Produces a histogram of accuracy as a function of surface type.
 
@@ -582,6 +654,7 @@ class DataAnalyser():
         model_accuracies = []
         bayes_accuracies = []
         empir_accuracies = []
+        aucs= []
         N = []
 
         for surface in bitmeanings:
@@ -596,6 +669,10 @@ class DataAnalyser():
             # Model accuracy
             n = len(surfdf)
             model_accuracy = np.mean(surfdf['Agree'])
+            auc = metrics.roc_auc_score((surfdf['CTruth'].values).astype('int'),
+                                            (surfdf['Label_Confidence'].values))
+            aucs.append(auc)
+
             # print(str(surface) + ': ' + str(accuracy))
 
             # Bayesian mask accuracy
@@ -618,6 +695,8 @@ class DataAnalyser():
         names = ['Coastline', 'Ocean', 'Tidal', 'Land', 'Inland water',
                  'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Snow']
 
+        print(aucs)
+        
         t = np.arange(len(names))
 
         plt.figure('Accuracy vs surface type')
@@ -725,7 +804,8 @@ class DataAnalyser():
         t = np.arange(len(names))
 
         plt.figure('Average cloudy confidence vs cloud type')
-        plt.title('Average confidence as a function of cloud type for pixels classified as cloud')
+        plt.title(
+            'Average confidence as a function of cloud type for pixels classified as cloud')
         plt.ylabel('Average probability')
         plt.bar(t, cloudy_probabilities, width=0.5, align='center', color='lavender',
                 edgecolor='plum', yerr=(np.array(cloudy_probabilities) / np.array(Ncloudy))**(0.5),
@@ -733,7 +813,8 @@ class DataAnalyser():
         plt.xticks(rotation=90)
 
         plt.figure('Average clear confidence vs cloud type')
-        plt.title('Average confidence as a function of cloud type for pixels classified as clear')
+        plt.title(
+            'Average confidence as a function of cloud type for pixels classified as clear')
         plt.ylabel('Average probability')
         plt.bar(t, clear_probabilities, width=0.5, align='center', color='lavender',
                 edgecolor='plum', yerr=(np.array(clear_probabilities) / np.array(Nclear))**(0.5),
@@ -831,7 +912,8 @@ class DataAnalyser():
         t = np.arange(len(names))
 
         plt.figure('Average cloudy confidence vs surface type')
-        plt.title('Average confidence as a function of surface type for pixels classified as cloud')
+        plt.title(
+            'Average confidence as a function of surface type for pixels classified as cloud')
         plt.ylabel('Average probability')
         plt.bar(t, cloudy_probabilities, width=0.5, align='center', color='lavender',
                 edgecolor='plum', yerr=(np.array(cloudy_probabilities) / np.array(Ncloudy))**(0.5),
@@ -839,7 +921,8 @@ class DataAnalyser():
         plt.xticks(rotation=90)
 
         plt.figure('Average clear confidence vs surface type')
-        plt.title('Average confidence as a function of surface type for pixels classified as clear')
+        plt.title(
+            'Average confidence as a function of surface type for pixels classified as clear')
         plt.ylabel('Average probability')
         plt.bar(t, clear_probabilities, width=0.5, align='center', color='lavender',
                 edgecolor='plum', yerr=(np.array(clear_probabilities) / np.array(Nclear))**(0.5),
@@ -1168,6 +1251,36 @@ class DataAnalyser():
             me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
                    emp_mask=empir_onehot, name=cloud)
             plt.show()
+
+    def ROC_modelsens(self, seed=1, validation_frac=0.15):
+
+        self._model_applied()
+
+        self._obj.dp.remove_nan()
+        self._obj.dp.remove_anomalous()
+        self._obj.dp.shuffle_by_file(seed)
+
+        self._obj = self._obj.dp._obj
+
+        pct = int(len(self._obj) * validation_frac)
+        valdf = self._obj[-pct:]
+
+        truth = (valdf['CTruth'].values).astype('int')
+
+        false_positive_rate1, true_positive_rate1, _ = metrics.roc_curve(
+            truth, valdf['Label_Confidence'].values, pos_label=1)
+
+        false_positive_rate2, true_positive_rate2, _ = metrics.roc_curve(
+            truth, valdf['Shuffled_Confidence'].values, pos_label=1)
+
+        plt.figure('ROC')
+        plt.title('Model sensitivity to ' + self.shuffled_channel + ' ROC')
+        plt.plot([0, 1], [0, 1], label="Random classifier")
+        plt.plot(false_positive_rate1, true_positive_rate1, label='Model on original dataframe')
+        plt.plot(false_positive_rate2, true_positive_rate2, label='Model on shuffled dataframe')
+        plt.ylabel('True positive rate')
+        plt.legend()
+        plt.show()
 
     def reproducibility(self, modelname, number_of_runs=15, validation_frac=0.15, para_num=22):
         """

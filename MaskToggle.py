@@ -17,7 +17,7 @@ class MaskToggler():
         self.index = 0
         self.settingfuncs = [self.setting1, self.setting2, self.setting3,
                              self.setting4, self.setting5, self.setting6,
-                             self.setting7]
+                             self.setting7, self.setting8]
         if isinstance(model, str):
             self.modelname = model
 
@@ -31,6 +31,12 @@ class MaskToggler():
         mask1, pmask1 = self.model.apply_mask(Sfilename)
 
         rgb, self.TitleStr = Vis.FalseColour(Sfilename, False)
+
+        scn = DL.scene_loader(Sfilename)
+        scn.load(['bayes_in', 'probability_cloud_single_in'])
+        bmask = DL.upscale_repeat(scn['bayes_in'].values).astype('int')
+        bmask = 1 - ((bmask & 2) / 2)
+        bpmask = DL.upscale_repeat(scn['probability_cloud_single_in'].values)
 
         self.im1 = plt.imshow(rgb)
         plt.title('False colour image\n' + self.TitleStr)
@@ -54,9 +60,12 @@ class MaskToggler():
         self.im6 = plt.imshow(1 - pmask1, cmap='Oranges')
         self.im6.set_visible(False)
 
-        maskdiff = bmask - mask1
-        self.im7 = plt.imshow(maskdiff, cmap='bwr')
+        self.im7 = plt.imshow(bpmask, cmap='Reds')
         self.im7.set_visible(False)
+
+        maskdiff = bmask - mask1
+        self.im8 = plt.imshow(maskdiff, cmap='bwr')
+        self.im8.set_visible(False)
 
         self.cbset = False
         self.cb = None
@@ -84,6 +93,9 @@ class MaskToggler():
         elif event.key == '7':
             self._clearframe()
             self.setting7()
+        elif event.key == '8':
+            self._clearframe()
+            self.setting8()
         elif event.key == 'm':
             self._clearframe()
             self.cycleforward()
@@ -101,16 +113,17 @@ class MaskToggler():
         self.im5.set_visible(False)
         self.im6.set_visible(False)
         self.im7.set_visible(False)
+        self.im8.set_visible(False)
         if self.cbset:
             self.cb.remove()
             self.cbset = False
 
     def cycleforward(self):
-        self.index = (self.index + 1) % 7
+        self.index = (self.index + 1) % 8
         self.settingfuncs[self.index]()
 
     def cyclebackward(self):
-        self.index = (self.index - 1) % 7
+        self.index = (self.index - 1) % 8
         self.settingfuncs[self.index]()
 
     def setting1(self):
@@ -146,7 +159,7 @@ class MaskToggler():
         plt.draw()
 
     def setting6(self):
-        plt.title(self.modelname + ' model output\n' + self.TitleStr)
+        plt.title(self.modelname + ' raw model output\n' + self.TitleStr)
         self.im6.set_visible(True)
         self.index = 5
         self.cb = plt.colorbar(self.im6)
@@ -154,10 +167,18 @@ class MaskToggler():
         plt.draw()
 
     def setting7(self):
-        plt.title(self.modelname + ' mask - Bayesian mask\n' + self.TitleStr)
+        plt.title('Bayesian mask raw output\n' + self.TitleStr)
         self.im7.set_visible(True)
         self.index = 6
-        self.cb = plt.colorbar(self.im6)
+        self.cb = plt.colorbar(self.im7)
+        self.cbset = True
+        plt.draw()
+
+    def setting8(self):
+        plt.title(self.modelname + ' mask - Bayesian mask\n' + self.TitleStr)
+        self.im8.set_visible(True)
+        self.index = 7
+        self.cb = plt.colorbar(self.im8)
         self.cbset = True
         plt.draw()
 

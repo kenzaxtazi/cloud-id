@@ -6,6 +6,7 @@
 import sys
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 import DataLoader as DL
 import Visualisation as Vis
@@ -49,7 +50,7 @@ class MaskToggler():
         self.im3.set_visible(False)
 
         mask1 = mask1.astype('bool')
-        temp = rgb
+        temp = np.copy(rgb)
         temp[~mask1, :] = 254 / 255, 253 / 255, 185 / 255
         self.im4 = plt.imshow(temp)
         self.im4.set_visible(False)

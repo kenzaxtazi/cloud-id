@@ -49,8 +49,9 @@ class MaskToggler():
         self.im3.set_visible(False)
 
         mask1 = mask1.astype('bool')
-        rgb[~mask1, :] = 254 / 255, 253 / 255, 185 / 255
-        self.im4 = plt.imshow(rgb)
+        temp = rgb
+        temp[~mask1, :] = 254 / 255, 253 / 255, 185 / 255
+        self.im4 = plt.imshow(temp)
         self.im4.set_visible(False)
 
         rgb[mask1, :] = 74 / 255, 117 / 255, 50 / 255
@@ -60,7 +61,7 @@ class MaskToggler():
         self.im6 = plt.imshow(1 - pmask1, cmap='Oranges')
         self.im6.set_visible(False)
 
-        self.im7 = plt.imshow(bpmask, cmap='Reds')
+        self.im7 = plt.imshow(1 - bpmask, cmap='Reds')
         self.im7.set_visible(False)
 
         maskdiff = bmask - mask1

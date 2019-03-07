@@ -412,7 +412,7 @@ class DataAnalyser():
 
             if len(sliced_df) > 0:
                 auc = metrics.roc_auc_score((sliced_df['CTruth'].values).astype('int'),
-                                            (sliced_df['Label_Confidence'].values))
+                                            sliced_df['Label_Confidence'].values)
                 aucs.append(auc)
                 N.append(len(sliced_df))
             else:
@@ -423,6 +423,70 @@ class DataAnalyser():
         plt.title('AUC as a function of time difference')
         plt.xlabel('Absolute time difference (s)')
         plt.ylabel('AUC')
+        plt.bar(time_slices, aucs, width=100, align='edge',
+                color='lightcyan', edgecolor='lightseagreen', yerr=(np.array(aucs) / np.array(N))**(0.5))
+        plt.show()
+
+    def accuracy_timediff_for_broken_cloud(self, seed=1, validation_frac=0.15):
+        """
+        Produces a histogram of accuraccy as a function of the time difference between
+        the data take by SLSTR and CALIOP instruments
+
+        Parameters
+        -----------
+        model: model object
+
+        seed: int
+            the seed used to randomly shuffle the data for that model
+
+        validation_frac: float
+            the fraction of data kept for validation when preparing the model's training data
+
+        para_num: int
+            the number of inputs take by the model
+
+        Returns
+        ---------
+        None
+        """
+        self._model_applied()
+
+        self._obj.dp.remove_nan()
+        self._obj.dp.remove_anomalous()
+        self._obj.dp.shuffle_by_file(seed)
+
+        self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
+
+        pct = int(len(self._obj) * validation_frac)
+        valdf = self._obj[-pct:]
+        valdf['FCF_RightShift9'] = pd.Series(valdf['Feature_Classification_Flags'].values >> 9,
+                                             index=valdf.index)
+        
+        # separate low broken cumulus 
+        cloudy_valdf = valdf[valdf['Feature_Classification_Flags'] & 7 == 2]
+        brk_cml_valdf = cloudy_valdf[cloudy_valdf['FCF_RightShift9'] & 7 == 3]
+        time_slices = np.linspace(0, 1401, 15)
+        aucs = []
+        N = []
+
+        for t in time_slices:
+
+            sliced_df = brk_cml_valdf[valdf['TimeDiff'].between(t, t + 100)]
+
+            if len(sliced_df) > 0:
+                auc = np.mean(sliced_df['Agree'])
+                
+                # metrics.roc_auc_score((sliced_df['CTruth'].values).astype('int'), (sliced_df['Label_Confidence'].values))
+                aucs.append(auc)
+                N.append(len(sliced_df))
+            else:
+                aucs.append(0)
+                N.append(0)
+
+        plt.figure('Accuracy vs time difference')
+        plt.title('Accuracy as a function of time difference')
+        plt.xlabel('Absolute time difference (s)')
+        plt.ylabel('Accuracy')
         plt.bar(time_slices, aucs, width=100, align='edge',
                 color='lightcyan', edgecolor='lightseagreen', yerr=(np.array(aucs) / np.array(N))**(0.5))
         plt.show()
@@ -696,7 +760,7 @@ class DataAnalyser():
                  'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Snow']
 
         print(aucs)
-        
+
         t = np.arange(len(names))
 
         plt.figure('Accuracy vs surface type')

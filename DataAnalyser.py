@@ -952,7 +952,7 @@ class DataAnalyser():
 
         for surface in bitmeanings:
 
-            if surface != 'dry_land':
+            if surface != 'Dry land':
                 cleardf = clear_valdf[clear_valdf['confidence_an']
                                       & bitmeanings[surface] == bitmeanings[surface]]
                 cloudydf = cloudy_valdf[cloudy_valdf['confidence_an']

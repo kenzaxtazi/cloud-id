@@ -1343,6 +1343,7 @@ class DataAnalyser():
         plt.plot(false_positive_rate1, true_positive_rate1, label='Model on original dataframe')
         plt.plot(false_positive_rate2, true_positive_rate2, label='Model on shuffled dataframe')
         plt.ylabel('True positive rate')
+        plt.xlabel('False positive rate')
         plt.legend()
         plt.show()
 

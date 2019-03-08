@@ -4,11 +4,13 @@ A Python library for producing cloud masks of SLSTR scenes using a neural networ
 
 Also includes functions to produce a collocated training data set using either the CALIOP or CATS missions to provide cloud feature labels. In addition, functionality is provided to evaluate the model's performance in different situations using various metrics.
 
-## Overview
+## Example
 
-![M1](http://www.hep.ph.ic.ac.uk/~trz15/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3/Im1.png?){:height="30%" width="30%"} ![M2](http://www.hep.ph.ic.ac.uk/~trz15/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3/Im2.png?){:height="30%" width="30%"} ![M3](http://www.hep.ph.ic.ac.uk/~trz15/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3/Im3.png?){:height="30%" width="30%"}
+| False Colour Image | Neural Network Mask | Bayesian Mask |
+| --- | --- | --- |
+| ![M1](http://www.hep.ph.ic.ac.uk/~trz15/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3/Im1a.png?) | ![M2](http://www.hep.ph.ic.ac.uk/~trz15/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3/Im2a.png) | ![M3](http://www.hep.ph.ic.ac.uk/~trz15/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3/Im3a.png) |
 
-This library produces cloud masks which are an improvement over the current standard ESA masks.
+This library produces cloud masks which are an improvement over the current standard bayesian ESA masks.
 
 ## Installation
 
@@ -16,9 +18,15 @@ After cloning this repository and navigating to its install directory, the depen
 
 ```conda env create -f environment.yml```
 
-This will create a new anaconda environment 'cloud-id'. After activating the environment, a toggleable matplotlib figure can be produced for an SLSTR S3A_SL_1_RBT folder with:
+This will create a new anaconda environment 'cloud-id'. After activating the environment:
+
+```conda activate cloud-id```
+
+A toggleable matplotlib figure can be produced for an SLSTR S3A_SL_1_RBT folder at PATH with:
 
 ```python MaskToggle.py PATH```
+
+Valid SLSTR files are available from https://scihub.copernicus.eu/s3/#/home
 
 ## License
 

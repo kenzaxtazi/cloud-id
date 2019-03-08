@@ -6,7 +6,7 @@ Also includes functions to produce a collocated training data set using either t
 
 ## Overview
 
-![M1](http://www.hep.ph.ic.ac.uk/~trz15/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3/Im1.png?) ![M2](http://www.hep.ph.ic.ac.uk/~trz15/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3/Im2.png?) ![M3](http://www.hep.ph.ic.ac.uk/~trz15/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3/Im3.png?)
+![M1](http://www.hep.ph.ic.ac.uk/~trz15/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3/Im1.png?){:height="30%" width="30%"} ![M2](http://www.hep.ph.ic.ac.uk/~trz15/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3/Im2.png?){:height="30%" width="30%"} ![M3](http://www.hep.ph.ic.ac.uk/~trz15/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3/Im3.png?){:height="30%" width="30%"}
 
 This library produces cloud masks which are an improvement over the current standard ESA masks.
 

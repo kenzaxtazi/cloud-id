@@ -1,24 +1,30 @@
-# Masters Project
+# Masters Project - Cloud Identification in Satellite Images using Artificial Intelligence
 
-### Cloud Identification in Satellite Images using Artificial Intelligence
+A Python library for producing cloud masks of SLSTR scenes using a neural network.
 
-Model version 0.1.0 is available to use.
+Also includes functions to produce a collocated training data set using either the CALIOP or CATS missions to provide cloud feature labels. In addition, functionality is provided to evaluate the model's performance in different situations using various metrics.
 
-Dependencies are listed in requirements.txt. Satpy may require installation of an old version with modifications.
+## Overview
 
-//TODO Update Satpy version dependency and check compatability
+![M1](http://www.hep.ph.ic.ac.uk/~trz15/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3/Im1.png) ![M2](http://www.hep.ph.ic.ac.uk/~trz15/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3/Im2.png) ![M3](http://www.hep.ph.ic.ac.uk/~trz15/S3A_SL_1_RBT____20180531T222736_20180531T223036_20180602T040456_0179_032_001_1800_LN2_O_NT_003.SEN3/Im3.png)
 
-Usage instructions:
+This library produces cloud masks which are an improvement over the current standard ESA masks.
 
-Cloud mask algorithm can be run from MaskSLSTR.py. Assign a valid path to an SLSTR SL_1_RBT___ product folder to the Sfile variable.
+## Installation
 
-File can then be run as script, e.g.
+After cloning this repository and navigating to its install directory, the dependencies can be installed with anaconda:
 
-python MaskSLSTR.py
+.. code-block:: bash
 
-Valid SLSTR files are available from https://scihub.copernicus.eu/s3/#/home
+    conda env create -f environment.yml
 
+This will create a new anaconda environment 'cloud-id'. After activating the environment, a toggleable matplotlib figure can be produced for an SLSTR S3A_SL_1_RBT folder with:
 
+.. code-block:: bash
+
+    python MaskToggle.py PATH
+
+## License
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 

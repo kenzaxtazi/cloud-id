@@ -477,7 +477,7 @@ class DataPreparer():
 
         return training_data, validation_data, training_truth, validation_truth
 
-    def get_inputs(self, input_type=24):
+    def get_ffn_inputs(self, input_type=24):
 
         pixel_channels = (self._obj[['S1_an', 'S2_an', 'S3_an', 'S4_an', 'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in',
                                      'satellite_zenith_angle', 'solar_zenith_angle', 'latitude_an', 'longitude_an']].values).astype(float)
@@ -491,6 +491,22 @@ class DataPreparer():
         inputs = np.column_stack((pixel_channels, confidence_flags))
 
         return(inputs)
+
+    def get_cnn_inputs(self):
+
+        if 'PaddedStars' in self._obj.columns:
+            stars = np.array(list(self._obj['PaddedStars'].values))
+
+        elif 'Star_array' in self._obj.columns:
+            stars = self._obj['Star_array'].values
+            stars = star_padding(stars)
+
+        elif 'Square_array' in self._obj.columns:
+            stars = self._obj['Square_array'].values
+            stars = square_prep(stars)
+            stars = stars.reshape((-1, 11, 11, 1))
+
+        return(stars)
 
     def make_attrib_hist(self, column='latitude_an'):
         out = self._obj[column]

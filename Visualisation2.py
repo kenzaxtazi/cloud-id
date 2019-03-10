@@ -15,6 +15,7 @@ from matplotlib import colors as mcolors
 import DataLoader as DL
 import Collocation as c
 
+
 class nlcmap(object):
     def __init__(self, cmap, levels):
         self.cmap = cmap
@@ -331,24 +332,26 @@ def CALIOP_track_on_SLSTR(SLSTR_pathname, CALIOP_pathname, SLSTR_brightness=0.2)
         Default is True
     """
     # SLSTR
-    rgb, TitleStr = FalseColour(SLSTR_pathname, plot=False, brightness=SLSTR_brightness)
+    rgb, TitleStr = FalseColour(
+        SLSTR_pathname, plot=False, brightness=SLSTR_brightness)
 
     plt.figure('CALIOP track on SLSTR scene')
     plt.imshow(rgb)
     plt.title('False colour image with CALIPSO track\n' + TitleStr)
 
-    pixels = c.collocate(SLSTR_pathname, CALIOP_pathname)
-    
+    coords = c.collocate(SLSTR_pathname, CALIOP_pathname)
+
+    Srows = np.array([i[0] for i in coords])
+    Scols = np.array([i[1] for i in coords])
+    Cinds = [i[2] for i in coords]
+
     with DL.SDopener(CALIOP_pathname) as file:
-        flags = DL.load_data(file, 'Feature_Classification_Flags')
+        flags = DL.load_data(file, 'Feature_Classification_Flags')[Cinds, 0]
 
-    for val in pixels:
+    CTruth = DL.vfm_feature_flags(flags)
+    mask = CTruth == 2
 
-        i = DL.vfm_feature_flags(flags[val[2], 0])
+    plt.scatter(Scols[mask], Srows[mask], c='lightgreen', alpha=0.2)
+    plt.scatter(Scols[~mask], Srows[~mask], c='lightpink', alpha=0.2)
 
-        if i == 2:
-            plt.scatter(val[1], val[0], c='lightgreen', alpha=0.2)
-        if i != 2:
-            plt.scatter(val[1], val[0], c='lightpink', alpha=0.2)
-    
     plt.show()

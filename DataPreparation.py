@@ -379,7 +379,7 @@ class DataPreparer():
         self.remove_anomalous()
         self.shuffle_by_file(seed)
 
-        pixel_inputs = self.get_inputs(input_type)
+        pixel_inputs = self.get_ffn_inputs(input_type)
 
         pixel_outputs = self._obj[['Feature_Classification_Flags']].values
 

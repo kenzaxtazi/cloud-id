@@ -39,7 +39,7 @@ class DataAnalyser():
                 'No model has been applied to this dataframe.'
                 ' See df.da.model_agreement')
 
-    def model_agreement(self, model, modeltype='FNN', verbose=False, MaxDist=None, MaxTime=None):
+    def model_agreement(self, model, modeltype='FFN', verbose=False, MaxDist=None, MaxTime=None):
         """
         Apply a model to the dataframe and add model output to rows
 
@@ -65,7 +65,7 @@ class DataAnalyser():
         if isinstance(model, str):
             self.model = model
 
-            if modeltype == 'FNN':
+            if modeltype == 'FFN':
                 model = FFN(model)
             if modeltype == 'CNN':
                 model = CNN(model)
@@ -95,8 +95,8 @@ class DataAnalyser():
         if modeltype == 'SuperModel':
             num_inputs = model.para_num
             ffninputs = self._obj.dp.get_ffn_inputs(num_inputs)
-            predictions1 = SuperModel.FFN.Predict(ffninputs)[:, 0]
-            labels1 = SuperModel.FFN.model.predict_label(ffninputs)[:, 0]
+            predictions1 = model.FFN.Predict(ffninputs)[:, 0]
+            labels1 = model.FFN.model.predict_label(ffninputs)[:, 0]
 
             # boolean mask of bad predictions
             bad = abs(predictions1 - 0.5) < 0.25
@@ -114,9 +114,9 @@ class DataAnalyser():
             labels2 = []
 
             for i in range(len(chunkedcnninputs)):
-                predictions2.extend(SuperModel.CNN.model.predict(
+                predictions2.extend(model.CNN.model.predict(
                     chunkedcnninputs[i])[:, 0])
-                labels2.extend(SuperModel.CNN.model.predict_label(
+                labels2.extend(model.CNN.model.predict_label(
                     chunkedcnninputs[i])[:, 0])
 
             finallabels = np.zeros(len(self._obj))
@@ -130,10 +130,8 @@ class DataAnalyser():
             output_labels = finallabels
             output_con = finalpredictions
 
-        self._obj['Labels'] = pd.Series(
-            output_labels[:, 0], index=self._obj.index)
-        self._obj['Label_Confidence'] = pd.Series(
-            output_con[:, 0], index=self._obj.index)
+        self._obj['Labels'] = pd.Series(output_labels[:, 0], index=self._obj.index)
+        self._obj['Label_Confidence'] = pd.Series(output_con[:, 0], index=self._obj.index)
 
         self._obj = self._obj.dp.make_CTruth_col()
 
@@ -189,7 +187,7 @@ class DataAnalyser():
             'longitude_an': 12}
 
         num_inputs = model.para_num
-        inputs = self._obj.dp.get_inputs(num_inputs)
+        inputs = self._obj.dp.get_ffn_inputs(num_inputs)
         shuffled_inputs = np.column_stack((inputs[:, :channel_indices[channel_name]],
                                            np.random.permutation(
                                                inputs[:, channel_indices[channel_name]]),

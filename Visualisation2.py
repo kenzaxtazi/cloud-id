@@ -13,7 +13,7 @@ import numpy as np
 from matplotlib import colors as mcolors
 
 import DataLoader as DL
-
+import Collocation as c
 
 class nlcmap(object):
     def __init__(self, cmap, levels):
@@ -314,3 +314,44 @@ def false_color_image(band1, band2, band3, plot=True):
         plt.show()
 
     return rgb
+
+def CALIOP_track_on_SLSTR(Sreference, Creference, plot=True, mask=None, brightness=0.2):
+    """
+    Produce false colour image for SLSTR file superimposed with CALIOP track.
+
+    Parameters
+    ----------
+    Sreference: str or satpy Scene object
+        SLSTR file to produce an image of.
+        Either scene object or path to SLSTR files
+
+    Plot: bool
+        If True, plot false colour image
+        Default is True
+    """
+        
+    slstr = (test_set['Sfilename'].values)[0]
+    caliop = (test_set['Cfilename'].values)[0]
+
+    caliop_directory = '/home/hep/trz15/cloud/Calipso/1km/2018/04'
+    slstr_directory = '/home/hep/trz15/cloud/SLSTR/2018/04'
+
+    CALIOP_pathname = caliop_directory+'/' + caliop[43:45]+'/'+Creference
+    SLSTR_pathname = slstr_directory + '/' + Sreference + '/*'
+
+    pixels = c.collocate(SLSTR_pathname, CALIOP_pathname)
+    
+    with DL.SDopener(CALIOP_pathname) as file:
+        flags = DL.load_data(file, 'Feature_Classification_Flags')
+
+    i = vfm.vfm_feature_flags(flags[val[2], 0])
+    
+    rgb, TitleStr = FalseColour(Sreference, plot=False)
+    plt.figure('CALIOP track on SLSTR scene')
+    plt.imshow(rgb)
+    plt.title('False colour image with CALIPSO track\n' + TitleStr)
+        
+        
+        
+
+    

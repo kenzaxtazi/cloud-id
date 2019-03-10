@@ -19,6 +19,8 @@ import DataPreparation as dp
 import ModelEvaluation as me
 import Visualisation as Vis
 from FFN import FFN
+from CNN import CNN
+from SuperModel import SuperModel
 
 matplotlib.rcParams.update({'errorbar.capsize': 0.15})
 
@@ -37,7 +39,7 @@ class DataAnalyser():
                 'No model has been applied to this dataframe.'
                 ' See df.da.model_agreement')
 
-    def model_agreement(self, model, verbose=False, MaxDist=None, MaxTime=None):
+    def model_agreement(self, model, modeltype='FNN', verbose=False, MaxDist=None, MaxTime=None):
         """
         Apply a model to the dataframe and add model output to rows
 
@@ -63,18 +65,70 @@ class DataAnalyser():
         if isinstance(model, str):
             self.model = model
 
-            model = FFN(model)
+            if modeltype == 'FNN':
+                model = FFN(model)
+            if modeltype == 'CNN':
+                model = CNN(model)
+            if modeltype == 'SuperModel':
+                model = SuperModel(model)
+
             model.Load(verbose=verbose)
 
         elif isinstance(model, FFN):
             pass
+        elif isinstance(model, CNN):
+            pass
+        elif isinstance(model, SuperModel):
+            pass
 
-        num_inputs = model.para_num
+        if modeltype == 'FFN':
+            num_inputs = model.para_num
+            inputs = self._obj.dp.get_ffn_inputs(num_inputs)
+            output_labels = model.model.predict_label(inputs)
+            output_con = model.model.predict(inputs)
 
-        inputs = self._obj.dp.get_inputs(num_inputs)
+        if modeltype == 'CNN':
+            inputs = self._obj.dp.get_cnn_inputs()
+            output_labels = model.model.predict_label(inputs)
+            output_con = model.model.predict(inputs)
 
-        output_labels = model.model.predict_label(inputs)
-        output_con = model.model.predict(inputs)
+        if modeltype == 'SuperModel':
+            num_inputs = model.para_num
+            ffninputs = self._obj.dp.get_ffn_inputs(num_inputs)
+            predictions1 = SuperModel.FFN.Predict(ffninputs)[:, 0]
+            labels1 = SuperModel.FFN.model.predict_label(ffninputs)[:, 0]
+
+            # boolean mask of bad predictions
+            bad = abs(predictions1 - 0.5) < 0.25
+            goodindices = np.where(bad == False)[0]
+            badindices = np.where(bad == True)[0]
+            cnninputs = self._obj[badindices].dp.get_cnn_inputs()
+            cnninputs = dp.star_padding(cnninputs)
+
+            # Feeding all of the inputs at once can cause a memory error
+            # Instead split into chunks of 10,000
+            chunkedcnninputs = [cnninputs[i: i + 10000]
+                                for i in range(0, len(cnninputs), 10000)]
+
+            predictions2 = []
+            labels2 = []
+
+            for i in range(len(chunkedcnninputs)):
+                predictions2.extend(SuperModel.CNN.model.predict(
+                    chunkedcnninputs[i])[:, 0])
+                labels2.extend(SuperModel.CNN.model.predict_label(
+                    chunkedcnninputs[i])[:, 0])
+
+            finallabels = np.zeros(len(self._obj))
+            finallabels[goodindices] = labels1[goodindices]
+            finallabels[badindices] = labels2
+
+            finalpredictions = np.zeros(len(self._obj))
+            finalpredictions[goodindices] = predictions1[goodindices]
+            finalpredictions[badindices] = predictions2
+
+            output_labels = finallabels
+            output_con = finalpredictions
 
         self._obj['Labels'] = pd.Series(
             output_labels[:, 0], index=self._obj.index)
@@ -461,8 +515,8 @@ class DataAnalyser():
         valdf = self._obj[-pct:]
         valdf['FCF_RightShift9'] = pd.Series(valdf['Feature_Classification_Flags'].values >> 9,
                                              index=valdf.index)
-        
-        # separate low broken cumulus 
+
+        # separate low broken cumulus
         cloudy_valdf = valdf[valdf['Feature_Classification_Flags'] & 7 == 2]
         brk_cml_valdf = cloudy_valdf[cloudy_valdf['FCF_RightShift9'] & 7 == 3]
         time_slices = np.linspace(0, 1401, 15)
@@ -475,7 +529,7 @@ class DataAnalyser():
 
             if len(sliced_df) > 0:
                 auc = np.mean(sliced_df['Agree'])
-                
+
                 # metrics.roc_auc_score((sliced_df['CTruth'].values).astype('int'), (sliced_df['Label_Confidence'].values))
                 aucs.append(auc)
                 N.append(len(sliced_df))
@@ -718,7 +772,7 @@ class DataAnalyser():
         model_accuracies = []
         bayes_accuracies = []
         empir_accuracies = []
-        aucs= []
+        aucs = []
         N = []
 
         for surface in bitmeanings:
@@ -734,7 +788,7 @@ class DataAnalyser():
             n = len(surfdf)
             model_accuracy = np.mean(surfdf['Agree'])
             auc = metrics.roc_auc_score((surfdf['CTruth'].values).astype('int'),
-                                            (surfdf['Label_Confidence'].values))
+                                        (surfdf['Label_Confidence'].values))
             aucs.append(auc)
 
             # print(str(surface) + ': ' + str(accuracy))
@@ -1340,8 +1394,10 @@ class DataAnalyser():
         plt.figure('ROC')
         plt.title('Model sensitivity to ' + self.shuffled_channel + ' ROC')
         plt.plot([0, 1], [0, 1], label="Random classifier")
-        plt.plot(false_positive_rate1, true_positive_rate1, label='Model on original dataframe')
-        plt.plot(false_positive_rate2, true_positive_rate2, label='Model on shuffled dataframe')
+        plt.plot(false_positive_rate1, true_positive_rate1,
+                 label='Model on original dataframe')
+        plt.plot(false_positive_rate2, true_positive_rate2,
+                 label='Model on shuffled dataframe')
         plt.ylabel('True positive rate')
         plt.xlabel('False positive rate')
         plt.legend()

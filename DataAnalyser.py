@@ -369,7 +369,7 @@ class DataAnalyser():
                         temp.to_pickle(pklname)
                         out = pd.DataFrame()
 
-    def AUC_timediff(self, seed=1, validation_frac=0.15):
+    def AUC_timediff(self, seed=2553149187, validation_frac=0.15):
         """
         Produces a histogram of accuraccy as a function of the time difference between
         the data take by SLSTR and CALIOP instruments
@@ -427,7 +427,7 @@ class DataAnalyser():
                 color='lightcyan', edgecolor='lightseagreen', yerr=(np.array(aucs) / np.array(N))**(0.5))
         plt.show()
 
-    def accuracy_timediff_for_broken_cloud(self, seed=1, validation_frac=0.15):
+    def accuracy_timediff_for_broken_cloud(self, seed=2553149187, validation_frac=0.15):
         """
         Produces a histogram of accuraccy as a function of the time difference between
         the data take by SLSTR and CALIOP instruments
@@ -491,7 +491,7 @@ class DataAnalyser():
                 color='lightcyan', edgecolor='lightseagreen', yerr=(np.array(aucs) / np.array(N))**(0.5))
         plt.show()
 
-    def AUC_sza(self, seed=1, validation_frac=15):
+    def AUC_sza(self, seed=2553149187, validation_frac=15):
         """
         Produces a histogram of accuraccy as a function of solar zenith angle
 
@@ -550,7 +550,7 @@ class DataAnalyser():
                 edgecolor='thistle', ecolor='purple', yerr=(np.array(aucs) / np.array(N))**(0.5))
         plt.show()
 
-    def AUC_ctype(self, seed=1, validation_frac=0.15):
+    def AUC_ctype(self, seed=2553149187, validation_frac=0.15):
         """
         Produces a histogram of accuracy as a function of cloud type
 
@@ -671,7 +671,7 @@ class DataAnalyser():
                                             'Empirical mask accuracy'])
         plt.show()
 
-    def AUC_stype(self, seed=1, validation_frac=0.15):
+    def AUC_stype(self, seed=2553149187, validation_frac=0.15):
         """
         Produces a histogram of accuracy as a function of surface type.
 
@@ -779,7 +779,7 @@ class DataAnalyser():
                                             'Empirical mask accuracy'])
         plt.show()
 
-    def confidence_ctype(self, seed=1, validation_frac=0.15):
+    def confidence_ctype(self, seed=2553149187, validation_frac=0.15):
         """
         Produces two histograms of confidence as a function of cloud type for
         data points classified as cloudy and clear and one stacked bar chart
@@ -897,7 +897,7 @@ class DataAnalyser():
                    'Predicted as cloudy', 'Predicted as clear'])
         plt.show()
 
-    def confidence_stype(self, seed=1, validation_frac=0.15):
+    def confidence_stype(self, seed=2553149187, validation_frac=0.15):
         """
         Produces two histograms of confidence as a function of surface type for
         data points classified as cloudy and clear and one stacked bar chart
@@ -1005,7 +1005,7 @@ class DataAnalyser():
                    'Predicted as cloudy', 'Predicted as clear'])
         plt.show()
 
-    def confidence_atype(self, seed=1, validation_frac=0.15):
+    def confidence_atype(self, seed=2553149187, validation_frac=0.15):
         """
         Produces a histograms analysing clear types.
 
@@ -1137,7 +1137,7 @@ class DataAnalyser():
                    'Predicted as cloudy', 'Predicted as clear'])
         plt.show()
 
-    def ROC_stype(self, seed=1, validation_frac=0.15):
+    def ROC_stype(self, seed=2553149187, validation_frac=0.15):
         """
         Produces ROCs of relevant SLSTR surface types.
 
@@ -1213,7 +1213,7 @@ class DataAnalyser():
                    emp_mask=empir_onehot, name=surface)
             plt.show()
 
-    def ROC_ctype(self, seed=1, validation_frac=0.15):
+    def ROC_ctype(self, seed=2553149187, validation_frac=0.15):
         """
         Produces ROCs of CALIOP cloud types.
 
@@ -1316,7 +1316,7 @@ class DataAnalyser():
                    emp_mask=empir_onehot, name=cloud)
             plt.show()
 
-    def ROC_modelsens(self, seed=1, validation_frac=0.15):
+    def ROC_modelsens(self, seed=2553149187, validation_frac=0.15):
 
         self._model_applied()
 

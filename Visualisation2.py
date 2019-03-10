@@ -315,7 +315,8 @@ def false_color_image(band1, band2, band3, plot=True):
 
     return rgb
 
-def CALIOP_track_on_SLSTR(Sreference, Creference, plot=True, mask=None, brightness=0.2):
+
+def CALIOP_track_on_SLSTR(SLSTR_pathname, CALIOP_pathname, SLSTR_brightness=0.2):
     """
     Produce false colour image for SLSTR file superimposed with CALIOP track.
 
@@ -329,29 +330,25 @@ def CALIOP_track_on_SLSTR(Sreference, Creference, plot=True, mask=None, brightne
         If True, plot false colour image
         Default is True
     """
-        
-    slstr = (test_set['Sfilename'].values)[0]
-    caliop = (test_set['Cfilename'].values)[0]
+    # SLSTR
+    rgb, TitleStr = FalseColour(SLSTR_pathname, plot=False, brightness=SLSTR_brightness)
 
-    caliop_directory = '/home/hep/trz15/cloud/Calipso/1km/2018/04'
-    slstr_directory = '/home/hep/trz15/cloud/SLSTR/2018/04'
-
-    CALIOP_pathname = caliop_directory+'/' + caliop[43:45]+'/'+Creference
-    SLSTR_pathname = slstr_directory + '/' + Sreference + '/*'
+    plt.figure('CALIOP track on SLSTR scene')
+    plt.imshow(rgb)
+    plt.title('False colour image with CALIPSO track\n' + TitleStr)
 
     pixels = c.collocate(SLSTR_pathname, CALIOP_pathname)
     
     with DL.SDopener(CALIOP_pathname) as file:
         flags = DL.load_data(file, 'Feature_Classification_Flags')
 
-    i = vfm.vfm_feature_flags(flags[val[2], 0])
-    
-    rgb, TitleStr = FalseColour(Sreference, plot=False)
-    plt.figure('CALIOP track on SLSTR scene')
-    plt.imshow(rgb)
-    plt.title('False colour image with CALIPSO track\n' + TitleStr)
-        
-        
-        
+    for val in pixels:
 
+        i = DL.vfm_feature_flags(flags[val[2], 0])
+
+        if i == 2:
+            plt.scatter(val[1], val[0], c='lightgreen', alpha=0.2)
+        if i != 2:
+            plt.scatter(val[1], val[0], c='lightpink', alpha=0.2)
     
+    plt.show()

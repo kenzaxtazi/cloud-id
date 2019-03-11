@@ -5,7 +5,7 @@
 # Licence version 3 (GPLv3)
 ##############################################
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -342,7 +342,6 @@ def CALIOP_track_on_SLSTR(SLSTR_pathname, CALIOP_pathname, SLSTR_brightness=0.2)
 
     Stime = TitleStr.split('\n')[-1]
     Stime = datetime.strptime(Stime, '%Y%m%dT%H%M%S')
-    Stime += timedelta(minutes=1.5)
     coords = c.collocate(SLSTR_pathname, CALIOP_pathname)
 
     Srows = np.array([i[0] for i in coords])
@@ -367,7 +366,7 @@ def CALIOP_track_on_SLSTR(SLSTR_pathname, CALIOP_pathname, SLSTR_brightness=0.2)
     diff2 = diff2.seconds
 
     mindiff = min(diff1, diff2)
-    maxdiff = max(diff1, diff2)
+    maxdiff = max(diff1, diff2) + 180
 
     TitleStr += '\nTime Difference: %s - %s seconds' % (mindiff, maxdiff)
     plt.title('False colour image with CALIPSO track\n' + TitleStr)

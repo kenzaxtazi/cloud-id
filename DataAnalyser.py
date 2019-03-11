@@ -1263,7 +1263,7 @@ class DataAnalyser():
             empir_labels[empir_labels > 1] = 1
             empir_onehot = np.vstack((empir_labels, ~empir_labels)).T
 
-            print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
+            #print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
             me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
                    emp_mask=empir_onehot, bayes_prob=bayes_p_onehot, name=surface)

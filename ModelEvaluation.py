@@ -25,7 +25,7 @@ def get_accuracy(model, validation_data, validation_truth, para_num=22):
 
 
 def ROC(validation_predictions, validation_truth, bayes_mask=None,
-        emp_mask=None, name=None):
+        emp_mask=None, bayes_prob=None, name=None):
     """Plots Receiver Operating Characteristic (ROC) curve"""
 
     false_positive_rate, true_positive_rate, _ = metrics.roc_curve(
@@ -42,13 +42,18 @@ def ROC(validation_predictions, validation_truth, bayes_mask=None,
     plt.ylabel('True positive rate')
     plt.plot([0, 1], [0, 1], label="Random classifier")
 
+    if bayes_prob is not None:
+        false_positive_rate2, true_positive_rate2, _ = metrics.roc_curve(
+            validation_truth[:, 0], bayes_prob[:, 0], pos_label=1)
+        plt.plot(false_positive_rate2, true_positive_rate2, label='Bayesian model')
+
     if bayes_mask is not None:
         validation_truth = validation_truth.astype(int)
         bayes_mask = bayes_mask.astype(int)
         tn, fp, fn, tp = (metrics.confusion_matrix(
             validation_truth[:, 0], bayes_mask[:, 0], labels=(0, 1))).ravel()
         print(tn, fp, fn, tp)
-        plt.scatter(float(fp) / float(tn + fp), float(tp) / float(fn + tp), marker='o', label='Bayesian mask')
+        plt.scatter(float(fp) / float(tn + fp), float(tp) / float(fn + tp), marker='o', label='Bayesian mask at 0.9')
 
     if emp_mask is not None:
         validation_truth = validation_truth.astype(int)

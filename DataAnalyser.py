@@ -1254,6 +1254,10 @@ class DataAnalyser():
             bayes_labels[bayes_labels > 1] = 1
             bayes_onehot = np.vstack((bayes_labels, ~bayes_labels)).T
 
+            # Bayesian prob
+            bayes_p = surfdf['BayesProb']
+            bayes_p_onehot = np.vstack((bayes_p, 1 - bayes_p)).T
+
             # Empirical mask
             empir_labels = surfdf['cloud_an']
             empir_labels[empir_labels > 1] = 1
@@ -1262,7 +1266,7 @@ class DataAnalyser():
             print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
             me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
-                   emp_mask=empir_onehot, name=surface)
+                   emp_mask=empir_onehot, bayes_prob=bayes_p_onehot, name=surface)
             plt.show()
 
     def ROC_ctype(self, seed=2553149187, validation_frac=0.15):
@@ -1325,6 +1329,10 @@ class DataAnalyser():
         bayes_labels[bayes_labels > 1] = 1
         bayes_onehot = np.vstack((bayes_labels, ~bayes_labels)).T
 
+        # Bayesian prob
+        bayes_p = cleardf['BayesProb']
+        bayes_p_onehot = np.vstack((bayes_p, 1 - bayes_p)).T
+
         # Empirical mask
         empir_labels = cleardf['cloud_an']
         empir_labels[empir_labels > 1] = 1
@@ -1333,7 +1341,7 @@ class DataAnalyser():
         print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
         me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
-               emp_mask=empir_onehot, name='Clear')
+               emp_mask=empir_onehot, bayes_prob=bayes_p_onehot, name='Clear')
 
         # Seperate cloudy flags
         cloudydf = valdf[valdf['Feature_Classification_Flags'] & 7 == 2]
@@ -1357,6 +1365,10 @@ class DataAnalyser():
             bayes_labels[bayes_labels > 1] = 1
             bayes_onehot = np.vstack((bayes_labels, ~bayes_labels)).T
 
+            # Bayesian prob
+            bayes_p = cleardf['BayesProb']
+            bayes_p_onehot = np.vstack((bayes_p, 1 - bayes_p)).T
+
             # Empirical mask
             empir_labels = cloud_df['cloud_an']
             empir_labels[empir_labels > 1] = 1
@@ -1365,7 +1377,7 @@ class DataAnalyser():
             print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
             me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
-                   emp_mask=empir_onehot, name=cloud)
+                   emp_mask=empir_onehot, bayes_prob=bayes_p_onehot, name=cloud)
             plt.show()
 
     def ROC_modelsens(self, seed=2553149187, validation_frac=0.15):

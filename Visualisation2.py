@@ -354,14 +354,16 @@ def CALIOP_track_on_SLSTR(SLSTR_pathname, CALIOP_pathname, SLSTR_brightness=0.2)
         Ctime = DL.load_data(file, 'Profile_Time')[Cinds, 0]
 
     Ctime += 725846390
-    diff1 = Stime - Ctime[0]
+    Ctime1 = datetime.utcfromtimestamp(Ctime[0])
+    diff1 = Stime - Ctime1
     if diff1.days == -1:
-        diff1 = Ctime[0] - Stime
+        diff1 = Ctime1 - Stime
     diff1 = diff1.seconds
 
-    diff2 = Stime - Ctime[-1]
+    Ctime2 = datetime.utcfromtimestamp(Ctime[-1])
+    diff2 = Stime - Ctime2
     if diff2.days == -1:
-        diff2 = Ctime[-1] - Stime
+        diff2 = Ctime2 - Stime
     diff2 = diff2.seconds
 
     mindiff = min(diff1, diff2)

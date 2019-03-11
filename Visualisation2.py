@@ -5,15 +5,17 @@
 # Licence version 3 (GPLv3)
 ##############################################
 
-import cartopy
-import cartopy.crs as ccrs
+from datetime import datetime, timedelta
+
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import colors as mcolors
 
-import DataLoader as DL
+import cartopy
+import cartopy.crs as ccrs
 import Collocation as c
+import DataLoader as DL
 
 
 class nlcmap(object):
@@ -337,8 +339,10 @@ def CALIOP_track_on_SLSTR(SLSTR_pathname, CALIOP_pathname, SLSTR_brightness=0.2)
 
     plt.figure('CALIOP track on SLSTR scene')
     plt.imshow(rgb)
-    plt.title('False colour image with CALIPSO track\n' + TitleStr)
 
+    Stime = TitleStr.split('\n')[-1]
+    Stime = datetime.strptime(Stime, '%Y%m%dT%H%M%S')
+    Stime += timedelta(minutes=1.5)
     coords = c.collocate(SLSTR_pathname, CALIOP_pathname)
 
     Srows = np.array([i[0] for i in coords])
@@ -347,6 +351,24 @@ def CALIOP_track_on_SLSTR(SLSTR_pathname, CALIOP_pathname, SLSTR_brightness=0.2)
 
     with DL.SDopener(CALIOP_pathname) as file:
         flags = DL.load_data(file, 'Feature_Classification_Flags')[Cinds, 0]
+        Ctime = DL.load_data(file, 'Profile_Time')[Cinds, 0]
+
+    Ctime += 725846390
+    diff1 = Stime - Ctime[0]
+    if diff1.days == -1:
+        diff1 = Ctime[0] - Stime
+    diff1 = diff1.seconds
+
+    diff2 = Stime - Ctime[-1]
+    if diff2.days == -1:
+        diff2 = Ctime[-1] - Stime
+    diff2 = diff2.seconds
+
+    mindiff = min(diff1, diff2)
+    maxdiff = max(diff1, diff2)
+
+    TitleStr += '\nTime Difference: %s - %s seconds' % (mindiff, maxdiff)
+    plt.title('False colour image with CALIPSO track\n' + TitleStr)
 
     CTruth = DL.vfm_feature_flags(flags)
     mask = CTruth == 2

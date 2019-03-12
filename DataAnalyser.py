@@ -1210,8 +1210,10 @@ class DataAnalyser():
         """
         self._model_applied()
 
-        bayesian_df = self._obj[['BayesProb', 'CTruth']].dropna()
-        self._obj.drop(columns='BayesProb')
+        if 'BayesProb' in self._obj:
+            bayesian_df = self._obj[['BayesProb', 'CTruth']]
+            bayesian_df = bayesian_df.dropna()
+            self._obj.drop(columns='BayesProb')
 
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
@@ -1257,11 +1259,6 @@ class DataAnalyser():
             bayes_labels[bayes_labels > 1] = 1
             bayes_onehot = np.vstack((bayes_labels, ~bayes_labels)).T
 
-            # Bayesian prob and truth
-            # bayes_p = surfdf['BayesProb']
-            bayes_p_onehot = np.vstack((bayesian_df['BayesProb'], 1 - bayesian_df['BayesProb'])).T
-            bayes_t_onehot = np.vstack((bayesian_df['CTruth'],  ~bayesian_df['CTruth'])).T
-
             # Empirical mask
             empir_labels = surfdf['cloud_an']
             empir_labels[empir_labels > 1] = 1
@@ -1269,8 +1266,18 @@ class DataAnalyser():
 
             #print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
-            me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
-                   emp_mask=empir_onehot, bayes_prob=bayes_p_onehot, bayes_truth=bayes_t_onehot, name=surface)
+            if 'BayesProb' in self._obj:
+                # Bayesian prob and truth
+                # bayes_p = surfdf['BayesProb']
+                bayes_p_onehot = np.vstack((bayesian_df['BayesProb'], 1 - bayesian_df['BayesProb'])).T
+                bayes_t_onehot = np.vstack((bayesian_df['CTruth'], ~bayesian_df['CTruth'])).T
+                me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot, emp_mask=empir_onehot, 
+                       bayes_prob=bayes_p_onehot, bayes_truth=bayes_t_onehot, name=surface)
+            
+            else:
+                me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
+                       emp_mask=empir_onehot, name=surface)
+
             plt.show()
 
     def ROC_ctype(self, seed=2553149187, validation_frac=0.15):

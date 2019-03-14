@@ -334,7 +334,8 @@ class DataPreparer():
         Data = ['S1_an', 'S2_an', 'S3_an', 'S4_an',
                 'S5_an', 'S6_an', 'S7_in', 'S8_in', 'S9_in']
         for col in Data:
-            self._obj[col][self._obj[col] < 0] = 0
+            self._obj.loc[self._obj[col] < 0, col] = 0
+        return(self._obj)
 
     def remove_nan(self):
         if 'confidence_in' in self._obj.columns:

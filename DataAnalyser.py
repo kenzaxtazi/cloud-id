@@ -602,7 +602,7 @@ class DataAnalyser():
                 edgecolor='thistle', ecolor='purple', yerr=(np.array(aucs) / np.array(N))**(0.5))
         plt.show()
 
-    def AUC_ctype(self, seed=2553149187, validation_frac=0.15):
+    def accuracy_ctype(self, seed=2553149187, validation_frac=0.15):
         """
         Produces a histogram of accuracy as a function of cloud type
 
@@ -723,7 +723,7 @@ class DataAnalyser():
                                             'Empirical mask accuracy'])
         plt.show()
 
-    def AUC_stype(self, seed=2553149187, validation_frac=0.15):
+    def accuracy_stype(self, seed=2553149187, validation_frac=0.15):
         """
         Produces a histogram of accuracy as a function of surface type.
 
@@ -755,6 +755,8 @@ class DataAnalyser():
         pct = int(len(self._obj) * validation_frac)
         valdf = self._obj[-pct:]
 
+        print(np.mean(valdf['Agree']))
+
         bitmeanings = {
             'Coastline': 1,
             'Ocean': 2,
@@ -770,12 +772,11 @@ class DataAnalyser():
         model_accuracies = []
         bayes_accuracies = []
         empir_accuracies = []
-        aucs = []
         N = []
 
         for surface in bitmeanings:
 
-            if surface != 'dry_land':
+            if surface != 'Dry land':
                 surfdf = valdf[valdf['confidence_an']
                                & bitmeanings[surface] == bitmeanings[surface]]
             else:
@@ -785,9 +786,6 @@ class DataAnalyser():
             # Model accuracy
             n = len(surfdf)
             model_accuracy = np.mean(surfdf['Agree'])
-            auc = metrics.roc_auc_score((surfdf['CTruth'].values).astype('int'),
-                                        (surfdf['Label_Confidence'].values))
-            aucs.append(auc)
 
             # print(str(surface) + ': ' + str(accuracy))
 
@@ -811,8 +809,6 @@ class DataAnalyser():
         names = ['Coastline', 'Ocean', 'Tidal', 'Land', 'Inland water',
                  'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'Snow']
 
-        print(aucs)
-
         t = np.arange(len(names))
 
         plt.figure('Accuracy vs surface type')
@@ -826,7 +822,7 @@ class DataAnalyser():
         plt.yticks([0.50, 0.55, 0.60, 0.65, 0.70,
                     0.75, 0.80, 0.85, 0.90, 0.95])
         plt.xticks(rotation=45)
-        plt.legend([bars, circles, stars], ['Model accuracy',
+        plt.legend([bars, circles, stars], ['Model accuracy at 0.5 confidence threshold',
                                             'Bayesian mask accuracy',
                                             'Empirical mask accuracy'])
         plt.show()
@@ -1187,6 +1183,68 @@ class DataAnalyser():
         plt.xticks(rotation=90)
         plt.legend([bars1, bars2], [
                    'Predicted as cloudy', 'Predicted as clear'])
+        plt.show()
+
+    
+    def ROC(self, seed=2553149187, validation_frac=0.15):
+        """
+        Produces ROCs of relevant SLSTR surface types.
+
+        Parameters
+        -----------
+        seed: int
+            the seed used to randomly shuffle the data for that model
+
+        validation_frac: float
+            the fraction of data kept for validation when preparing the model's training data
+
+        para_num: int
+            the number of inputs take by the model
+
+        Returns
+        ---------
+        Matplotlib plots
+        """
+        self._model_applied()
+
+        if 'BayesProb' in self._obj:
+            bayesian_df = self._obj[['BayesProb', 'CTruth']]
+            bayesian_df = bayesian_df.dropna()
+            self._obj.drop(columns='BayesProb')
+
+        self._obj.dp.remove_nan()
+        self._obj.dp.remove_anomalous()
+        self._obj.dp.shuffle_by_file(seed)
+
+        self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
+
+        pct = int(len(self._obj) * validation_frac)
+        valdf = self._obj[-pct:]
+
+    
+        # Truth
+        truth = valdf['CTruth']
+        truth_onehot = np.vstack((truth, ~truth)).T
+
+        # Model
+        model_confidence = valdf['Label_Confidence']
+        model_onehot = np.vstack(
+            (model_confidence, 1 - model_confidence)).T
+
+        # Bayesian mask
+        bayes_labels = valdf['bayes_in']
+        bayes_labels[bayes_labels > 1] = 1
+        bayes_onehot = np.vstack((bayes_labels, ~bayes_labels)).T
+
+        # Empirical mask
+        empir_labels = valdf['cloud_an']
+        empir_labels[empir_labels > 1] = 1
+        empir_onehot = np.vstack((empir_labels, ~empir_labels)).T
+
+           
+        me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
+                emp_mask=empir_onehot)
+
         plt.show()
 
     def ROC_stype(self, seed=2553149187, validation_frac=0.15):

@@ -7,7 +7,8 @@
 
 import datetime
 
-
+import pprint
+from collections import Counter
 import numpy as np
 import pandas  # noqa: F401 # pylint: disable=unused-import # Prevent tflearn importing dodgy version
 import tflearn
@@ -165,14 +166,26 @@ class FFN():
 if __name__ == '__main__':
     # Pixel Loading
     df = dp.PixelLoader('./SatelliteData/SLSTR/Pixels3')
+    df = df.dp.remove_nan()
 
-    tdata, vdata, ttruth, vtruth = df.dp.get_ffn_training_data(22)
+    data = df['confidence_an'].values
+    data = data & 4
 
-    tweights = np.random.random((tdata.shape[0], 1))
+    df.dp.get_weights(data, 1000)
+
+    tdata, vdata, ttruth, vtruth, tweights = df.dp.get_ffn_training_data(22, weights=True)
+
+    counter = Counter(tweights)
+    pprint.pprint(counter.most_common(5))
+    print(np.mean(tweights))
+    print((np.min(tweights), np.max(tweights)))
+    print('################################################')
+
+    tweights = tweights.reshape(-1, 1)
     tweights = np.concatenate((tweights, ttruth[:, 0].reshape(-1, 1)), axis=1)
     vweights = np.ones((vdata.shape[0], 1))
     vweights = np.concatenate((vweights, vtruth[:, 0].reshape(-1, 1)), axis=1)
 
     model = FFN('Test', 'Network1', 22)
-    model.Train(tdata, ttruth, vdata, vtruth, tweights, vweights)
+    model.Train(tdata, ttruth, vdata, vtruth, tweights, vweights, 10)
     model.Save()

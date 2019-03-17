@@ -374,7 +374,7 @@ class DataPreparer():
         self._obj = self._obj.sort_values(['Temp'])
         self._obj = self._obj.drop(['Temp'], axis=1)
 
-    def get_ffn_training_data(self, input_type=22, validation_frac=0.15, seed=None):
+    def get_ffn_training_data(self, input_type=22, validation_frac=0.15, seed=None, weights=False):
         self.mask_negative()
         self.remove_nan()
         self.remove_anomalous()
@@ -401,6 +401,11 @@ class DataPreparer():
         validation_cloudtruth = (validation_truth_flags.astype(int) & 7 == 2)
         validation_truth = np.vstack(
             (validation_cloudtruth, ~validation_cloudtruth)).T
+
+        if weights is True:
+            weights = self._obj['weights'].values
+            tweights = weights[:-pct]
+            return training_data, validation_data, training_truth, validation_truth, tweights
 
         return training_data, validation_data, training_truth, validation_truth
 
@@ -508,6 +513,17 @@ class DataPreparer():
             stars = stars.reshape((-1, 11, 11, 1))
 
         return(stars)
+
+    def get_weights(self, data, bins=1000):
+        heights, edges = np.histogram(data, bins)
+        edges[0] = edges[0] - 0.2
+        bin_index = np.digitize(data, edges, right=True)
+        bin_index -= 1
+        bin_height = heights[bin_index]
+        weights = 1 / bin_height
+        weights = weights / max(weights)
+        self._obj['weights'] = weights
+        return(weights)
 
     def make_attrib_hist(self, column='latitude_an'):
         out = self._obj[column]

@@ -22,12 +22,11 @@ import DataPreparation as dp
 class FFN():
     """Object for handling TFLearn DNN models with added support for saving / loading different network configurations"""
 
-    def __init__(self, name, networkConfig=None, para_num=24, LR=1e-3, weights=None):
+    def __init__(self, name, networkConfig=None, para_num=24, LR=1e-3):
         self.name = name
         self.networkConfig = networkConfig
         self.para_num = para_num
         self.LR = LR
-        self.weights = weights
         self.isLoaded = False
         self._model = None
         self._network = None
@@ -54,7 +53,7 @@ class FFN():
         weighted_softmax = merge([softmax, weights], 'weighted')
 
         self._network = regression(weighted_softmax, optimizer='Adam', learning_rate=self.LR,
-                                   loss='categorical_crossentropy', name='targets', weights=self.weights)
+                                   loss='categorical_crossentropy', name='targets')
         self.networkConfig = 'Network1'
 
     @property
@@ -165,15 +164,9 @@ class FFN():
 
 if __name__ == '__main__':
     # Pixel Loading
-    # df = pd.read_pickle('./SatelliteData/SLSTR/Pixels3/1804P3.pkl')
     df = dp.PixelLoader('./SatelliteData/SLSTR/Pixels3')
 
     tdata, vdata, ttruth, vtruth = df.dp.get_ffn_training_data(22)
-
-    # tdata = tdata[:-3]
-    # ttruth = ttruth[:-3]
-    # vdata = vdata[:421184]
-    # vtruth = vtruth[:421184]
 
     tweights = np.random.random((tdata.shape[0], 1))
     tweights = np.concatenate((tweights, ttruth[:, 0].reshape(-1, 1)), axis=1)

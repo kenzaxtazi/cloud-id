@@ -283,12 +283,6 @@ class ROCAnalyser():
         Matplotlib plots
         """
         self._model_applied()
-
-        if 'BayesProb' in self._obj:
-            bayesian_df = self._obj[['BayesProb', 'CTruth']]
-            bayesian_df = bayesian_df.dropna()
-            self._obj.drop(columns='BayesProb')
-
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
         self._obj.dp.shuffle_by_file(seed)
@@ -340,17 +334,8 @@ class ROCAnalyser():
 
             #print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
-            if 'BayesProb' in self._obj:
-                # Bayesian prob and truth
-                # bayes_p = surfdf['BayesProb']
-                bayes_p_onehot = np.vstack((bayesian_df['BayesProb'], 1 - bayesian_df['BayesProb'])).T
-                bayes_t_onehot = np.vstack((bayesian_df['CTruth'], ~bayesian_df['CTruth'])).T
-                me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot, emp_mask=empir_onehot, 
-                       bayes_prob=bayes_p_onehot, bayes_truth=bayes_t_onehot, name=surface)
-            
-            else:
-                me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
-                       emp_mask=empir_onehot, name=surface)
+            me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
+                   emp_mask=empir_onehot, name=surface)
 
             plt.show()
 
@@ -498,7 +483,7 @@ class ROCAnalyser():
         plt.legend()
         plt.show()
 
-    def arctic_antarctic(self, seed=2553149187, validation_frac=0.15)
+    def arctic_antarctic(self, seed=2553149187, validation_frac=0.15): 
         """
         Produces ROCs of the Arctic and Antarctic validation data.
 

@@ -4,21 +4,13 @@
 # Licence version 3 (GPLv3)
 ##############################################
 
-import os
-from collections import Counter
-
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn import metrics
-from tqdm import tqdm
-
-import DataLoader as DL
-import DataPreparation as dp
 import ModelEvaluation as me
-import Visualisation as Vis
 from FFN import FFN
+
 
 @pd.api.extensions.register_dataframe_accessor("roc")
 class ROCAnalyser():
@@ -32,7 +24,7 @@ class ROCAnalyser():
         if 'Agree' not in self._obj.columns:
             raise AttributeError(
                 'No model has been applied to this dataframe.'
-                ' See df.da.model_agreement')
+                ' See df.roc.model_agreement')
 
     def model_agreement(self, model, modeltype='FFN', verbose=False, MaxDist=None, MaxTime=None):
         """
@@ -59,74 +51,21 @@ class ROCAnalyser():
 
         if isinstance(model, str):
             self.model = model
-
-            if modeltype == 'FFN':
-                model = FFN(model)
-            if modeltype == 'CNN':
-                model = CNN(model)
-            if modeltype == 'SuperModel':
-                model = SuperModel(model)
-
+            model = FFN(model)
             model.Load(verbose=verbose)
 
         elif isinstance(model, FFN):
             pass
-        elif isinstance(model, CNN):
-            pass
-        elif isinstance(model, SuperModel):
-            pass
 
-        if modeltype == 'FFN':
-            num_inputs = model.para_num
-            inputs = self._obj.dp.get_ffn_inputs(num_inputs)
-            output_labels = model.model.predict_label(inputs)
-            output_con = model.model.predict(inputs)
+        num_inputs = model.para_num
+        inputs = self._obj.dp.get_ffn_inputs(num_inputs)
+        output_labels = model.model.predict_label(inputs)
+        output_con = model.model.predict(inputs)
 
-        if modeltype == 'CNN':
-            inputs = self._obj.dp.get_cnn_inputs()
-            output_labels = model.model.predict_label(inputs)
-            output_con = model.model.predict(inputs)
-
-        if modeltype == 'SuperModel':
-            num_inputs = model.para_num
-            ffninputs = self._obj.dp.get_ffn_inputs(num_inputs)
-            predictions1 = model.FFN.Predict(ffninputs)[:, 0]
-            labels1 = model.FFN.model.predict_label(ffninputs)[:, 0]
-
-            # boolean mask of bad predictions
-            bad = abs(predictions1 - 0.5) < 0.25
-            goodindices = np.where(bad == False)[0]
-            badindices = np.where(bad == True)[0]
-            cnninputs = self._obj[badindices].dp.get_cnn_inputs()
-            cnninputs = dp.star_padding(cnninputs)
-
-            # Feeding all of the inputs at once can cause a memory error
-            # Instead split into chunks of 10,000
-            chunkedcnninputs = [cnninputs[i: i + 10000]
-                                for i in range(0, len(cnninputs), 10000)]
-
-            predictions2 = []
-            labels2 = []
-
-            for i in range(len(chunkedcnninputs)):
-                predictions2.extend(model.CNN.model.predict(
-                    chunkedcnninputs[i])[:, 0])
-                labels2.extend(model.CNN.model.predict_label(
-                    chunkedcnninputs[i])[:, 0])
-
-            finallabels = np.zeros(len(self._obj))
-            finallabels[goodindices] = labels1[goodindices]
-            finallabels[badindices] = labels2
-
-            finalpredictions = np.zeros(len(self._obj))
-            finalpredictions[goodindices] = predictions1[goodindices]
-            finalpredictions[badindices] = predictions2
-
-            output_labels = finallabels
-            output_con = finalpredictions
-
-        self._obj['Labels'] = pd.Series(output_labels[:, 0], index=self._obj.index)
-        self._obj['Label_Confidence'] = pd.Series(output_con[:, 0], index=self._obj.index)
+        self._obj['Labels'] = pd.Series(
+            output_labels[:, 0], index=self._obj.index)
+        self._obj['Label_Confidence'] = pd.Series(
+            output_con[:, 0], index=self._obj.index)
 
         self._obj = self._obj.dp.make_CTruth_col()
 
@@ -237,7 +176,6 @@ class ROCAnalyser():
         pct = int(len(self._obj) * validation_frac)
         valdf = self._obj[-pct:]
 
-    
         # Truth
         truth = valdf['CTruth']
         truth_onehot = np.vstack((truth, ~truth)).T
@@ -257,9 +195,8 @@ class ROCAnalyser():
         empir_labels[empir_labels > 1] = 1
         empir_onehot = np.vstack((empir_labels, ~empir_labels)).T
 
-           
         me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
-                emp_mask=empir_onehot)
+               emp_mask=empir_onehot)
 
         plt.show()
 
@@ -332,7 +269,7 @@ class ROCAnalyser():
             empir_labels[empir_labels > 1] = 1
             empir_onehot = np.vstack((empir_labels, ~empir_labels)).T
 
-            #print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
+            # print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
             me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
                    emp_mask=empir_onehot, name=surface)
@@ -386,32 +323,25 @@ class ROCAnalyser():
         cleardf = valdf[valdf['Feature_Classification_Flags'] & 7 != 2]
 
         # Truth
-        truth = cleardf['CTruth']
-        truth_onehot = np.vstack((truth, ~truth)).T
+        clear_truth = cleardf['CTruth']
+        clear_truth_onehot = np.vstack(( clear_truth, ~clear_truth)).T
 
         # Model
-        model_confidence = cleardf['Label_Confidence']
-        model_onehot = np.vstack(
-            (model_confidence, 1 - model_confidence)).T
+        clear_model_confidence = cleardf['Label_Confidence']
+        clear_model_onehot = np.vstack(
+            (clear_model_confidence, 1 - clear_model_confidence)).T
 
         # Bayesian mask
-        bayes_labels = cleardf['bayes_in']
-        bayes_labels[bayes_labels > 1] = 1
-        bayes_onehot = np.vstack((bayes_labels, ~bayes_labels)).T
-
-        # Bayesian prob
-        bayes_p = cleardf['BayesProb']
-        bayes_p_onehot = np.vstack((bayes_p, 1 - bayes_p)).T
+        clear_bayes_labels = cleardf['bayes_in']
+        clear_bayes_labels[clear_bayes_labels > 1] = 1
+        clear_bayes_onehot = np.vstack((clear_bayes_labels, ~clear_bayes_labels)).T
 
         # Empirical mask
-        empir_labels = cleardf['cloud_an']
-        empir_labels[empir_labels > 1] = 1
-        empir_onehot = np.vstack((empir_labels, ~empir_labels)).T
+        clear_empir_labels = cleardf['cloud_an']
+        clear_empir_labels[clear_empir_labels > 1] = 1
+        clear_empir_onehot = np.vstack((clear_empir_labels, ~clear_empir_labels)).T
 
-        print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
-
-        me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
-               emp_mask=empir_onehot, bayes_prob=bayes_p_onehot, name='Clear')
+        # print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
         # Seperate cloudy flags
         cloudydf = valdf[valdf['Feature_Classification_Flags'] & 7 == 2]
@@ -435,10 +365,6 @@ class ROCAnalyser():
             bayes_labels[bayes_labels > 1] = 1
             bayes_onehot = np.vstack((bayes_labels, ~bayes_labels)).T
 
-            # Bayesian prob
-            bayes_p = cleardf['BayesProb']
-            bayes_p_onehot = np.vstack((bayes_p, 1 - bayes_p)).T
-
             # Empirical mask
             empir_labels = cloud_df['cloud_an']
             empir_labels[empir_labels > 1] = 1
@@ -446,8 +372,14 @@ class ROCAnalyser():
 
             print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
-            me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
-                   emp_mask=empir_onehot, bayes_prob=bayes_p_onehot, name=cloud)
+            combined_model_onehot = pd.concat(clear_model_onehot, model_onehot)
+            combined_truth_onehot = pd.concat(clear_truth_onehot, truth_onehot)
+            combined_bayes_onehot = pd.concat(clear_bayes_onehot, bayes_onehot)
+            combined_empir_onehot = pd.concat(clear_empir_onehot, empir_onehot)
+
+            me.ROC(combined_model_onehot, combined_truth_onehot, 
+                   bayes_mask=combined_bayes_onehot, emp_mask=combined_empir_onehot, 
+                   name=cloud)
             plt.show()
 
     def model_sens(self, seed=2553149187, validation_frac=0.15):
@@ -483,7 +415,7 @@ class ROCAnalyser():
         plt.legend()
         plt.show()
 
-    def arctic_antarctic(self, seed=2553149187, validation_frac=0.15): 
+    def arctic_antarctic(self, seed=2553149187, validation_frac=0.15):
         """
         Produces ROCs of the Arctic and Antarctic validation data.
 
@@ -502,3 +434,68 @@ class ROCAnalyser():
         ---------
         Matplotlib plots
         """
+        self._model_applied()
+        self._obj.dp.remove_nan()
+        self._obj.dp.remove_anomalous()
+        self._obj.dp.shuffle_by_file(seed)
+
+        self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
+
+        pct = int(len(self._obj) * validation_frac)
+        valdf = self._obj[-pct:]
+
+        arctic_valdf = valdf[valdf['Latitude'] > 0]
+        antarctic_valdf = valdf[valdf['Latitude'] < 0]
+
+        # Arctic data
+
+        # Truth
+        truth = arctic_valdf['CTruth']
+        truth_onehot = np.vstack((truth, ~truth)).T
+
+        # Model
+        model_confidence = arctic_valdf['Label_Confidence']
+        model_onehot = np.vstack(
+            (model_confidence, 1 - model_confidence)).T
+
+        # Bayesian mask
+        bayes_labels = arctic_valdf['bayes_in']
+        bayes_labels[bayes_labels > 1] = 1
+        bayes_onehot = np.vstack((bayes_labels, ~bayes_labels)).T
+
+        # Empirical mask
+        empir_labels = arctic_valdf['cloud_an']
+        empir_labels[empir_labels > 1] = 1
+        empir_onehot = np.vstack((empir_labels, ~empir_labels)).T
+
+        # print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
+
+        # Antarctic data
+
+        # Truth
+        truth2 = antarctic_valdf['CTruth']
+        truth_onehot2 = np.vstack((truth2, ~truth2)).T
+
+        # Model
+        model_confidence2 = antarctic_valdf['Label_Confidence']
+        model_onehot2 = np.vstack(
+            (model_confidence2, 1 - model_confidence2)).T
+
+        # Bayesian mask
+        bayes_labels2 = antarctic_valdf['bayes_in']
+        bayes_labels2[bayes_labels2 > 1] = 1
+        bayes_onehot2 = np.vstack((bayes_labels2, ~bayes_labels2)).T
+
+        # Empirical mask
+        empir_labels2 = antarctic_valdf['cloud_an']
+        empir_labels2[empir_labels2 > 1] = 1
+        empir_onehot2 = np.vstack((empir_labels2, ~empir_labels2)).T
+
+        me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
+               emp_mask=empir_onehot, name='Arctic',
+               validation_predictions2=model_onehot2,
+               validation_truth2=truth_onehot2,
+               bayes_mask2=bayes_onehot2,
+               emp_mask2=empir_onehot2, name2='Antarctic')
+
+        plt.show()

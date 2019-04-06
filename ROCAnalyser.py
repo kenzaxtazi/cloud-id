@@ -324,7 +324,7 @@ class ROCAnalyser():
 
         # Truth
         clear_truth = cleardf['CTruth']
-        clear_truth_onehot = np.vstack(( clear_truth, ~clear_truth)).T
+        clear_truth_onehot = np.vstack((clear_truth, ~clear_truth)).T
 
         # Model
         clear_model_confidence = cleardf['Label_Confidence']
@@ -372,10 +372,10 @@ class ROCAnalyser():
 
             print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
-            combined_model_onehot = pd.concat(clear_model_onehot, model_onehot)
-            combined_truth_onehot = pd.concat(clear_truth_onehot, truth_onehot)
-            combined_bayes_onehot = pd.concat(clear_bayes_onehot, bayes_onehot)
-            combined_empir_onehot = pd.concat(clear_empir_onehot, empir_onehot)
+            combined_model_onehot = np.concatenate((clear_model_onehot, model_onehot))
+            combined_truth_onehot = np.concatenate((clear_truth_onehot, truth_onehot))
+            combined_bayes_onehot = np.concatenate((clear_bayes_onehot, bayes_onehot))
+            combined_empir_onehot = np.concatenate((clear_empir_onehot, empir_onehot))
 
             me.ROC(combined_model_onehot, combined_truth_onehot, 
                    bayes_mask=combined_bayes_onehot, emp_mask=combined_empir_onehot, 

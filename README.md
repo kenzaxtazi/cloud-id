@@ -26,7 +26,7 @@ A toggleable matplotlib figure can be produced for an SLSTR S3A_SL_1_RBT folder 
 
 ```python MaskToggle.py PATH```
 
-Valid SLSTR files are available from https://scihub.copernicus.eu/s3/#/home
+Valid SLSTR files are available from <https://scihub.copernicus.eu/s3/#/home>
 
 ## License
 

@@ -40,8 +40,8 @@ def ROC(validation_predictions, validation_truth, bayes_mask=None,
             plt.figure('ROC')
             plt.title('ROC')
     else:
-        plt.figure(name + ' and' + name2 + ' ROC')
-        plt.title(name + ' and' + name2 + ' ROC')
+        plt.figure(name + ' and ' + name2 + ' ROC')
+        plt.title(name + ' and ' + name2 + ' ROC')
     plt.plot(false_positive_rate, true_positive_rate, label='Model ' + name)
     plt.xlabel('False positive rate')
     plt.ylabel('True positive rate')

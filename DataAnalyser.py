@@ -130,8 +130,10 @@ class DataAnalyser():
             output_labels = finallabels
             output_con = finalpredictions
 
-        self._obj['Labels'] = pd.Series(output_labels[:, 0], index=self._obj.index)
-        self._obj['Label_Confidence'] = pd.Series(output_con[:, 0], index=self._obj.index)
+        self._obj['Labels'] = pd.Series(
+            output_labels[:, 0], index=self._obj.index)
+        self._obj['Label_Confidence'] = pd.Series(
+            output_con[:, 0], index=self._obj.index)
 
         self._obj = self._obj.dp.make_CTruth_col()
 
@@ -1184,7 +1186,7 @@ class DataAnalyser():
         plt.legend([bars1, bars2], [
                    'Predicted as cloudy', 'Predicted as clear'])
         plt.show()
-    
+
     def reproducibility(self, modelname, number_of_runs=15, validation_frac=0.15, para_num=22):
         """
         Return the average and standard deviation of a same model but different

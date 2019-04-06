@@ -40,9 +40,13 @@ def ROC(validation_predictions, validation_truth, bayes_mask=None,
             plt.figure('ROC')
             plt.title('ROC')
     else:
-        plt.figure(name + ' and ' + name2 + ' ROC')
-        plt.title(name + ' and ' + name2 + ' ROC')
-    plt.plot(false_positive_rate, true_positive_rate, label='Model ' + name)
+        if name2 is None:
+            plt.figure(name + ' ROC')
+            plt.title(name + ' ROC')
+        else:
+            plt.figure(name + ' and ' + name2 + ' ROC')
+            plt.title(name + ' and ' + name2 + ' ROC')
+    plt.plot(false_positive_rate, true_positive_rate, label='Model ')
     plt.xlabel('False positive rate')
     plt.ylabel('True positive rate')
     plt.plot([0, 1], [0, 1], label="Random classifier")
@@ -54,7 +58,7 @@ def ROC(validation_predictions, validation_truth, bayes_mask=None,
             validation_truth[:, 0], bayes_mask[:, 0], labels=(0, 1))).ravel()
         # print(tn, fp, fn, tp)
         plt.scatter(float(fp) / float(tn + fp), float(tp) /
-                    float(fn + tp), marker='o', label='Bayesian mask ' + name)
+                    float(fn + tp), marker='o', label='Bayesian mask ')
 
     if emp_mask is not None:
         validation_truth = validation_truth.astype(int)
@@ -63,7 +67,7 @@ def ROC(validation_predictions, validation_truth, bayes_mask=None,
             validation_truth[:, 0], emp_mask[:, 0], labels=(0, 1))).ravel()
         # print(tn, fp, fn, tp)
         plt.scatter(float(fp) / float(tn + fp), float(tp) /
-                    float(fn + tp), marker='*', label='Empirical mask ' + name)
+                    float(fn + tp), marker='*', label='Empirical mask ')
 
     # Set 2
 

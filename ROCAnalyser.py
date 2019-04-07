@@ -26,7 +26,7 @@ class ROCAnalyser():
                 'No model has been applied to this dataframe.'
                 ' See df.roc.model_agreement')
 
-    def model_agreement(self, model, modeltype='FFN', verbose=False, MaxDist=None, MaxTime=None):
+    def model_agreement(self, model, verbose=False, MaxDist=None, MaxTime=None):
         """
         Apply a model to the dataframe and add model output to rows
 

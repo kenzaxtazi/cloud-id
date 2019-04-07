@@ -19,15 +19,22 @@ import DataPreparation as dp
 class FFN():
     """Object for handling TFLearn DNN models with added support for saving / loading different network configurations"""
 
-    def __init__(self, name, networkConfig=None, para_num=24, LR=1e-3):
+    def __init__(self, name, networkConfig=None, para_num=24, LR=1e-3, neuron_num=32, hidden_layers=4,
+                 batch_size=64, epochs=10, dropout=0.8):
         self.name = name
         self.networkConfig = networkConfig
         self.para_num = para_num
         self.LR = LR
+        self.neuron_num = neuron_num
+        self.hidden_layers = hidden_layers 
+        self.batch_size = batch_size
+        self.epochs = epochs
+        self.dropout = dropout
         self.isLoaded = False
         self._model = None
         self._network = None
         self.run_id = None
+        
 
     def __str__(self):
         out = ('Model: ' + self.name + '\n'
@@ -128,37 +135,27 @@ class FFN():
                                    loss='categorical_crossentropy', name='targets')
         self.networkConfig = 'Network2'
 
-    def Network3(self):
+    def TestNetwork(self):
         # Network layers
 
         # layer 0: generates a 4D tensor
         layer0 = input_data(shape=[None, self.para_num], name='input')
-        dropout0 = dropout(layer0, 0.8)
+        dropout = dropout(layer0, self.dropout)
 
-        # layer 1
-        layer1 = fully_connected(dropout0, 32, activation='leakyrelu')
-        dropout1 = dropout(layer1, 0.8)
+        for hl in range(self.hidden_layers):
 
-        # layer 2
-        layer2 = fully_connected(dropout1, 32, activation='leakyrelu')
-        dropout2 = dropout(layer2, 0.8)
+            hidden_layer = fully_connected(dropout, self.neuron_num, activation='leakyrelu')
+            dropout = dropout(hidden_layer, self.dropout)
 
-        # layer 3
-        layer3 = fully_connected(dropout2, 32, activation='leakyrelu')
-        dropout3 = dropout(layer3, 0.8)
 
-        # layer 4
-        layer4 = fully_connected(dropout3, 32, activation='leakyrelu')
-        dropout4 = dropout(layer4, 0.8)
-
-        # layer 5 this layer needs to spit out the number of categories
+        # Last layer needs to spit out the number of categories
         # we are looking for.
-        softmax = fully_connected(dropout4, 2, activation='softmax')
+        softmax = fully_connected(dropout, 2, activation='softmax')
 
         # gives the paramaters to optimise the network
         self._network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
                                    loss='categorical_crossentropy', name='targets')
-        self.networkConfig = 'Network1'
+        self.networkConfig = 'TestNetwork'
 
     @property
     def network(self):
@@ -184,7 +181,7 @@ class FFN():
 
         return self._model
 
-    def Train(self, training_data, training_truth, validation_data, validation_truth, n_epoch=16):
+    def Train(self, training_data, training_truth, validation_data, validation_truth, n_epoch=self.epochs):
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         self.run_id = 'Models/' + str(self.name) + '_' + timestamp
         self.model.fit(training_data, training_truth, n_epoch=n_epoch,

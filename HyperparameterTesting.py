@@ -24,9 +24,6 @@ batch_size = [16, 32, 64, 128]
 epochs = [10, 50, 100, 150]
 dropout = [0.2, 0.4, 0.6, 0.8]
 
-
-
-
 for lr in tqdm(LRs):
     for n in neurons:
         for hl in hidden_layers:

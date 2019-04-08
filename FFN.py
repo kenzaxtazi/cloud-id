@@ -147,7 +147,7 @@ class FFN():
 
         # Last layer needs to spit out the number of categories
         # we are looking for.
-        softmax = fully_connected(dropout, 2, activation='softmax')
+        softmax = fully_connected(dout, 2, activation='softmax')
 
         # gives the paramaters to optimise the network
         self._network = regression(softmax, optimizer='Adam', learning_rate=self.LR,

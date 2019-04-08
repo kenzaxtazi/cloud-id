@@ -20,21 +20,20 @@ class FFN():
     """Object for handling TFLearn DNN models with added support for saving / loading different network configurations"""
 
     def __init__(self, name, networkConfig=None, para_num=24, LR=1e-3, neuron_num=32, hidden_layers=4,
-                 batch_size=64, epochs=10, dropout=0.8):
+                 batch_size=64, epochs=10, dout=0.8):
         self.name = name
         self.networkConfig = networkConfig
         self.para_num = para_num
         self.LR = LR
         self.neuron_num = neuron_num
-        self.hidden_layers = hidden_layers 
+        self.hidden_layers = hidden_layers
         self.batch_size = batch_size
         self.epochs = epochs
-        self.dropout = dropout
+        self.dropout = dout
         self.isLoaded = False
         self._model = None
         self._network = None
         self.run_id = None
-        
 
     def __str__(self):
         out = ('Model: ' + self.name + '\n'
@@ -140,13 +139,11 @@ class FFN():
 
         # layer 0: generates a 4D tensor
         layer0 = input_data(shape=[None, self.para_num], name='input')
-        dropout = dropout(layer0, self.dropout)
+        dout = dropout(layer0, self.dropout)
 
         for hl in range(self.hidden_layers):
-
-            hidden_layer = fully_connected(dropout, self.neuron_num, activation='leakyrelu')
-            dropout = dropout(hidden_layer, self.dropout)
-
+            hidden_layer = fully_connected(dout, self.neuron_num, activation='leakyrelu')
+            dout = dout(hidden_layer, self.dropout)
 
         # Last layer needs to spit out the number of categories
         # we are looking for.

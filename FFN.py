@@ -178,10 +178,10 @@ class FFN():
 
         return self._model
 
-    def Train(self, training_data, training_truth, validation_data, validation_truth, n_epoch=self.epochs):
+    def Train(self, training_data, training_truth, validation_data, validation_truth):
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         self.run_id = 'Models/' + str(self.name) + '_' + timestamp
-        self.model.fit(training_data, training_truth, n_epoch=n_epoch,
+        self.model.fit(training_data, training_truth, n_epoch=self.epochs,
                        validation_set=(validation_data, validation_truth),
                        snapshot_step=10000, show_metric=True, run_id=self.run_id)
         self.isLoaded = True

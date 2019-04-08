@@ -143,7 +143,7 @@ class FFN():
 
         for hl in range(self.hidden_layers):
             hidden_layer = fully_connected(dout, self.neuron_num, activation='leakyrelu')
-            dout = dout(hidden_layer, self.dropout)
+            dout = dropout(hidden_layer, self.dropout)
 
         # Last layer needs to spit out the number of categories
         # we are looking for.

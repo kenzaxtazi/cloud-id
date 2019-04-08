@@ -24,7 +24,7 @@ batch_size = [16, 32, 64, 128]
 epochs = [10, 50, 100, 150]
 dropout = [0.2, 0.4, 0.6, 0.8]
 
-val_accuracy = []
+
 
 
 for lr in tqdm(LRs):
@@ -38,9 +38,6 @@ for lr in tqdm(LRs):
                                     neuron_num=n, hidden_layers=hl, batch_size=bs,
                                     epochs=e, dout=do)
                         model.Train(tdata, ttruth, vdata, vtruth)
-                        acc = me.get_accuracy(
-                            model, vdata, vtruth, para_num=21)
-                        val_accuracy.append(acc)
                         model.Save()
 
 # Further investigation

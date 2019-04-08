@@ -33,12 +33,13 @@ for lr in tqdm(LRs):
             for bs in batch_size:
                 for e in epochs:
                     for do in dropout:
-                        model = FFN(str(lr) + '_' + str(n) + '_' + str(hl) + '_' + 
-                                    str(bs) + '_' + str(do),'TestNetwork', 21, LR=lr,
-                                    neuron_num=n, hidden_layers=hl, batch_size=bs, 
+                        model = FFN(str(lr) + '_' + str(n) + '_' + str(hl) + '_' +
+                                    str(bs) + '_' + str(do), 'TestNetwork', 21, LR=lr,
+                                    neuron_num=n, hidden_layers=hl, batch_size=bs,
                                     epochs=e, dout=do)
                         model.Train(tdata, ttruth, vdata, vtruth)
-                        acc = me.get_accuracy(model, vdata, vtruth, para_num=21)
+                        acc = me.get_accuracy(
+                            model, vdata, vtruth, para_num=21)
                         val_accuracy.append(acc)
                         model.Save()
 

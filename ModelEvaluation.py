@@ -7,7 +7,6 @@
 import matplotlib.pyplot as plt
 from sklearn import metrics
 import numpy as np
-import random
 
 
 def get_accuracy(model, validation_data, validation_truth, para_num=22):

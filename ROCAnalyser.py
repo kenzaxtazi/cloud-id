@@ -141,7 +141,7 @@ class ROCAnalyser():
 
         self._obj['Agree'] = self._obj['CTruth'] != self._obj['Labels']
 
-    def simple_ROC(self, seed=2553149187, validation_frac=0.15):
+    def average(self, seed=2553149187, validation_frac=0.15):
         """
         Produces ROCs of relevant SLSTR surface types.
 
@@ -161,11 +161,6 @@ class ROCAnalyser():
         Matplotlib plots
         """
         self._model_applied()
-
-        if 'BayesProb' in self._obj:
-            bayesian_df = self._obj[['BayesProb', 'CTruth']]
-            bayesian_df = bayesian_df.dropna()
-            self._obj.drop(columns='BayesProb')
 
         self._obj.dp.remove_nan()
         self._obj.dp.remove_anomalous()
@@ -318,6 +313,12 @@ class ROCAnalyser():
             'Altostratus (opaque)': 5,
             'Cirrus (transparent)': 6,
             'Deep convective (opaque)': 7}
+        
+        validation_predictions = []
+        validation_truths = []
+        bayes_masks = []
+        emp_masks = []
+        names = []
 
         # Seperate clear flags
         cleardf = valdf[valdf['Feature_Classification_Flags'] & 7 != 2]
@@ -334,12 +335,14 @@ class ROCAnalyser():
         # Bayesian mask
         clear_bayes_labels = cleardf['bayes_in']
         clear_bayes_labels[clear_bayes_labels > 1] = 1
-        clear_bayes_onehot = np.vstack((clear_bayes_labels, ~clear_bayes_labels)).T
+        clear_bayes_onehot = np.vstack(
+            (clear_bayes_labels, ~clear_bayes_labels)).T
 
         # Empirical mask
         clear_empir_labels = cleardf['cloud_an']
         clear_empir_labels[clear_empir_labels > 1] = 1
-        clear_empir_onehot = np.vstack((clear_empir_labels, ~clear_empir_labels)).T
+        clear_empir_onehot = np.vstack(
+            (clear_empir_labels, ~clear_empir_labels)).T
 
         # print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
@@ -372,15 +375,32 @@ class ROCAnalyser():
 
             print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
-            combined_model_onehot = np.concatenate((clear_model_onehot, model_onehot))
-            combined_truth_onehot = np.concatenate((clear_truth_onehot, truth_onehot))
-            combined_bayes_onehot = np.concatenate((clear_bayes_onehot, bayes_onehot))
-            combined_empir_onehot = np.concatenate((clear_empir_onehot, empir_onehot))
+            combined_model_onehot = np.concatenate(
+                (clear_model_onehot, model_onehot))
+            validation_predictions.append(combined_model_onehot)
 
-            me.ROC(combined_model_onehot, combined_truth_onehot, 
-                   bayes_mask=combined_bayes_onehot, emp_mask=combined_empir_onehot, 
+            combined_truth_onehot = np.concatenate(
+                (clear_truth_onehot, truth_onehot))
+            validation_truths.append(combined_truth_onehot)
+
+            combined_bayes_onehot = np.concatenate(
+                (clear_bayes_onehot, bayes_onehot))
+            bayes_masks.append(combined_bayes_onehot)
+
+            combined_empir_onehot = np.concatenate(
+                (clear_empir_onehot, empir_onehot))
+            emp_masks.append(combined_empir_onehot)
+
+            names.append(cloud)
+
+            me.ROC(combined_model_onehot, combined_truth_onehot,
+                   bayes_mask=combined_bayes_onehot, emp_mask=combined_empir_onehot,
                    name=cloud)
-            plt.show()
+   
+        me.nROC(validation_predictions, validation_truths,
+                ['pink', 'coral', 'cornflowerblue', 'deepskyblue', 'turquoise', 'limegreen', 'yellowgreen', 'sandybrown'], 
+                bayes_masks, emp_masks, names)
+        plt.show()
 
     def model_sens(self, seed=2553149187, validation_frac=0.15):
 
@@ -444,58 +464,116 @@ class ROCAnalyser():
         pct = int(len(self._obj) * validation_frac)
         valdf = self._obj[-pct:]
 
-        arctic_valdf = valdf[valdf['Latitude'] > 0]
-        antarctic_valdf = valdf[valdf['Latitude'] < 0]
+        seperated_valdf = [valdf[valdf['Latitude'] > 0], valdf[valdf['Latitude'] < 0]]
+        names = ['Arctic', 'Antarctic']
 
-        # Arctic data
+        validation_predictions = []
+        validation_truths = []
+        bayes_masks = []
+        emp_masks = []
+ 
+        for pole in seperated_valdf:
 
-        # Truth
-        truth = arctic_valdf['CTruth']
-        truth_onehot = np.vstack((truth, ~truth)).T
+            # Truth
+            truth = pole['CTruth']
+            truth_onehot = np.vstack((truth, ~truth)).T
+            validation_truths.append(truth_onehot)
 
-        # Model
-        model_confidence = arctic_valdf['Label_Confidence']
-        model_onehot = np.vstack(
-            (model_confidence, 1 - model_confidence)).T
+            # Model
+            model_confidence = pole['Label_Confidence']
+            model_onehot = np.vstack(
+                (model_confidence, 1 - model_confidence)).T
+            validation_predictions.append(model_onehot)
 
-        # Bayesian mask
-        bayes_labels = arctic_valdf['bayes_in']
-        bayes_labels[bayes_labels > 1] = 1
-        bayes_onehot = np.vstack((bayes_labels, ~bayes_labels)).T
+            # Bayesian mask
+            bayes_labels = pole['bayes_in']
+            bayes_labels[bayes_labels > 1] = 1
+            bayes_onehot = np.vstack((bayes_labels, ~bayes_labels)).T
+            bayes_masks.append(bayes_onehot)
 
-        # Empirical mask
-        empir_labels = arctic_valdf['cloud_an']
-        empir_labels[empir_labels > 1] = 1
-        empir_onehot = np.vstack((empir_labels, ~empir_labels)).T
+            # Empirical mask
+            empir_labels = pole['cloud_an']
+            empir_labels[empir_labels > 1] = 1
+            empir_onehot = np.vstack((empir_labels, ~empir_labels)).T
+            emp_masks.append(empir_onehot)
+            # print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
-        # print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
+        me.nROC(validation_predictions, validation_truths, ['mediumslateblue', 'deepskyblue'], bayes_masks, emp_masks, names)
+        plt.show()
 
-        # Antarctic data
+    def land_ocean(self, seed=2553149187, validation_frac=0.15):
+        """
+        Produces ROCs of the dry land and ocean validation data.
 
-        # Truth
-        truth2 = antarctic_valdf['CTruth']
-        truth_onehot2 = np.vstack((truth2, ~truth2)).T
+        Parameters
+        -----------
+        seed: int
+            the seed used to randomly shuffle the data for that model
 
-        # Model
-        model_confidence2 = antarctic_valdf['Label_Confidence']
-        model_onehot2 = np.vstack(
-            (model_confidence2, 1 - model_confidence2)).T
+        validation_frac: float
+            the fraction of data kept for validation when preparing the model's training data
 
-        # Bayesian mask
-        bayes_labels2 = antarctic_valdf['bayes_in']
-        bayes_labels2[bayes_labels2 > 1] = 1
-        bayes_onehot2 = np.vstack((bayes_labels2, ~bayes_labels2)).T
+        para_num: int
+            the number of inputs take by the model
 
-        # Empirical mask
-        empir_labels2 = antarctic_valdf['cloud_an']
-        empir_labels2[empir_labels2 > 1] = 1
-        empir_onehot2 = np.vstack((empir_labels2, ~empir_labels2)).T
+        Returns
+        ---------
+        Matplotlib plots
+        """
+        self._model_applied()
+        self._obj.dp.remove_nan()
+        self._obj.dp.remove_anomalous()
+        self._obj.dp.shuffle_by_file(seed)
 
-        me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
-               emp_mask=empir_onehot, name='Arctic',
-               validation_predictions2=model_onehot2,
-               validation_truth2=truth_onehot2,
-               bayes_mask2=bayes_onehot2,
-               emp_mask2=empir_onehot2, name2='Antarctic')
+        self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
 
+        pct = int(len(self._obj) * validation_frac)
+        valdf = self._obj[-pct:]
+
+        bitmeanings = {
+            'ocean': 2,
+            'dry land': 24}
+
+        validation_predictions = []
+        validation_truths = []
+        bayes_masks = []
+        emp_masks = []
+        names = []
+
+        for surface in bitmeanings:
+
+            if surface != 'dry land':
+                surfdf = valdf[valdf['confidence_an']
+                               & bitmeanings[surface] == bitmeanings[surface]]
+            else:
+                surfdf = valdf[valdf['confidence_an']
+                               & bitmeanings[surface] == 8]
+
+            # Truth
+            truth = surfdf['CTruth']
+            truth_onehot = np.vstack((truth, ~truth)).T
+            validation_truths.append(truth_onehot)
+
+            # Model
+            model_confidence = surfdf['Label_Confidence']
+            model_onehot = np.vstack(
+                (model_confidence, 1 - model_confidence)).T
+            validation_predictions.append(model_onehot)
+
+            # Bayesian mask
+            bayes_labels = surfdf['bayes_in']
+            bayes_labels[bayes_labels > 1] = 1
+            bayes_onehot = np.vstack((bayes_labels, ~bayes_labels)).T
+            bayes_masks.append(bayes_onehot)
+
+            # Empirical mask
+            empir_labels = surfdf['cloud_an']
+            empir_labels[empir_labels > 1] = 1
+            empir_onehot = np.vstack((empir_labels, ~empir_labels)).T
+            emp_masks.append(empir_onehot)
+            # print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
+
+            names.append(surface)
+
+        me.nROC(validation_predictions, validation_truths, ['deepskyblue', 'limegreen'], bayes_masks, emp_masks, names)
         plt.show()

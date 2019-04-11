@@ -33,9 +33,8 @@ def ROC(validation_predictions, validation_truth, bayes_mask=None,
         validation_truth[:, 0], validation_predictions[:, 0], pos_label=1)
 
     if name is None:
-        if name2 is None:
-            plt.figure('ROC')
-            plt.title('ROC')
+        plt.figure('ROC')
+        plt.title('ROC')
     else:
         plt.figure(name + ' ROC')
         plt.title(name + ' ROC')

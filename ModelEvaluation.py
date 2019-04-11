@@ -1,4 +1,3 @@
-
 ##############################################
 # (c) Copyright 2018-2019 Kenza Tazi and Thomas Zhu
 # This software is distributed under the terms of the GNU General Public
@@ -8,6 +7,7 @@
 import matplotlib.pyplot as plt
 from sklearn import metrics
 import numpy as np
+import random
 
 
 def get_accuracy(model, validation_data, validation_truth, para_num=22):
@@ -25,9 +25,7 @@ def get_accuracy(model, validation_data, validation_truth, para_num=22):
 
 
 def ROC(validation_predictions, validation_truth, bayes_mask=None,
-        emp_mask=None, name=None, validation_predictions2=None,
-        validation_truth2=None, bayes_mask2=None, emp_mask2=None,
-        name2=None):
+        emp_mask=None, name=None):
     """ Plots Receiver Operating Characteristic (ROC) curve """
 
     # Set 1
@@ -40,12 +38,9 @@ def ROC(validation_predictions, validation_truth, bayes_mask=None,
             plt.figure('ROC')
             plt.title('ROC')
     else:
-        if name2 is None:
-            plt.figure(name + ' ROC')
-            plt.title(name + ' ROC')
-        else:
-            plt.figure(name + ' and ' + name2 + ' ROC')
-            plt.title(name + ' and ' + name2 + ' ROC')
+        plt.figure(name + ' ROC')
+        plt.title(name + ' ROC')
+
     plt.plot(false_positive_rate, true_positive_rate, label='Model ')
     plt.xlabel('False positive rate')
     plt.ylabel('True positive rate')
@@ -69,32 +64,70 @@ def ROC(validation_predictions, validation_truth, bayes_mask=None,
         plt.scatter(float(fp) / float(tn + fp), float(tp) /
                     float(fn + tp), marker='*', label='Empirical mask ')
 
-    # Set 2
+    plt.legend()
 
-    if validation_predictions2 is not None:
-        if validation_truth2 is not None:
-            false_positive_rate2, true_positive_rate2, _ = metrics.roc_curve(
-                validation_truth2[:, 0], validation_predictions2[:, 0], pos_label=1)
-            plt.plot(false_positive_rate2, true_positive_rate2,
-                     label='Model ' + name2)
 
-    if bayes_mask2 is not None:
-        validation_truth2 = validation_truth2.astype(int)
-        bayes_mask2 = bayes_mask2.astype(int)
-        tn, fp, fn, tp = (metrics.confusion_matrix(
-            validation_truth2[:, 0], bayes_mask2[:, 0], labels=(0, 1))).ravel()
-        # print(tn, fp, fn, tp)
-        plt.scatter(float(fp) / float(tn + fp), float(tp) /
-                    float(fn + tp), marker='o', label='Bayesian mask ' + name2)
+def nROC(validation_predictions, validation_truths, colours, bayes_masks=None, emp_masks=None,
+         names=None):
+    """
+    Plots multiple Receiver Operating Characteristic (ROC) curve on the same graph. 
 
-    if emp_mask2 is not None:
-        validation_truth2 = validation_truth2.astype(int)
-        emp_mask2 = emp_mask2.astype(int)
-        tn, fp, fn, tp = (metrics.confusion_matrix(
-            validation_truth2[:, 0], emp_mask2[:, 0], labels=(0, 1))).ravel()
-        # print(tn, fp, fn, tp)
-        plt.scatter(float(fp) / float(tn + fp), float(tp) /
-                    float(fn + tp), marker='*', label='Empirical mask ' + name2)
+    Parameters
+    -----------
+    validation_predictions: n dimensionsal array
+
+    validation_truths: n dimensionsal array
+
+    colours: 1d array of strings
+
+    bayes_masks: n dimensionsal array
+
+    emp_masks= n dimensionsal array
+
+    names= 1d array of strings
+
+    Returns
+    ---------
+    Matplotlib plot
+    """
+
+    table = np.column_stack((validation_predictions, validation_truths,
+                             bayes_masks, emp_masks, names, colours))
+
+    string_of_names = ', '.join(names)
+    title = string_of_names.capitalize()
+
+    plt.figure(title + ' ROC')
+    plt.title(title + ' ROC')
+    plt.xlabel('False positive rate')
+    plt.ylabel('True positive rate')
+    plt.plot([0, 1], [0, 1], label="Random classifier", c='orange')
+
+    for t in table:
+        validation_prediction, validation_truth, bayes_mask, emp_mask, name, colour = t
+
+        false_positive_rate, true_positive_rate, _ = metrics.roc_curve(
+            validation_truth[:, 0], validation_prediction[:, 0], pos_label=1)
+        plt.plot(false_positive_rate, true_positive_rate,
+                 label='Model over ' + name, c=colour)
+
+        if bayes_mask is not None:
+            validation_truth = validation_truth.astype(int)
+            bayes_mask = bayes_mask.astype(int)
+            tn, fp, fn, tp = (metrics.confusion_matrix(
+                validation_truth[:, 0], bayes_mask[:, 0], labels=(0, 1))).ravel()
+            # print(tn, fp, fn, tp)
+        plt.scatter(float(fp) / float(tn + fp), float(tp) / float(fn + tp), 
+                    marker='o', label='Bayesian mask over ' + name, c=colour)
+
+        if emp_mask is not None:
+            validation_truth = validation_truth.astype(int)
+            emp_mask = emp_mask.astype(int)
+            tn, fp, fn, tp = (metrics.confusion_matrix(
+                validation_truth[:, 0], emp_mask[:, 0], labels=(0, 1))).ravel()
+            # print(tn, fp, fn, tp)
+            plt.scatter(float(fp) / float(tn + fp), float(tp) / float(fn + tp),
+                        marker='*', label='Empirical mask over ' + name, c=colour)
 
     plt.legend()
 

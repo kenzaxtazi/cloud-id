@@ -5,6 +5,7 @@
 ##############################################
 
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 from sklearn import metrics
 import numpy as np
 
@@ -26,8 +27,6 @@ def get_accuracy(model, validation_data, validation_truth, para_num=22):
 def ROC(validation_predictions, validation_truth, bayes_mask=None,
         emp_mask=None, name=None):
     """ Plots Receiver Operating Characteristic (ROC) curve """
-
-    # Set 1
 
     false_positive_rate, true_positive_rate, _ = metrics.roc_curve(
         validation_truth[:, 0], validation_predictions[:, 0], pos_label=1)
@@ -65,10 +64,11 @@ def ROC(validation_predictions, validation_truth, bayes_mask=None,
     plt.legend()
 
 
-def nROC(validation_predictions, validation_truths, colours, bayes_masks=None, emp_masks=None,
-         names=None):
+def nROC(validation_predictions, validation_truths, colours, bayes_masks=None,
+         emp_masks=None, names=None, title=None):
     """
-    Plots multiple Receiver Operating Characteristic (ROC) curve on the same graph. 
+    Plots multiple Receiver Operating Characteristic (ROC)
+    curve on the same graph.
 
     Parameters
     -----------
@@ -88,26 +88,29 @@ def nROC(validation_predictions, validation_truths, colours, bayes_masks=None, e
     ---------
     Matplotlib plot
     """
-
+    
     table = np.column_stack((validation_predictions, validation_truths,
                              bayes_masks, emp_masks, names, colours))
 
-    string_of_names = ', '.join(names)
-    title = string_of_names.capitalize()
-
-    plt.figure(title + ' ROC')
-    plt.title(title + ' ROC')
+    if title is not None:
+        plt.figure(title + ' ROC')
+        plt.title(title + ' ROC')
+    else:
+        plt.figure('ROC')
+        plt.title('ROC')
     plt.xlabel('False positive rate')
     plt.ylabel('True positive rate')
-    plt.plot([0, 1], [0, 1], label="Random classifier", c='orange')
+
+    plt.plot([0, 1], [0, 1], c='grey', linestyle='--',
+             label='Random classifier')
 
     for t in table:
         validation_prediction, validation_truth, bayes_mask, emp_mask, name, colour = t
 
         false_positive_rate, true_positive_rate, _ = metrics.roc_curve(
             validation_truth[:, 0], validation_prediction[:, 0], pos_label=1)
-        plt.plot(false_positive_rate, true_positive_rate,
-                 label='Model over ' + name, c=colour)
+        plt.plot(false_positive_rate, true_positive_rate, c=colour,
+                 label='Model over ' + name)
 
         if bayes_mask is not None:
             validation_truth = validation_truth.astype(int)
@@ -115,8 +118,8 @@ def nROC(validation_predictions, validation_truths, colours, bayes_masks=None, e
             tn, fp, fn, tp = (metrics.confusion_matrix(
                 validation_truth[:, 0], bayes_mask[:, 0], labels=(0, 1))).ravel()
             # print(tn, fp, fn, tp)
-        plt.scatter(float(fp) / float(tn + fp), float(tp) / float(fn + tp), 
-                    marker='o', label='Bayesian mask over ' + name, c=colour)
+            plt.scatter(float(fp) / float(tn + fp), float(tp) / float(fn + tp),
+                        marker='o', label='Bayesian mask over ' + name, c=colour)
 
         if emp_mask is not None:
             validation_truth = validation_truth.astype(int)
@@ -127,7 +130,7 @@ def nROC(validation_predictions, validation_truths, colours, bayes_masks=None, e
             plt.scatter(float(fp) / float(tn + fp), float(tp) / float(fn + tp),
                         marker='*', label='Empirical mask over ' + name, c=colour)
 
-    plt.legend()
+    plt.legend(fontsize='small')
 
 
 def AUC(model, validation_data, validation_truth):

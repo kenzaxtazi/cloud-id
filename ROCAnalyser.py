@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from sklearn import metrics
 import ModelEvaluation as me
+import seaborn as sns
 from FFN import FFN
 
 
@@ -313,7 +314,7 @@ class ROCAnalyser():
             'Altostratus (opaque)': 5,
             'Cirrus (transparent)': 6,
             'Deep convective (opaque)': 7}
-        
+
         validation_predictions = []
         validation_truths = []
         bayes_masks = []
@@ -373,7 +374,7 @@ class ROCAnalyser():
             empir_labels[empir_labels > 1] = 1
             empir_onehot = np.vstack((empir_labels, ~empir_labels)).T
 
-            print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
+            # print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
             combined_model_onehot = np.concatenate(
                 (clear_model_onehot, model_onehot))
@@ -396,10 +397,10 @@ class ROCAnalyser():
             me.ROC(combined_model_onehot, combined_truth_onehot,
                    bayes_mask=combined_bayes_onehot, emp_mask=combined_empir_onehot,
                    name=cloud)
-   
+
         me.nROC(validation_predictions, validation_truths,
-                ['pink', 'coral', 'cornflowerblue', 'deepskyblue', 'turquoise', 'limegreen', 'yellowgreen', 'sandybrown'], 
-                bayes_masks, emp_masks, names)
+                RGBtoHEX(sns.color_palette("husl", 8)),
+                bayes_masks, emp_masks, names, title='Cloud types')
         plt.show()
 
     def model_sens(self, seed=2553149187, validation_frac=0.15):
@@ -464,14 +465,15 @@ class ROCAnalyser():
         pct = int(len(self._obj) * validation_frac)
         valdf = self._obj[-pct:]
 
-        seperated_valdf = [valdf[valdf['Latitude'] > 0], valdf[valdf['Latitude'] < 0]]
+        seperated_valdf = [valdf[valdf['Latitude'] > 0],
+                           valdf[valdf['Latitude'] < 0]]
         names = ['Arctic', 'Antarctic']
 
         validation_predictions = []
         validation_truths = []
         bayes_masks = []
         emp_masks = []
- 
+
         for pole in seperated_valdf:
 
             # Truth
@@ -498,7 +500,8 @@ class ROCAnalyser():
             emp_masks.append(empir_onehot)
             # print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
-        me.nROC(validation_predictions, validation_truths, ['mediumslateblue', 'deepskyblue'], bayes_masks, emp_masks, names)
+        me.nROC(validation_predictions, validation_truths, RGBtoHEX(sns.color_palette("husl", 2)),
+                bayes_masks, emp_masks, names, title='Arctic and Antarctic')
         plt.show()
 
     def land_ocean(self, seed=2553149187, validation_frac=0.15):
@@ -575,5 +578,16 @@ class ROCAnalyser():
 
             names.append(surface)
 
-        me.nROC(validation_predictions, validation_truths, ['deepskyblue', 'limegreen'], bayes_masks, emp_masks, names)
+        me.nROC(validation_predictions, validation_truths, RGBtoHEX(sns.color_palette("husl", 2)),
+                bayes_masks, emp_masks, names, title='Land and Ocean')
         plt.show()
+
+
+def RGBtoHEX(array):
+    """ Turns RGB tuples into HEX strings"""
+    hexs = []
+    for rgb in array:
+        rgb = np.array(rgb) * 255
+        hex_str = ('#%02X%02X%02X' % (int(rgb[0]), int(rgb[1]), int(rgb[2])))
+        hexs.append(hex_str)
+    return hexs

@@ -19,17 +19,11 @@ import DataPreparation as dp
 class FFN():
     """Object for handling TFLearn DNN models with added support for saving / loading different network configurations"""
 
-    def __init__(self, name, networkConfig=None, para_num=24, LR=1e-3, neuron_num=32, hidden_layers=4,
-                 batch_size=64, epochs=10, dout=0.8):
+    def __init__(self, name, networkConfig=None, para_num=24, LR=1e-3):
         self.name = name
         self.networkConfig = networkConfig
         self.para_num = para_num
         self.LR = LR
-        self.neuron_num = neuron_num
-        self.hidden_layers = hidden_layers
-        self.batch_size = batch_size
-        self.epochs = epochs
-        self.dropout = dout
         self.isLoaded = False
         self._model = None
         self._network = None
@@ -133,26 +127,6 @@ class FFN():
         self._network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
                                    loss='categorical_crossentropy', name='targets')
         self.networkConfig = 'Network2'
-
-    def TestNetwork(self):
-        # Network layers
-
-        # layer 0: generates a 4D tensor
-        layer0 = input_data(shape=[None, self.para_num], name='input')
-        dout = dropout(layer0, self.dropout)
-
-        for hl in range(self.hidden_layers):
-            hidden_layer = fully_connected(dout, self.neuron_num, activation='leakyrelu')
-            dout = dropout(hidden_layer, self.dropout)
-
-        # Last layer needs to spit out the number of categories
-        # we are looking for.
-        softmax = fully_connected(dout, 2, activation='softmax')
-
-        # gives the paramaters to optimise the network
-        self._network = regression(softmax, optimizer='Adam', learning_rate=self.LR,
-                                   loss='categorical_crossentropy', name='targets')
-        self.networkConfig = 'TestNetwork'
 
     @property
     def network(self):

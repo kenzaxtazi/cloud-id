@@ -5,12 +5,11 @@
 ##############################################
 
 import matplotlib.pyplot as plt
-import matplotlib.lines as mlines
 from sklearn import metrics
 import numpy as np
 
 
-def get_accuracy(model, validation_data, validation_truth, para_num=22):
+def get_accuracy(model, validation_data, validation_truth, para_num=21):
     """ returns model accuracy """
 
     validation_data = np.concatenate(validation_data)
@@ -88,7 +87,7 @@ def nROC(validation_predictions, validation_truths, colours, bayes_masks=None,
     ---------
     Matplotlib plot
     """
-    
+
     table = np.column_stack((validation_predictions, validation_truths,
                              bayes_masks, emp_masks, names, colours))
 

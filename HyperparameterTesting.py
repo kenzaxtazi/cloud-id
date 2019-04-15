@@ -12,6 +12,8 @@ import ModelEvaluation as me
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import cm
+from mpl_toolkits.mplot3d import Axes3D
+from scipy.interpolate import interp2D
 
 
 # This is a script to get some visulisation of unbias hyperparameter testing. 
@@ -20,11 +22,11 @@ df = dp.PixelLoader('./SatelliteData/Pixels3')
 
 tdata, vdata, ttruth, vtruth = df.dp.get_ffn_training_data(21)
 
-
+"""
 epochs = [1]
 neurons = [32, 16, 64, 128, 254, 512, 1024]
 LRs = [1e-3]  # , 1e-1, 1e-2, 1e-4]
-hidden_layers = [4, 8, 16, 32, 64, 128, 254]
+hidden_layers = [4, 8, 16]
 batch_size = [64]  # 16, 32, 128]
 dropout = [0.8]  # , 0.2, 0.4, 0.6]
 
@@ -50,7 +52,7 @@ for e in epochs:
                         tf.reset_default_graph()
 
 df.to_pickle('hyp_test')
-
+"""
 
 # Fig 2
 
@@ -60,14 +62,28 @@ ax = fig.gca(projection='3d')
 # Make data.
 X = neurons
 Y = hidden_layers
-X, Y = np.meshgrid(X, Y)
-fined_hyp_df = hyp_df[hyp_df['neurons'] == X]
-refined_hyp_df = fined_hyp_df[fined_hyp_df['hidden_layers'] == Y]
-Z = refined_hyp_df['val_acc'].values 
+XX, YY = np.meshgrid(X, Y)
+# fined_hyp_df = hyp_df[hyp_df['neurons'] == X]
+# refined_hyp_df = fined_hyp_df[fined_hyp_df['hidden_layers'] == Y]
+Z = hyp_df['val_acc'].values 
+
+XX = XX
+YY = YY[:3]
+ZZ = Z.reshape(7,3)
+
+f =interp2D(X, Y, ZZ, kind='linear')
+
+Xnew = np.arrange(1,1050) 
+Ynew = np.arange(1, 64)
+XXnew, YYnew = np.meshgrid(Xnew, Ynew)
+Znew = f(Xnew, Ynew)
 
 # Plot the surface.
-surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm,
+surf = ax.plot_surface(XXnew, YYnew, Znew, cmap=cm.coolwarm,
                        linewidth=0, antialiased=False)
+ax.set_xlabel('Neurons per hidden layer')
+ax.set_ylabel('Hidden layers')
+ax.set_zlabel('Accuracy')
 
 # Add a color bar which maps values to colors.
 fig.colorbar(surf)

@@ -13,6 +13,7 @@ import DataLoader as DL
 import Visualisation as Vis
 from FFN import FFN
 
+plt.rcParams.update({'font.size': 22})
 
 def mask_debug(Sfilename, model, verbose):
     if isinstance(model, str):
@@ -66,11 +67,14 @@ def mask_debug(Sfilename, model, verbose):
     plt.xticks([0, 500, 1000, 1500, 2000, 2500, 3000],
                [0, 250, 500, 750, 1000, 1250, 1500])
     plt.yticks([0, 500, 1000, 1500, 2000], [0, 250, 500, 750, 1000])
-
+    
     plt.figure()
-    im5 = plt.imshow(1 - pmask, cmap='Oranges')
+    ax = plt.gca()
+    im5 = plt.imshow(pmask, cmap='Oranges_r')
     plt.title(modelname + ' model output\n' + TitleStr)
-    plt.colorbar(im5)
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="5%", pad=0.1)
+    plt.colorbar(im5, cax=cax)
     plt.xlabel('km')
     plt.ylabel('km')
     plt.xticks([0, 500, 1000, 1500, 2000, 2500, 3000],
@@ -78,10 +82,13 @@ def mask_debug(Sfilename, model, verbose):
     plt.yticks([0, 500, 1000, 1500, 2000], [0, 250, 500, 750, 1000])
 
     plt.figure()
-    maskdiff = bmask - mask1
-    im6 = plt.imshow(maskdiff, cmap='bwr')
+    maskdiff = mask1 - bmask
+    ax = plt.gca()
+    im6 = plt.imshow(maskdiff, cmap='bwr_r')
     plt.title(modelname + ' mask - Bayesian mask\n' + TitleStr)
-    plt.colorbar(im6)
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="5%", pad=0.1)
+    plt.colorbar(im6, cax=cax)
     plt.xlabel('km')
     plt.ylabel('km')
     plt.xticks([0, 500, 1000, 1500, 2000, 2500, 3000],

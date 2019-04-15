@@ -31,32 +31,62 @@ def mask_debug(Sfilename, model, verbose):
     plt.figure()
     plt.imshow(rgb)
     plt.title('False colour image\n' + TitleStr)
+    plt.xlabel('km')
+    plt.ylabel('km')
+    plt.xticks([0, 500, 1000, 1500, 2000, 2500, 3000],
+               [0, 250, 500, 750, 1000, 1250, 1500])
+    plt.yticks([0, 500, 1000, 1500, 2000], [0, 250, 500, 750, 1000])
 
     plt.figure()
     plt.imshow(mask1, cmap='Blues')
     plt.title(modelname + ' mask\n' + TitleStr)
+    plt.xlabel('km')
+    plt.ylabel('km')
+    plt.xticks([0, 500, 1000, 1500, 2000, 2500, 3000],
+               [0, 250, 500, 750, 1000, 1250, 1500])
+    plt.yticks([0, 500, 1000, 1500, 2000], [0, 250, 500, 750, 1000])
 
     plt.figure()
     bmask = DL.extract_mask(Sfilename, 'bayes_in', 2)
     plt.imshow(bmask, cmap='Reds')
     plt.title('Bayesian mask\n' + TitleStr)
+    plt.xlabel('km')
+    plt.ylabel('km')
+    plt.xticks([0, 500, 1000, 1500, 2000, 2500, 3000],
+               [0, 250, 500, 750, 1000, 1250, 1500])
+    plt.yticks([0, 500, 1000, 1500, 2000], [0, 250, 500, 750, 1000])
 
     plt.figure()
     mask1 = mask1.astype('bool')
     rgb[~mask1, :] = 254 / 255, 253 / 255, 185 / 255
     plt.imshow(rgb)
     plt.title(modelname + ' masked false colour image\n' + TitleStr)
+    plt.xlabel('km')
+    plt.ylabel('km')
+    plt.xticks([0, 500, 1000, 1500, 2000, 2500, 3000],
+               [0, 250, 500, 750, 1000, 1250, 1500])
+    plt.yticks([0, 500, 1000, 1500, 2000], [0, 250, 500, 750, 1000])
 
     plt.figure()
     im5 = plt.imshow(1 - pmask, cmap='Oranges')
     plt.title(modelname + ' model output\n' + TitleStr)
     plt.colorbar(im5)
+    plt.xlabel('km')
+    plt.ylabel('km')
+    plt.xticks([0, 500, 1000, 1500, 2000, 2500, 3000],
+               [0, 250, 500, 750, 1000, 1250, 1500])
+    plt.yticks([0, 500, 1000, 1500, 2000], [0, 250, 500, 750, 1000])
 
     plt.figure()
     maskdiff = bmask - mask1
     im6 = plt.imshow(maskdiff, cmap='bwr')
     plt.title(modelname + ' mask - Bayesian mask\n' + TitleStr)
     plt.colorbar(im6)
+    plt.xlabel('km')
+    plt.ylabel('km')
+    plt.xticks([0, 500, 1000, 1500, 2000, 2500, 3000],
+               [0, 250, 500, 750, 1000, 1250, 1500])
+    plt.yticks([0, 500, 1000, 1500, 2000], [0, 250, 500, 750, 1000])
 
     plt.show()
 

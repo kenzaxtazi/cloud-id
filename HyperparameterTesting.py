@@ -21,7 +21,7 @@ df = dp.PixelLoader('./SatelliteData/Pixels3')
 tdata, vdata, ttruth, vtruth = df.dp.get_ffn_training_data(21)
 
 
-epochs = [10]
+epochs = [1]
 neurons = [32, 16, 64, 128, 254, 512, 1024]
 LRs = [1e-3]  # , 1e-1, 1e-2, 1e-4]
 hidden_layers = [4, 8, 16, 32, 64, 128, 254]

@@ -338,6 +338,10 @@ def CALIOP_track_on_SLSTR(SLSTR_pathname, CALIOP_pathname, SLSTR_brightness=0.2)
         SLSTR_pathname, plot=False, brightness=SLSTR_brightness)
 
     plt.figure('CALIOP track on SLSTR scene')
+    plt.xlabel('km')
+    plt.ylabel('km')
+    plt.xticks(np.arange(0, 3000,100), np.arange(0, 1500,50))
+    plt.yticks(np.arange(0, 2400,100), np.arange(0, 1200,50))
     plt.imshow(rgb)
 
     Stime = TitleStr.split('\n')[-1]

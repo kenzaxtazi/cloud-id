@@ -51,7 +51,7 @@ for e in epochs:
                         model.Save()
                         tf.reset_default_graph()
 
-df.to_pickle('hyp_test')
+hyp_df.to_pickle('hyp_test')
 """
 
 # Fig 2

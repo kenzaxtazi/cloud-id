@@ -86,7 +86,7 @@ for e in epochs:
                         model.Save()
                         tf.reset_default_graph()
 
-hyp_df.to_pickle('lr_dropout_test')
+hyp_df.to_pickle('lr_dropout_test.pkl')
 
 '''
 # Fig 2

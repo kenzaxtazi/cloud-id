@@ -13,7 +13,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
-from scipy.interpolate import interp2D
+from scipy.interpolate import interp2d
 
 
 # This is a script to get some visulisation of unbias hyperparameter testing. 

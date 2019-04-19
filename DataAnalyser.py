@@ -717,12 +717,11 @@ class DataAnalyser():
         plt.figure('Accuracy vs cloud type')
         plt.title('Accuracy as a function of cloud type')
         plt.ylabel('Accuracy')
-        plt.grid(True, axis='y', linestyle='--', zorder=1)
         bars = plt.bar(t, model_accuracies, width=0.5, align='center', color='honeydew',
                        edgecolor='palegreen', yerr=(np.array(model_accuracies) / np.array(N))**(0.5),
-                       tick_label=names, ecolor='g', capsize=3, zorder=2)
-        circles = plt.scatter(t, bayes_accuracies, marker='o', zorder=3)
-        stars = plt.scatter(t, empir_accuracies, marker='*', zorder=4)
+                       tick_label=names, ecolor='g', capsize=3, zorder=1)
+        circles = plt.scatter(t, bayes_accuracies, marker='o', zorder=2)
+        stars = plt.scatter(t, empir_accuracies, marker='*', zorder=3)
         plt.yticks(np.arange(0, 1.05, 0.05))
         plt.xticks(rotation=90)
         plt.legend([bars, circles, stars], ['Model accuracy at 0.5 confidence threshold',
@@ -821,12 +820,11 @@ class DataAnalyser():
         plt.figure('Accuracy vs surface type')
         plt.title('Accuracy as a function of surface type')
         plt.ylabel('Accuracy')
-        plt.grid(True, axis='y', linestyle='--', zorder=1)
         bars = plt.bar(t, model_accuracies, width=0.5, align='center', color='honeydew',
                        edgecolor='palegreen', yerr=(np.array(model_accuracies) / np.array(N))**(0.5),
-                       tick_label=names, ecolor='g', capsize=3, zorder=2)
-        circles = plt.scatter(t, bayes_accuracies, marker='o', zorder=3)
-        stars = plt.scatter(t, empir_accuracies, marker='*', zorder=4)
+                       tick_label=names, ecolor='g', capsize=3, zorder=1)
+        circles = plt.scatter(t, bayes_accuracies, marker='o', zorder=2)
+        stars = plt.scatter(t, empir_accuracies, marker='*', zorder=3)
         plt.yticks([0.50, 0.55, 0.60, 0.65, 0.70,
                     0.75, 0.80, 0.85, 0.90, 0.95])
         plt.xticks(rotation=45)

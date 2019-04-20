@@ -231,11 +231,18 @@ class ROCAnalyser():
             'Tidal': 4,
             'Dry land': 24,
             'Inland water': 16,
+            'NDSI snow': 8192,
             'Cosmetic': 256,
             'Duplicate': 512,
             'Day': 1024,
-            'Twilight': 2048,
-            'Snow': 8192}
+            'Twilight': 2048
+            }
+        
+        validation_predictions = []
+        validation_truths = []
+        bayes_masks = []
+        emp_masks = []
+        names = []
 
         for surface in bitmeanings:
 
@@ -246,31 +253,40 @@ class ROCAnalyser():
                 surfdf = valdf[valdf['confidence_an']
                                & bitmeanings[surface] == 8]
 
+            names.append(surface)
+
             # Truth
             truth = surfdf['CTruth']
             truth_onehot = np.vstack((truth, ~truth)).T
+            validation_truths.append(truth_onehot)
 
             # Model
             model_confidence = surfdf['Label_Confidence']
             model_onehot = np.vstack(
                 (model_confidence, 1 - model_confidence)).T
+            validation_predictions.append(model_onehot)
 
             # Bayesian mask
             bayes_labels = surfdf['bayes_in']
             bayes_labels[bayes_labels > 1] = 1
             bayes_onehot = np.vstack((bayes_labels, ~bayes_labels)).T
+            bayes_masks.append(bayes_onehot)
 
             # Empirical mask
             empir_labels = surfdf['cloud_an']
             empir_labels[empir_labels > 1] = 1
             empir_onehot = np.vstack((empir_labels, ~empir_labels)).T
-
+            emp_masks.append(empir_onehot)
             # print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
             me.ROC(model_onehot, truth_onehot, bayes_mask=bayes_onehot,
                    emp_mask=empir_onehot, name=surface)
 
-            plt.show()
+        me.nROC(validation_predictions, validation_truths,
+                RGBtoHEX(sns.color_palette("husl", 8)),
+                bayes_masks, emp_masks, names, title='Surface types')
+                
+        plt.show()
 
     def ctype(self, seed=2553149187, validation_frac=0.15):
         """

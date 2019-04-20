@@ -103,13 +103,19 @@ def nROC(validation_predictions, validation_truths, colours, bayes_masks=None,
     plt.plot([0, 1], [0, 1], c='grey', linestyle='--',
              label='Random classifier')
 
+    alternating_linestyle = ['-', '-.']
+    i = 0
+
     for t in table:
+        
+        i += 1
+
         validation_prediction, validation_truth, bayes_mask, emp_mask, name, colour = t
 
         false_positive_rate, true_positive_rate, _ = metrics.roc_curve(
             validation_truth[:, 0], validation_prediction[:, 0], pos_label=1)
-        plt.plot(false_positive_rate, true_positive_rate, c=colour,
-                 label='Model over ' + name)
+        plt.plot(false_positive_rate, true_positive_rate, c=colour, linewidth=2,
+                 linestyle= alternating_linestyle[i % 2], label='Model over ' + name)
 
         if bayes_mask is not None:
             validation_truth = validation_truth.astype(int)
@@ -129,8 +135,7 @@ def nROC(validation_predictions, validation_truths, colours, bayes_masks=None,
             plt.scatter(float(fp) / float(tn + fp), float(tp) / float(fn + tp),
                         marker='*', label='Empirical mask over ' + name, c=colour)
 
-    plt.legend(fontsize='small')
-
+    plt.legend(fontsize='small', loc='center left', bbox_to_anchor=(1, 0.5))
 
 def AUC(model, validation_data, validation_truth):
     """Returs area under Receiver Operating Characteristic (ROC) curve"""

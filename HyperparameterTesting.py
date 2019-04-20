@@ -18,12 +18,12 @@ import numpy as np
 
 
 # This is a script to get some visulisation of unbias hyperparameter testing. 
-'''
+
 df = dp.PixelLoader('./SatelliteData/SLSTR/Pixels3')
 
 tdata, vdata, ttruth, vtruth = df.dp.get_ffn_training_data(21, seed=2553149187)
 
-
+'''
 # for layers and neurons 
 
 epochs = [1]

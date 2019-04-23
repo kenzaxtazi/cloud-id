@@ -423,6 +423,42 @@ class DataAnalyser():
                         temp.to_pickle(pklname)
                         out = pd.DataFrame()
 
+    def validation_accuracy(self, seed=2553149187, validation_frac=0.15):
+        """
+        Model accuracy at 0.5 confidence threshold with error
+
+        Parameters
+        -----------
+        seed: int
+            the seed used to randomly shuffle the data for that model
+
+        validation_frac: float
+            the fraction of data kept for validation when preparing the model's training data
+
+        para_num: int
+            the number of inputs take by the model
+
+        Returns
+        ---------
+        accuracy, error on accuracy
+        """
+
+        self._model_applied()
+
+        self._obj.dp.remove_nan()
+        self._obj.dp.remove_anomalous()
+        self._obj.dp.shuffle_by_file(seed)
+
+        self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
+
+        pct = int(len(self._obj) * validation_frac)
+        valdf = self._obj[-pct:]
+
+        accuracy = np.mean(valdf['Agree'].values)
+        error = (accuracy / np.array(float(len(valdf))))**(0.5)
+
+        return accuracy, error
+
     def AUC_timediff(self, seed=2553149187, validation_frac=0.15):
         """
         Produces a histogram of accuraccy as a function of the time difference between
@@ -430,7 +466,6 @@ class DataAnalyser():
 
         Parameters
         -----------
-        model: model object
 
         seed: int
             the seed used to randomly shuffle the data for that model

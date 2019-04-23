@@ -43,12 +43,14 @@ class FFNensemble():
             model.Load()
             y = model.Predict(X)
             Y.append(y)
-            Y = np.array(Y)
-            Y_mean = np.mean(Y)
-            Y_std = np.std(Y)
             tf.reset_default_graph()
 
-        return(Y_mean, Y_std)
+        Y = np.array(Y)
+        Y = Y.reshape(self.ensemble_num, -1, 2)
+        YY = Y[:, :, 0]
+        Ym = np.mean(YY, axis=0)
+        Ys = np.std(YY, axis=0) 
+        return(Ym, Ys)
 
     def apply_mask(self, Sreference):
         inputs = dp.getinputsFFN(Sreference, input_type=self.para_num)
@@ -57,8 +59,8 @@ class FFNensemble():
         pmask = np.array(prob)
         vmask = np.array(var)
 
-        pmask = pmask[:, 0].reshape(2400, 3000)
-        vmask = vmask[:, 0].reshape(2400, 3000)
+        pmask = pmask.reshape(2400, 3000)
+        vmask = vmask.reshape(2400, 3000)
 
         return pmask, vmask
 

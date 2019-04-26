@@ -37,10 +37,11 @@ def ROC(validation_predictions, validation_truth, bayes_mask=None,
         plt.figure(name + ' ROC')
         plt.title(name + ' ROC')
 
-    plt.plot(false_positive_rate, true_positive_rate, label='Model ')
+    plt.plot(false_positive_rate, true_positive_rate, label='Model')
     plt.xlabel('False positive rate')
     plt.ylabel('True positive rate')
-    plt.plot([0, 1], [0, 1], label="Random classifier")
+    plt.plot([0, 1], [0, 1], c='darkgrey', linestyle='--', linewidth=0.75,
+             label='Random classifier')
 
     if bayes_mask is not None:
         validation_truth = validation_truth.astype(int)
@@ -49,7 +50,7 @@ def ROC(validation_predictions, validation_truth, bayes_mask=None,
             validation_truth[:, 0], bayes_mask[:, 0], labels=(0, 1))).ravel()
         # print(tn, fp, fn, tp)
         plt.scatter(float(fp) / float(tn + fp), float(tp) /
-                    float(fn + tp), marker='o', label='Bayesian mask ')
+                    float(fn + tp), marker='o', c='g', label='Bayesian mask')
 
     if emp_mask is not None:
         validation_truth = validation_truth.astype(int)
@@ -58,9 +59,9 @@ def ROC(validation_predictions, validation_truth, bayes_mask=None,
             validation_truth[:, 0], emp_mask[:, 0], labels=(0, 1))).ravel()
         # print(tn, fp, fn, tp)
         plt.scatter(float(fp) / float(tn + fp), float(tp) /
-                    float(fn + tp), marker='*', label='Empirical mask ')
+                    float(fn + tp), marker='*', c='orange', label='Empirical mask')
 
-    plt.legend()
+    plt.legend(fontsize='small')
 
 
 def nROC(validation_predictions, validation_truths, colours, bayes_masks=None,
@@ -100,22 +101,16 @@ def nROC(validation_predictions, validation_truths, colours, bayes_masks=None,
     plt.xlabel('False positive rate')
     plt.ylabel('True positive rate')
 
-    plt.plot([0, 1], [0, 1], c='grey', linestyle='--',
+    plt.plot([0, 1], [0, 1], c='darkgrey', linestyle='--', linewidth=0.75,
              label='Random classifier')
-
-    alternating_linestyle = ['-', '-.']
-    i = 0
 
     for t in table:
         
-        i += 1
-
         validation_prediction, validation_truth, bayes_mask, emp_mask, name, colour = t
 
         false_positive_rate, true_positive_rate, _ = metrics.roc_curve(
             validation_truth[:, 0], validation_prediction[:, 0], pos_label=1)
-        plt.plot(false_positive_rate, true_positive_rate, c=colour, linewidth=2,
-                 linestyle= alternating_linestyle[i % 2], label='Model over ' + name)
+        plt.plot(false_positive_rate, true_positive_rate, c=colour, label='Model over ' + name)
 
         if bayes_mask is not None:
             validation_truth = validation_truth.astype(int)
@@ -135,7 +130,8 @@ def nROC(validation_predictions, validation_truths, colours, bayes_masks=None,
             plt.scatter(float(fp) / float(tn + fp), float(tp) / float(fn + tp),
                         marker='*', label='Empirical mask over ' + name, c=colour)
 
-    plt.legend(fontsize='small', loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.legend(fontsize='small')
+
 
 def AUC(model, validation_data, validation_truth):
     """Returs area under Receiver Operating Characteristic (ROC) curve"""

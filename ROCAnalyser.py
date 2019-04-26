@@ -322,20 +322,23 @@ class ROCAnalyser():
                                              index=valdf.index)
 
         bitmeanings = {
-            'Low overcast, transparent': 0,
-            'Low overcast, opaque': 1,
-            'Transition stratocumulus': 2,
-            'Low, broken cumulus': 3,
-            'Altocumulus (transparent)': 4,
-            'Altostratus (opaque)': 5,
-            'Cirrus (transparent)': 6,
-            'Deep convective (opaque)': 7}
+            'low overcast, opaque': 1,      # opaque clouds
+            'deep convective (opaque)': 7,
+            'altostratus (opaque)': 5,
+            
+            'altocumulus (transparent)': 4,  # transparent clouds
+            'cirrus (transparent)': 6,
+            'low overcast, transparent': 0,
+            
+            'transition stratocumulus': 2,  # broken clouds
+            'low, broken cumulus': 3}
 
         validation_predictions = []
         validation_truths = []
         bayes_masks = []
         emp_masks = []
         names = []
+        AUCS =[]
 
         # Seperate clear flags
         cleardf = valdf[valdf['Feature_Classification_Flags'] & 7 != 2]
@@ -410,14 +413,29 @@ class ROCAnalyser():
 
             names.append(cloud)
 
+            AUCS.append(metrics.roc_auc_score(combined_truth_onehot[:, 1], combined_model_onehot[:, 1]))
+
             me.ROC(combined_model_onehot, combined_truth_onehot,
                    bayes_mask=combined_bayes_onehot, emp_mask=combined_empir_onehot,
                    name=cloud)
 
-        me.nROC(validation_predictions, validation_truths,
-                RGBtoHEX(sns.color_palette("husl", 8)),
-                bayes_masks, emp_masks, names, title='Cloud types')
+        me.nROC(validation_predictions[:3], validation_truths[:3],
+                RGBtoHEX(sns.cubehelix_palette(3, dark=0.3)),
+                bayes_masks[:3], emp_masks[:3], names[:3],
+                title='Opaque cloud types')
+        
+        me.nROC(validation_predictions[3:6], validation_truths[3:6],
+                RGBtoHEX(sns.cubehelix_palette(3, rot=-.4, dark=0.3)),
+                bayes_masks[3:6], emp_masks[3:6], names[3:6],
+                title='Transparent cloud types')
+
+        me.nROC(validation_predictions[-2:], validation_truths[-2:],
+                RGBtoHEX(sns.cubehelix_palette(2, rot=-.25, light=.7, dark=0.5)),
+                bayes_masks[-2:], emp_masks[-2:], names[-2:], title='Broken cloud types')
+
         plt.show()
+
+        return AUCS
 
     def model_sens(self, seed=2553149187, validation_frac=0.15):
 
@@ -489,6 +507,7 @@ class ROCAnalyser():
         validation_truths = []
         bayes_masks = []
         emp_masks = []
+        AUCS = []
 
         for pole in seperated_valdf:
 
@@ -516,9 +535,14 @@ class ROCAnalyser():
             emp_masks.append(empir_onehot)
             # print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
-        me.nROC(validation_predictions, validation_truths, RGBtoHEX(sns.color_palette("husl", 2)),
+            AUCS.append(metrics.roc_auc_score(truth_onehot[:, 1], model_onehot[:, 1])) 
+
+        me.nROC(validation_predictions, validation_truths,
+                RGBtoHEX(sns.cubehelix_palette(2, start=2.8, rot=.1, dark=0.5)),
                 bayes_masks, emp_masks, names, title='Arctic and Antarctic')
         plt.show()
+
+        return AUCS
 
     def land_ocean(self, seed=2553149187, validation_frac=0.15):
         """
@@ -558,6 +582,7 @@ class ROCAnalyser():
         bayes_masks = []
         emp_masks = []
         names = []
+        AUCS = []
 
         for surface in bitmeanings:
 
@@ -592,11 +617,14 @@ class ROCAnalyser():
             emp_masks.append(empir_onehot)
             # print(model_onehot, truth_onehot, bayes_onehot, empir_onehot)
 
+            AUCS.append(metrics.roc_auc_score(truth_onehot[:, 1], model_onehot[:, 1]))      
             names.append(surface)
 
         me.nROC(validation_predictions, validation_truths, RGBtoHEX(sns.color_palette("husl", 2)),
                 bayes_masks, emp_masks, names, title='Land and Ocean')
         plt.show()
+
+        return AUCS
 
 
 def RGBtoHEX(array):

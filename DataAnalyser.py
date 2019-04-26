@@ -13,6 +13,8 @@ import numpy as np
 import pandas as pd
 from sklearn import metrics
 from tqdm import tqdm
+from scipy.optimize import curve_fit
+from scipy.stats import pearsonr
 
 import DataLoader as DL
 import DataPreparation as dp
@@ -23,6 +25,7 @@ from CNN import CNN
 from SuperModel import SuperModel
 
 matplotlib.rcParams.update({'errorbar.capsize': 0.15})
+
 
 
 @pd.api.extensions.register_dataframe_accessor("da")
@@ -480,16 +483,19 @@ class DataAnalyser():
         ---------
         None
         """
+
         self._model_applied()
 
         self._obj.dp.remove_nan()
-        self._obj.dp.remove_anomalous()
+        self._obj.dp.remove_anomalous(MaxTime=3000)
         self._obj.dp.shuffle_by_file(seed)
 
         self._obj = self._obj.dp._obj   # Assign the filtered dataframe to self._obj
 
         pct = int(len(self._obj) * validation_frac)
-        valdf = self._obj[-pct:]
+        small_valdf = (self._obj[self._obj['TimeDiff'] <= 1200])[-pct:]
+        large_valdf = self._obj[self._obj['TimeDiff'] > 1200]
+        valdf = small_valdf.append(large_valdf)
 
         time_slices = np.linspace(0, 1401, 15)
         aucs = []
@@ -600,6 +606,8 @@ class DataAnalyser():
         Returns
         ---------
         Matplotlib histogram
+
+        Correlation coefficient
         """
 
         self._model_applied()
@@ -636,8 +644,15 @@ class DataAnalyser():
         plt.xlabel('Satellite zenith angle (deg)')
         plt.ylabel('AUC')
         plt.bar(angle_slices, aucs, width=3, align='edge', color='lavenderblush',
-                edgecolor='thistle', ecolor='purple', yerr=(np.array(aucs) / np.array(N))**(0.5))
+                edgecolor='thistle', ecolor='purple', yerr=(np.array(aucs) / np.array(N))**(0.5),
+                capsize=3)
+        
+        popt, pcov = curve_fit(linear_function, angle_slices[1:-1] + 1.5, aucs[1:-1])
+        plt.plot(np.linspace(3, 58, 19) + 1.5, linear_function(np.linspace(3, 58, 19) + 1.5, *popt),
+                 label='y = %5.6fx + %5.6f' % tuple(popt), color='orchid', linestyle='--')
+        plt.legend()
         plt.show()
+        return pearsonr(aucs[1:-1], linear_function(angle_slices[1:-1] + 1.5, *popt))
 
     def accuracy_ctype(self, seed=2553149187, validation_frac=0.15):
         """
@@ -1270,3 +1285,8 @@ class DataAnalyser():
         std = np.std(accuracies)
 
         return average, std
+
+
+def linear_function(x, a, b,):
+    y = x * a + b
+    return y

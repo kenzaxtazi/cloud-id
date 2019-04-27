@@ -23,7 +23,7 @@ df = dp.PixelLoader('./SatelliteData/SLSTR/Pixels3')
 
 tdata, vdata, ttruth, vtruth = df.dp.get_ffn_training_data(21, seed=2553149187)
 
-
+'''
 # for layers and neurons 
 
 epochs = [1]
@@ -53,7 +53,7 @@ for e in epochs:
                                                ignore_index=True)
                         model.Save()
                         tf.reset_default_graph()
-'''
+
 hyp_df.to_pickle('layers_neurons_test')
 
 
@@ -86,9 +86,9 @@ for e in epochs:
                                                ignore_index=True)
                         model.Save()
                         tf.reset_default_graph()
+'''
 
-
-epochs = [1, 50, 100, 150, 200, 250, 300, 350]
+epochs = [1, 50, 100, 150, 200]
 neurons = [128]
 LRs = [1e-4]  # [ 1e-1, 0.05, 1e-2, 0.005, 1e-3, 0.0005, 1e-4]
 hidden_layers = [8]
@@ -115,8 +115,8 @@ for e in epochs:
                                                ignore_index=True)
                         model.Save()
                         tf.reset_default_graph()
-'''
-hyp_df.to_pickle('hl2_test.pkl')
+
+hyp_df.to_pickle('bs_e_test.pkl')
 
 '''
 

@@ -763,12 +763,13 @@ class DataAnalyser():
                  'Cirrus (transparent)', 'Deep convective (opaque)']
 
         t = np.arange(len(names))
+        yerr=(np.array(model_accuracies) / np.array(N))**(0.5)
 
         plt.figure('Accuracy vs cloud type')
         plt.title('Accuracy as a function of cloud type')
         plt.ylabel('Accuracy')
         bars = plt.bar(t, model_accuracies, width=0.5, align='center', color='honeydew',
-                       edgecolor='palegreen', yerr=(np.array(model_accuracies) / np.array(N))**(0.5),
+                       edgecolor='palegreen', yerr=yerr,
                        tick_label=names, ecolor='g', capsize=3, zorder=1)
         circles = plt.scatter(t, bayes_accuracies, marker='o', zorder=2)
         stars = plt.scatter(t, empir_accuracies, marker='*', zorder=3)
@@ -778,6 +779,7 @@ class DataAnalyser():
                                             'Bayesian mask accuracy',
                                             'Empirical mask accuracy'])
         plt.show()
+        return model_accuracies, yerr
 
     def accuracy_stype(self, seed=2553149187, validation_frac=0.15):
         """
@@ -865,13 +867,15 @@ class DataAnalyser():
         names = ['Coastline', 'Ocean', 'Tidal', 'Land', 'Inland water',
                  'Cosmetic', 'Duplicate', 'Day', 'Twilight', 'NDSI snow']
 
+        yerr=(np.array(model_accuracies) / np.array(N))**(0.5)
+
         t = np.arange(len(names))
 
         plt.figure('Accuracy vs surface type')
         plt.title('Accuracy as a function of surface type')
         plt.ylabel('Accuracy')
         bars = plt.bar(t, model_accuracies, width=0.5, align='center', color='honeydew',
-                       edgecolor='palegreen', yerr=(np.array(model_accuracies) / np.array(N))**(0.5),
+                       edgecolor='palegreen', yerr=yerr,
                        tick_label=names, ecolor='g', capsize=3, zorder=1)
         circles = plt.scatter(t, bayes_accuracies, marker='o', zorder=2)
         stars = plt.scatter(t, empir_accuracies, marker='*', zorder=3)
@@ -883,6 +887,7 @@ class DataAnalyser():
                                             'Empirical mask accuracy'])
         
         plt.show()
+        return model_accuracies, yerr
 
     def confidence_ctype(self, seed=2553149187, validation_frac=0.15):
         """

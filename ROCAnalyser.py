@@ -283,7 +283,7 @@ class ROCAnalyser():
                    emp_mask=empir_onehot, name=surface)
 
         me.nROC(validation_predictions, validation_truths,
-                RGBtoHEX(sns.color_palette("husl", 8)),
+                RGBtoHEX(sns.color_palette("husl", 10)),
                 bayes_masks, emp_masks, names, title='Surface types')
                 
         plt.show()

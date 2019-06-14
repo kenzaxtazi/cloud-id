@@ -11,8 +11,8 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from ordered_set import OrderedSet
 from tqdm import tqdm
-
 
 import DataLoader as DL
 
@@ -367,7 +367,7 @@ class DataPreparer():
 
     def shuffle_by_file(self, seed=None):
         self.prepare_random(seed)
-        Sfiles = list(set(self._obj['Sfilename']))
+        Sfiles = list(OrderedSet(self._obj['Sfilename']))
         np.random.shuffle(Sfiles)
         sorterindex = dict(zip(Sfiles, range(len(Sfiles))))
         self._obj['Temp'] = self._obj['Sfilename'].map(sorterindex)
